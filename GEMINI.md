@@ -21,3 +21,14 @@
   2. 사용자가 메뉴 구성, 헤더 네비게이션 수정, 크로스 링크 연동 등을 요청할 때마다 **"현재 트래블픽24의 애드센스 심사 통과를 위해 심사 완료 시점까지 하위도메인 링크는 분리 운영해야 합니다"**라고 먼저 사전 리마인드하고 안전하게 격리를 유지합니다.
   3. 루트 도메인(`travelpick24.com`)이 애드센스 승인을 통과한 이후에만 하위도메인 애드센스 코드 추가 및 상호 링크 통합을 진행합니다.
 
+## AI 엔지니어링 운영 체제 규칙 (AI Engineering Operating Layer)
+- **Superpowers 워크플로우 통제**:
+  - 모든 개발/수정 작업은 `Request -> Problem Analysis -> Plan -> Implementation -> Testing -> Verification -> Report` 7단계를 엄격히 따릅니다.
+  - 사전 분석 없는 즉흥적 코드 수정, 영향도 확인 없는 파일 변경, 자체 테스트 없는 완료 보고는 절대 금지합니다.
+- **gstack 5대 전문 역할 분립**:
+  - `CEO Agent` (사업/타당성/우선순위) -> `EM Agent` (구조 분석/태스크 분할) -> `Developer Agent` (비파괴 코드 구현) -> `QA Agent` (8대 코드리뷰/테스트) -> `Release Agent` (배포 점검/체인지로그)
+- **Compound Engineering 복리 학습 루프**:
+  - 한 번 해결한 버그나 장애는 반드시 `/AI_ENGINEERING/debugging_history.md`에 Root Cause Analysis(RCA) 및 재발 방지 대책으로 영구 기록합니다.
+  - 프로젝트 공통 지식은 `/AI_ENGINEERING/engineering_memory.md`에 보존하고 모든 개발 세션에서 계승 준수합니다.
+
+

@@ -1,0 +1,87 @@
+﻿{% extends "base.html" %}
+
+{% block title %}아이디어 관리{% endblock %}
+{% block header_title %}콘텐츠 아이디어 저장소{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+  
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+    <div>
+      <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+        <i class="fa-solid fa-lightbulb text-brand-600"></i>
+        <span>생성된 10대 각도 아이디어 전체 목록</span>
+        <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full font-bold">{{ ideas|length }}개</span>
+      </h3>
+      <p class="text-xs text-slate-500 mt-1">대기, 선택, 작성중, 완료, 폐기 상태를 관리하고 즉시 Threads 본문 작성으로 연결합니다.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for idea in ideas %}
+    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between space-y-4">
+      <div class="space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <span class="bg-indigo-50 text-indigo-700 font-extrabold text-[11px] px-2.5 py-1 rounded-lg">
+            {{ idea.angle }}
+          </span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded {% if idea.status == '선택' %}bg-emerald-100 text-emerald-800{% elif idea.status == '작성중' %}bg-purple-100 text-purple-800{% elif idea.status == '완료' %}bg-blue-100 text-blue-800{% else %}bg-slate-100 text-slate-600{% endif %}">
+            {{ idea.status }}
+          </span>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+          <span class="text-[10px] font-bold text-slate-400 block mb-1">후킹 문구</span>
+          <p class="font-black text-xs text-slate-900 leading-snug">"{{ idea.hook }}"</p>
+        </div>
+
+        <div class="space-y-1.5 text-[11px] text-slate-600">
+          <div><span class="font-bold text-slate-500">타겟:</span> {{ idea.target }}</div>
+          <div><span class="font-bold text-slate-500">문제:</span> {{ idea.problem }}</div>
+          <div><span class="font-bold text-slate-500">목적:</span> {{ idea.purpose }}</div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+        <select onchange="updateIdeaStatus({{ idea.id }}, this.value)" class="text-[11px] bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus:outline-none">
+          <option value="대기" {% if idea.status == '대기' %}selected{% endif %}>대기</option>
+          <option value="선택" {% if idea.status == '선택' %}selected{% endif %}>선택</option>
+          <option value="작성중" {% if idea.status == '작성중' %}selected{% endif %}>작성중</option>
+          <option value="완료" {% if idea.status == '완료' %}selected{% endif %}>완료</option>
+          <option value="폐기" {% if idea.status == '폐기' %}selected{% endif %}>폐기</option>
+        </select>
+
+        <a href="/products/{{ idea.product_id }}" class="text-xs bg-slate-900 hover:bg-brand-600 text-white px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5">
+          <span>작성하기</span> &rarr;
+        </a>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-span-full py-16 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-2xl bg-white">
+      <i class="fa-solid fa-lightbulb text-3xl text-slate-300 mb-2"></i>
+      <p>생성된 아이디어가 아직 없습니다.<br>상품 관리에서 상품을 선택한 후 아이디어를 생성하세요.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function updateIdeaStatus(ideaId, status) {
+    try {
+      const res = await fetch(`/api/workflow/ideas/${ideaId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        showToast('아이디어 상태가 변경되었습니다.', 'success');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    }
+  }
+</script>
+{% endblock %}

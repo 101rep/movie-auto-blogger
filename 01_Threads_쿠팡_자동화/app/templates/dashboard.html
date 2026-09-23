@@ -1,0 +1,815 @@
+{% extends "base.html" %}
+
+{% block title %}대시보드{% endblock %}
+{% block header_title %}시스템 현황 대시보드{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8">
+
+  <!-- Metric Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <!-- Card 1 -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">등록 상품 수</p>
+        <h3 class="text-3xl font-bold text-slate-900 mt-2">{{ stats.product_count }} <span class="text-sm font-normal text-slate-500">개</span></h3>
+        <p class="text-xs text-emerald-600 font-medium mt-1"><i class="fa-solid fa-arrow-trend-up"></i> 탐색/분석 준비 완료</p>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+        <i class="fa-solid fa-box"></i>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">다양한 카테고리</p>
+        <h3 class="text-3xl font-bold text-slate-900 mt-2">{{ stats.category_count }} <span class="text-sm font-normal text-slate-500">종</span></h3>
+        <p class="text-xs text-indigo-600 font-medium mt-1">리빙, 뷰티, 전자기기 등</p>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+        <i class="fa-solid fa-layer-group"></i>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">생성된 아이디어</p>
+        <h3 class="text-3xl font-bold text-slate-900 mt-2">{{ stats.idea_count }} <span class="text-sm font-normal text-slate-500">개</span></h3>
+        <p class="text-xs text-purple-600 font-medium mt-1">10대 각도 바이럴 훅</p>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+        <i class="fa-solid fa-lightbulb"></i>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+      <div>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">완성된 콘텐츠</p>
+        <h3 class="text-3xl font-bold text-slate-900 mt-2">{{ stats.content_count }} <span class="text-sm font-normal text-slate-500">편</span></h3>
+        <p class="text-xs text-emerald-600 font-medium mt-1">Threads 본문 + 댓글 세트</p>
+      </div>
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+        <i class="fa-solid fa-file-lines"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Threads Multi-Account Live Schedule Monitor (Between Metric Cards and Autopilot Banner) -->
+  <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5" id="timeline-monitor-section">
+    
+    <!-- Monitor Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-base shadow-sm">
+            <i class="fa-brands fa-threads"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base flex items-center gap-2 flex-wrap">
+              <span>Threads 계정별 실시간 발행 스케줄 타임라인</span>
+              <span class="text-xs bg-brand-50 text-brand-700 px-2.5 py-0.5 rounded-full font-bold border border-brand-200/60">
+                총 {{ account_timelines|length }}개 계정 실시간 연동
+              </span>
+              <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full font-bold border border-emerald-200/60 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                🤖 AI 야무진 대댓글 봇 가동 중 (2분 감지)
+              </span>
+              <span class="text-xs bg-amber-50 text-amber-800 px-2.5 py-0.5 rounded-full font-bold border border-amber-200/60">
+                🌱 5일 양성화(공감/일상) 모드
+              </span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              계정별로 몇 시 몇 분에 어떤 글(머니포스트 / 오가닉 빌드업)이 발행 예약되어 있는지 실시간 추적하며, 신규 계정 추가 시에도 동일한 로직으로 자동 확장됩니다.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap items-center gap-2 shrink-0">
+        <button onclick="runApplyScheduleJitter()" id="btn-dashboard-jitter" class="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5" title="봇 탐지 회피용 랜덤 시간차 및 계정별 분산 재배치">
+          <i class="fa-solid fa-dice text-amber-200" id="dash-jitter-icon"></i> <span>🎲 봇 방지 불규칙 지터 적용</span>
+        </button>
+        <button onclick="runRelayAutoSchedule()" id="btn-relay-schedule" class="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> <span>⚡ 전 계정 골든타임 자동분산</span>
+        </button>
+        <button onclick="location.reload()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5" title="새로고침">
+          <i class="fa-solid fa-arrows-rotate"></i> <span>새로고침</span>
+        </button>
+        <a href="/settings" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i> <span>계정 관리</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Cluster Filter Tabs & Legend -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs bg-slate-100/80 p-2.5 rounded-2xl border border-slate-200">
+      <div class="flex items-center gap-2 overflow-x-auto pb-0.5 font-bold">
+        <span class="text-slate-500 text-xs px-1 flex items-center gap-1 shrink-0"><i class="fa-solid fa-filter text-brand-600"></i> 필터:</span>
+        <button onclick="filterTimelineCluster('ALL')" class="timeline-filter-btn px-3.5 py-1.5 rounded-xl bg-slate-900 text-white text-xs transition shadow-sm cursor-pointer flex items-center gap-1.5" id="tf-ALL">
+          <span>전체 계정</span>
+          <span class="bg-white/20 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">{{ account_timelines|length }}</span>
+        </button>
+        <button onclick="filterTimelineCluster('VERTICAL')" class="timeline-filter-btn px-3.5 py-1.5 rounded-xl bg-white text-slate-700 hover:bg-slate-200/80 border border-slate-200 text-xs transition cursor-pointer flex items-center gap-1.5 shadow-2xs" id="tf-VERTICAL">
+          <span>🏢 버티컬 전문형</span>
+        </button>
+        <button onclick="filterTimelineCluster('PERSONA')" class="timeline-filter-btn px-3.5 py-1.5 rounded-xl bg-white text-slate-700 hover:bg-slate-200/80 border border-slate-200 text-xs transition cursor-pointer flex items-center gap-1.5 shadow-2xs" id="tf-PERSONA">
+          <span>🎭 타깃 페르소나형</span>
+        </button>
+        <button onclick="filterTimelineCluster('TREND')" class="timeline-filter-btn px-3.5 py-1.5 rounded-xl bg-white text-slate-700 hover:bg-slate-200/80 border border-slate-200 text-xs transition cursor-pointer flex items-center gap-1.5 shadow-2xs" id="tf-TREND">
+          <span>🔥 트렌드/이슈형</span>
+        </button>
+        <button onclick="filterTimelineCluster('ACTIVE_ONLY')" class="timeline-filter-btn px-3.5 py-1.5 rounded-xl bg-amber-50 text-amber-900 hover:bg-amber-100 border border-amber-300 text-xs transition cursor-pointer flex items-center gap-1.5 font-black shadow-2xs" id="tf-ACTIVE_ONLY">
+          <i class="fa-solid fa-clock text-amber-600"></i>
+          <span>오늘 발행 대기만 보기</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 text-[11px] text-slate-600 shrink-0 px-2 font-medium">
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 머니포스트</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span> 오가닉 빌드업</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span> 예열 모드</span>
+      </div>
+    </div>
+
+    <!-- Accounts Timeline Grid (Responsive 1/2/3 Cols) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="timeline-accounts-grid">
+      {% for acc in account_timelines %}
+      <div class="timeline-acc-card bg-slate-50/70 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between space-y-3.5 hover:border-brand-300 hover:bg-white hover:shadow-md transition" 
+           data-cluster="{{ acc.cluster_type or 'VERTICAL' }}" 
+           data-has-scheduled="{{ 'true' if acc.scheduled_items|length > 0 else 'false' }}">
+        
+        <!-- Account Card Top Info -->
+        <div class="flex items-start justify-between gap-2 border-b border-slate-200/60 pb-2.5">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+              <i class="fa-brands fa-threads"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-slate-900 text-xs truncate">{{ acc.display_name }}</span>
+                {% if acc.cluster_type == 'VERTICAL' %}
+                <span class="bg-blue-50 text-blue-700 font-bold px-1.5 py-0.5 rounded text-[10px] border border-blue-200/60">버티컬</span>
+                {% elif acc.cluster_type == 'PERSONA' %}
+                <span class="bg-purple-50 text-purple-700 font-bold px-1.5 py-0.5 rounded text-[10px] border border-purple-200/60">페르소나</span>
+                {% else %}
+                <span class="bg-amber-50 text-amber-700 font-bold px-1.5 py-0.5 rounded text-[10px] border border-amber-200/60">트렌드</span>
+                {% endif %}
+              </div>
+              <p class="text-[11px] text-slate-500 font-mono truncate mt-0.5">@{{ acc.username }}</p>
+            </div>
+          </div>
+
+          <!-- Warmup & Streak Badges & Dynamic Trust Score -->
+          <div class="text-right shrink-0">
+            {% if acc.warmup_status == 'WARMING_UP' %}
+            <span class="bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded text-[10px] flex items-center gap-1 border border-amber-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> 예열 모드
+            </span>
+            {% elif acc.warmup_status == 'GRADUATED' %}
+            <span class="bg-indigo-100 text-indigo-900 font-bold px-2 py-0.5 rounded text-[10px] flex items-center gap-1 border border-indigo-200">
+              <i class="fa-solid fa-graduation-cap text-indigo-600"></i> 양성화 수료
+            </span>
+            {% else %}
+            <span class="bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded text-[10px] flex items-center gap-1 border border-emerald-200">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 정상 가동
+            </span>
+            {% endif %}
+            <span class="text-[10px] text-slate-500 font-semibold block mt-0.5">신뢰도: <b class="text-brand-600">{{ acc.trust_score or 0 }}점</b> / 70점</span>
+            {% if acc.warmup_extended_days and acc.warmup_extended_days > 0 %}
+            <span class="text-[9px] text-rose-500 font-bold block">+{{ acc.warmup_extended_days }}일 자동연장됨</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Schedule / Content Queue Section -->
+        <div class="space-y-2 flex-1">
+          {% if acc.scheduled_items|length > 0 %}
+          <div class="space-y-2">
+            {% for item in acc.scheduled_items %}
+            <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-1.5 shadow-2xs hover:border-brand-400 transition">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-black text-slate-900 text-xs bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200 flex items-center gap-1">
+                    <i class="fa-solid fa-clock text-brand-600 text-[11px]"></i> {{ item.time_str }}
+                  </span>
+                  <span class="text-[10px] text-slate-400 font-medium">{{ item.date_str }}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  {% if item.post_type == 'MONEY_POST' %}
+                  <span class="bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.5 rounded text-[10px] border border-emerald-200">💰 머니</span>
+                  {% else %}
+                  <span class="bg-indigo-50 text-indigo-700 font-bold px-1.5 py-0.5 rounded text-[10px] border border-indigo-200">🌱 빌드업</span>
+                  {% endif %}
+                  <span class="bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.5 rounded font-medium">{{ item.hook_style }}</span>
+                  <button onclick="publishPostDirectly({{ item.id }}, '{{ item.title|escape }}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[10px] px-2 py-0.5 rounded border border-emerald-200 transition flex items-center gap-0.5 shadow-2xs" title="이 글을 지금 즉시 쓰레드에 실시간 발행">
+                    <i class="fa-solid fa-paper-plane text-[9px]"></i> 즉시
+                  </button>
+                </div>
+              </div>
+              <p class="font-bold text-slate-800 text-xs leading-snug truncate" title="{{ item.title }}">{{ item.title }}</p>
+              <div class="flex items-center justify-between text-[10px] text-slate-500 pt-0.5 border-t border-slate-100">
+                <span class="truncate max-w-[140px] text-slate-600 font-medium"><i class="fa-solid fa-bag-shopping text-slate-400"></i> {{ item.product_name }}</span>
+                <span class="font-semibold text-indigo-600">
+                  {% if item.comment_strategy == 'BIO_LINK' %}
+                  🔗 바이오 유도
+                  {% elif item.comment_strategy == 'TIMED_COMMENT' %}
+                  ⏱️ 120초 댓글
+                  {% else %}
+                  무링크
+                  {% endif %}
+                </span>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <!-- Empty State with Next Recommended Time -->
+          <div class="py-4 px-3 rounded-xl bg-white border border-dashed border-slate-200 text-center space-y-2">
+            <div class="text-[11px] text-slate-400 flex items-center justify-center gap-1">
+              <i class="fa-regular fa-calendar-xmark text-slate-300"></i>
+              <span>현재 대기 중인 예약글 없음</span>
+            </div>
+            <div class="text-[11px] font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-2">
+              🎯 추천 골든타임: <span class="text-brand-600">{{ acc.recommended_golden_time }}</span>
+            </div>
+            <button onclick="openAutopilotForAccount({{ acc.account_id }}, '{{ acc.display_name|escape }}', '{{ acc.category|escape }}')" class="w-full bg-slate-50 hover:bg-brand-50 text-brand-700 hover:text-brand-800 border border-slate-200 hover:border-brand-200 font-bold text-[11px] py-1.5 rounded-lg transition flex items-center justify-center gap-1 shadow-2xs">
+              <i class="fa-solid fa-bolt text-amber-500"></i> <span>이 계정으로 AI 글 즉시 예약</span>
+            </button>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Card Footer -->
+        <div class="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+          <span class="text-slate-500">
+            예약: <strong class="text-brand-600">{{ acc.scheduled_count }}</strong>건 | 발행: <strong>{{ acc.published_count }}</strong>건
+          </span>
+          <div class="flex items-center gap-2">
+            {% if acc.scheduled_count > 0 %}
+            <button onclick="publishNextForAccount({{ acc.account_id }}, '{{ acc.username|escape }}')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[10px] px-2 py-1 rounded-lg border border-emerald-200 transition flex items-center gap-1 shadow-2xs" title="다음 대기 중인 예약글 1건 즉시 실시간 발행">
+              <i class="fa-solid fa-bolt text-yellow-500"></i> <span>즉시발행</span>
+            </button>
+            {% endif %}
+            <button onclick="openAutopilotForAccount({{ acc.account_id }}, '{{ acc.display_name|escape }}', '{{ acc.category|escape }}')" class="text-brand-600 hover:text-brand-800 font-bold text-[11px] flex items-center gap-1">
+              <span>+ 예약 추가</span> <i class="fa-solid fa-chevron-right text-[9px]"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+
+  <!-- Warmup Trust Score Live Summary Card -->
+  <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 rounded-3xl p-6 text-white border border-emerald-800/40 shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+    <div class="space-y-2">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-xs font-bold text-emerald-300 uppercase tracking-wider">메타(Meta) Trust Score 알고리즘 실시간 방어 체계</span>
+      </div>
+      <h3 class="text-xl font-bold flex items-center gap-2 flex-wrap">
+        <span>🌱 7대 계정 양성화(Warmup) 신뢰도 실시간 심사</span>
+        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/30">
+          안전 기준 70.0점 이상
+        </span>
+      </h3>
+      <p class="text-xs text-slate-300 max-w-3xl leading-relaxed">
+        계정 정지(Shadowban)를 완벽 차단하기 위해 100% 오가닉 순수 공감 모드로 동작 중입니다. 
+        독자 반응(조회수 300+, 댓글 2+, 좋아요 5+) 미달 시 자동으로 +2일씩 연장되며 고화력 공감글이 투입됩니다.
+      </p>
+
+      <!-- Mini Badges for 7 Accounts -->
+      <div class="flex flex-wrap gap-2 pt-2">
+        {% for ev in warmup_evaluations %}
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold
+          {% if ev.trust_score >= 70 %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/40
+          {% else %}bg-slate-800 text-slate-300 border border-slate-700{% endif %}">
+          <span>@{{ ev.username }}</span>
+          <span class="{% if ev.trust_score >= 70 %}text-emerald-400{% else %}text-amber-400{% endif %} font-black">
+            {{ ev.trust_score }}점
+          </span>
+          {% if ev.trust_score >= 70 %}
+          <i class="fa-solid fa-circle-check text-[10px] text-emerald-400"></i>
+          {% else %}
+          <i class="fa-solid fa-clock text-[10px] text-amber-400"></i>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 shrink-0">
+      <a href="/warmup" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs lg:text-sm px-4 py-3 rounded-2xl shadow-lg transition flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0">
+        <i class="fa-solid fa-seedling"></i> <span>양성화 정밀 진단 센터 열기</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Quick Workflow Steps Banner -->
+  <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-brand-900 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="space-y-1">
+      <div class="flex items-center gap-2 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> 전자동 오토파일럿 파이프라인 (PHASE 1 ~ 5)
+      </div>
+      <h3 class="text-xl font-bold">키워드 하나로 탐색부터 점수화, DNA, 10대 각도, 검수, 예약 발행까지</h3>
+      <p class="text-slate-300 text-sm">실제 동작하는 Mock/Official Provider와 AI 엔진이 결합된 원스톱 전자동화 시스템입니다.</p>
+    </div>
+    <div class="flex flex-wrap gap-3 shrink-0">
+      <button onclick="runGoldenPickAutopilot()" id="btn-golden-pick" class="bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-slate-950 font-extrabold text-sm px-4.5 py-2.5 rounded-xl shadow-xl transition flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0">
+        <i class="fa-solid fa-crown text-amber-900 animate-bounce"></i> <span>오늘의 AI 골든 픽 (90점+ 자동발행)</span>
+      </button>
+      <button onclick="openAutopilotModal()" class="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow-lg transition flex items-center gap-2">
+        <i class="fa-solid fa-bolt"></i> ⚡ 원클릭 오토파일럿
+      </button>
+      <button onclick="openBulkModal()" class="bg-white/15 hover:bg-white/25 text-white text-sm font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+        <i class="fa-solid fa-boxes-packing"></i> 📦 대량 벌크
+      </button>
+      <a href="/products" class="bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-4 py-2.5 rounded-xl backdrop-blur transition flex items-center gap-1.5">
+        <i class="fa-solid fa-magnifying-glass"></i> 상품 탐색
+      </a>
+    </div>
+  </div>
+
+  <!-- Auto-Pilot Modal -->
+  <div id="autopilot-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl border border-slate-100">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-bolt text-amber-500"></i> ⚡ 원클릭 전자동 오토파일럿
+        </h3>
+        <button onclick="closeAutopilotModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+
+      <div id="autopilot-form-section" class="space-y-4 text-xs">
+        <p class="text-slate-500 leading-relaxed">
+          상품 키워드를 입력하시면 <strong>[상품 수집 &rarr; 점수화 &rarr; DNA 분석 &rarr; 10대 각도 도출 &rarr; AI 글/댓글 작성 &rarr; 품질/정책 검수 &rarr; 캘린더 예약]</strong>까지 전자동으로 실행됩니다.
+        </p>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1.5">탐색 키워드 (예: 버티컬 마우스, 캡슐커피머신, 가습기)</label>
+          <input type="text" id="auto-keyword" placeholder="스탠리 텀블러" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-semibold text-slate-900 focus:outline-none focus:border-brand-500 text-sm">
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1.5">발행 예약 시간대</label>
+            <select id="auto-hours" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-semibold text-slate-900">
+              <option value="2">2시간 뒤 (최적 추천)</option>
+              <option value="4">4시간 뒤 (오후 시간대)</option>
+              <option value="8">8시간 뒤 (퇴근/저녁 골든타임)</option>
+              <option value="24">내일 같은 시간</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1.5">발행 타깃 계정 (다중 계정)</label>
+            <select id="auto-account-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-semibold text-slate-900">
+              <option value="">🤖 AI 스마트 자동 매칭 (상품 맞춤 계정 배정)</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeAutopilotModal()" class="bg-slate-100 text-slate-700 font-semibold px-4 py-2 rounded-xl">취소</button>
+          <button type="button" onclick="runAutopilot()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold px-6 py-2 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-play"></i> 전자동 실행 시작
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Pipeline Progress Section -->
+      <div id="autopilot-progress-section" class="hidden space-y-4 text-xs">
+        <div class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full border-2 border-brand-600 border-t-transparent animate-spin"></div>
+          <span id="auto-status-text" class="font-bold text-slate-800 text-sm">오토파일럿 파이프라인 가동 중...</span>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 max-h-56 overflow-y-auto" id="auto-steps-box">
+        </div>
+      </div>
+
+      <!-- Success Result Section -->
+      <div id="autopilot-result-section" class="hidden space-y-4 text-xs">
+        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-emerald-800 space-y-1">
+          <h4 class="font-bold text-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-check"></i> 오토파일럿 전체 공정 완료!
+          </h4>
+          <p id="auto-result-summary" class="text-xs text-emerald-700"></p>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <a href="/calendar" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-4 py-2 rounded-xl shadow transition">
+            캘린더 예약 확인 &rarr;
+          </a>
+          <a href="/content" class="bg-slate-900 hover:bg-black text-white font-bold px-4 py-2 rounded-xl shadow transition">
+            콘텐츠 보관소 이동
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bulk Auto-Pilot Modal -->
+  <div id="bulk-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl border border-slate-100">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-boxes-packing text-indigo-600"></i> 📦 대량 벌크 오토파일럿 (주간 캘린더 자동 완성)
+        </h3>
+        <button onclick="closeBulkModal()" class="text-slate-400 hover:text-slate-600 text-lg">&times;</button>
+      </div>
+
+      <div id="bulk-form-section" class="space-y-4 text-xs">
+        <p class="text-slate-500 leading-relaxed">
+          여러 상품 키워드를 한 줄에 하나씩 입력하시면, <strong>각 상품을 자동으로 탐색 및 분석하여 4시간/6시간 간격으로 캘린더에 연속 예약 배치</strong>합니다.
+        </p>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1.5">키워드 목록 (줄바꿈으로 구분)</label>
+          <textarea id="bulk-keywords" rows="5" placeholder="스탠리 텀블러&#10;버티컬 마우스&#10;에어프라이어&#10;호텔식 수건" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-semibold text-slate-900 focus:outline-none focus:border-indigo-500 text-xs leading-relaxed"></textarea>
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1.5">글 사이 예약 발행 간격</label>
+          <select id="bulk-interval" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-semibold text-slate-900">
+            <option value="4">4시간 간격 (하루 3~4개 추천)</option>
+            <option value="6">6시간 간격 (하루 2개)</option>
+            <option value="12">12시간 간격 (아침/저녁 골든타임)</option>
+            <option value="24">24시간 간격 (매일 1개씩 일주일 완성)</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeBulkModal()" class="bg-slate-100 text-slate-700 font-semibold px-4 py-2 rounded-xl">취소</button>
+          <button type="button" onclick="runBulkAutopilot()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-2 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-bolt"></i> 대량 일괄 자동 생성 시작
+          </button>
+        </div>
+      </div>
+
+      <!-- Bulk Progress Section -->
+      <div id="bulk-progress-section" class="hidden space-y-4 text-xs">
+        <div class="flex items-center gap-3">
+          <div class="w-7 h-7 rounded-full border-2 border-indigo-600 border-t-transparent animate-spin"></div>
+          <span id="bulk-status-text" class="font-bold text-slate-800 text-sm">대량 벌크 파이프라인 배치 가동 중...</span>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 max-h-56 overflow-y-auto" id="bulk-steps-box">
+        </div>
+      </div>
+
+      <!-- Bulk Result Section -->
+      <div id="bulk-result-section" class="hidden space-y-4 text-xs">
+        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-emerald-800 space-y-1">
+          <h4 class="font-bold text-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-circle-check"></i> 대량 배치 예약 완결!
+          </h4>
+          <p id="bulk-result-summary" class="text-xs text-emerald-700"></p>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <a href="/calendar" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl shadow transition">
+            캘린더 전체 일정 보기 &rarr;
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Tables Grid: Recent Products & Recent Contents -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    
+    <!-- Recent Products Card -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-boxes-stacked text-brand-600"></i>
+          <h3 class="font-bold text-slate-800">최근 등록된 상품</h3>
+        </div>
+        <a href="/products" class="text-xs text-brand-600 font-semibold hover:underline">전체보기 &rarr;</a>
+      </div>
+
+      <div class="divide-y divide-slate-100 flex-1">
+        {% for prod in stats.recent_products %}
+        <div class="p-4 hover:bg-slate-50/80 transition flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3 min-w-0">
+            <img src="{{ prod.image_url }}" alt="{{ prod.name }}" class="w-12 h-12 rounded-lg object-cover bg-slate-100 border border-slate-200 shrink-0">
+            <div class="min-w-0">
+              <h4 class="font-semibold text-sm text-slate-800 truncate">{{ prod.name }}</h4>
+              <div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">{{ prod.category }}</span>
+                <span class="font-bold text-slate-900">{{ "{:,}".format(prod.price) }}원</span>
+                <span class="text-amber-500"><i class="fa-solid fa-star"></i> {{ prod.rating }}</span>
+              </div>
+            </div>
+          </div>
+          <a href="/products/{{ prod.id }}" class="shrink-0 bg-slate-100 hover:bg-brand-600 hover:text-white text-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+            상세 및 생성 &rarr;
+          </a>
+        </div>
+        {% else %}
+        <div class="p-8 text-center text-slate-400 text-sm">
+          등록된 상품이 없습니다.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Recent Contents Card -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-pen-nib text-brand-600"></i>
+          <h3 class="font-bold text-slate-800">최근 생성된 콘텐츠</h3>
+        </div>
+        <a href="/content" class="text-xs text-brand-600 font-semibold hover:underline">전체보기 &rarr;</a>
+      </div>
+
+      <div class="divide-y divide-slate-100 flex-1">
+        {% for content in stats.recent_contents %}
+        <div class="p-4 hover:bg-slate-50/80 transition flex items-center justify-between gap-4">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded {% if content.status == 'APPROVED' %}bg-emerald-100 text-emerald-700{% elif content.status == 'REVIEW' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-600{% endif %}">
+                {{ content.status }}
+              </span>
+              <span class="text-xs text-slate-400">{{ content.created_at.strftime('%m-%d %H:%M') if content.created_at else '' }}</span>
+            </div>
+            <h4 class="font-medium text-sm text-slate-800 truncate">{{ content.title }}</h4>
+            <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">{{ content.body }}</p>
+          </div>
+          <a href="/content" class="shrink-0 bg-slate-100 hover:bg-brand-600 hover:text-white text-slate-700 text-xs px-3 py-1.5 rounded-lg font-medium transition">
+            보기 &rarr;
+          </a>
+        </div>
+        {% else %}
+        <div class="p-8 text-center text-slate-400 text-sm">
+          생성된 콘텐츠가 없습니다. 상품 상세에서 첫 Threads 글을 생성해보세요!
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Golden Pick 90+ Modal -->
+  <div id="golden-pick-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-5 shadow-2xl border border-amber-200 animate-in fade-in zoom-in-95 duration-150">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 flex items-center justify-center font-black shadow-inner">
+            <i class="fa-solid fa-crown"></i>
+          </div>
+          <div>
+            <h3 class="font-black text-slate-900 text-base">오늘의 AI 골든 픽 (90점+ 선별 자동 발행)</h3>
+            <p class="text-[11px] text-slate-500">6대 지표 평가 90점 돌파 상품 선별 ➔ Threads 본문 ➔ 황금시간대 무인 예약</p>
+          </div>
+        </div>
+        <button onclick="window.AutopilotActions.closeGoldenPickModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold transition">&times;</button>
+      </div>
+
+      <!-- Setup Section -->
+      <div id="golden-setup-section" class="space-y-4 text-xs">
+        <div class="p-4 bg-amber-50/70 rounded-xl border border-amber-200 space-y-2">
+          <div class="font-bold text-amber-950 text-sm flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-600"></i>
+            <span>실행 옵션: 어떤 계정으로 발행할까요?</span>
+          </div>
+          <p class="text-slate-600 text-[11px] leading-relaxed">
+            화제성 상품 탐색 및 6대 지표 90점 돌파 상품을 선별한 뒤, 선택하신 계정의 <strong>고유 페르소나와 말투</strong>에 맞춰 Threads 본문을 작성하고 최적 골든타임에 예약합니다.
+          </p>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1.5">발행 대상 계정 (다중 계정 라우터)</label>
+          <select id="golden-account-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-semibold text-slate-900 focus:outline-none focus:border-brand-500">
+            <option value="">🤖 AI 스마트 자동 매칭 (상품 카테고리에 최적화된 계정 자동 배정)</option>
+          </select>
+          <p class="text-[10px] text-slate-400 mt-1">기본 선택 시 AI가 리빙, 디지털, 뷰티, 자취, 가성비 등 상품 성격에 맞는 최적 계정을 자동 매칭합니다.</p>
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <button type="button" onclick="window.AutopilotActions.closeGoldenPickModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2.5 rounded-xl">취소</button>
+          <button type="button" onclick="window.AutopilotActions.submitGoldenPick()" class="bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-slate-950 font-black px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-crown text-amber-950"></i>
+            <span>90+ 골든 픽 즉시 선별 및 발행 시작</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress Section -->
+      <div id="golden-progress-section" class="hidden space-y-4 text-xs">
+        <div class="flex items-center gap-3 p-3.5 bg-amber-50 rounded-xl border border-amber-200">
+          <i class="fa-solid fa-circle-notch fa-spin text-amber-600 text-lg"></i>
+          <div>
+            <div class="font-bold text-amber-950" id="golden-status-text">후보 상품 선별 및 채점 중...</div>
+            <div class="text-[11px] text-amber-700 mt-0.5">실시간 쿠팡 데이터와 AI 6대 지표 엔진이 결합 작동하고 있습니다.</div>
+          </div>
+        </div>
+        <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 max-h-48 overflow-y-auto space-y-1 font-mono text-[11px]" id="golden-steps-box">
+        </div>
+      </div>
+
+      <!-- Result Section -->
+      <div id="golden-result-section" class="hidden space-y-4 text-xs">
+        <!-- Winner Product Card -->
+        <div class="bg-gradient-to-r from-amber-50 via-yellow-50 to-orange-50 border border-amber-200 rounded-xl p-4 flex gap-4 items-start">
+          <img id="golden-winner-img" src="" alt="" class="w-20 h-20 rounded-lg object-cover bg-white border border-amber-200 shrink-0 shadow-sm">
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="bg-amber-500 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                <i class="fa-solid fa-crown"></i> 90+ 골든 픽 선정
+              </span>
+              <span class="text-amber-700 font-black text-sm" id="golden-winner-score">94점</span>
+            </div>
+            <h4 class="font-bold text-slate-900 text-sm truncate" id="golden-winner-title">상품명</h4>
+            <div class="text-xs font-extrabold text-slate-800" id="golden-winner-price">가격</div>
+            <p class="text-[11px] text-slate-600 leading-snug line-clamp-2" id="golden-winner-reason">선정 사유</p>
+          </div>
+        </div>
+
+        <!-- Post Preview Card -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-700 flex items-center gap-1">
+              <i class="fa-brands fa-threads text-brand-600"></i> 생성된 Threads 본문 미리보기
+            </span>
+            <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md font-bold">
+              예약: <span id="golden-scheduled-time"></span>
+            </span>
+          </div>
+          <div class="flex items-center gap-1.5 text-xs text-slate-600 bg-white p-2 rounded-lg border border-slate-200">
+            <span class="font-bold text-slate-400">발행 계정:</span>
+            <span id="golden-target-acc-badge" class="font-semibold text-slate-800">기본 계정</span>
+          </div>
+          <div class="font-semibold text-slate-900 text-xs truncate" id="golden-post-title">제목</div>
+          <p class="text-[11px] text-slate-600 whitespace-pre-line line-clamp-3 bg-white p-2.5 rounded-lg border border-slate-200 font-sans" id="golden-post-body">본문 내용</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between pt-2">
+          <a id="golden-detail-link" href="/content" class="text-brand-600 hover:underline font-bold flex items-center gap-1">
+            <span>콘텐츠 보관함에서 확인하기</span> <i class="fa-solid fa-arrow-right"></i>
+          </a>
+          <button onclick="window.AutopilotActions.closeGoldenPickModal()" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl font-bold transition">
+            확인 및 닫기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  /**
+   * Filter Account Cards by Cluster Type or Active Schedule Status
+   */
+  function filterTimelineCluster(cluster) {
+    const buttons = document.querySelectorAll('.timeline-filter-btn');
+    buttons.forEach(btn => {
+      btn.classList.remove('bg-slate-900', 'text-white', 'shadow-sm');
+      if (btn.id === 'tf-ACTIVE_ONLY') {
+        btn.classList.add('bg-amber-50', 'text-amber-900', 'border-amber-300');
+      } else {
+        btn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+      }
+    });
+
+    const activeBtn = document.getElementById('tf-' + cluster);
+    if (activeBtn) {
+      activeBtn.classList.remove('bg-white', 'text-slate-700', 'bg-amber-50', 'text-amber-900', 'border-slate-200', 'border-amber-300');
+      activeBtn.classList.add('bg-slate-900', 'text-white', 'shadow-sm');
+    }
+
+    const cards = document.querySelectorAll('.timeline-acc-card');
+    cards.forEach(card => {
+      const cardCluster = card.dataset.cluster;
+      const hasScheduled = card.dataset.hasScheduled === 'true';
+      let show = false;
+      if (cluster === 'ALL') {
+        show = true;
+      } else if (cluster === 'ACTIVE_ONLY') {
+        show = hasScheduled;
+      } else {
+        show = (cardCluster === cluster);
+      }
+      card.style.display = show ? '' : 'none';
+    });
+  }
+
+  /**
+   * Open AI Generator pre-targeted to a specific account
+   */
+  function openAutopilotForAccount(accId, displayName, category) {
+    window.AutopilotActions.openGoldenPickModal();
+    setTimeout(() => {
+      const sel = document.getElementById('golden-account-select');
+      if (sel && accId) {
+        sel.value = String(accId);
+      }
+    }, 250);
+  }
+
+  /**
+   * 1-Click Golden Hour Staggered Distribution across all accounts
+   */
+  async function runRelayAutoSchedule() {
+    const btn = document.getElementById('btn-relay-schedule');
+    window.UI.setLoading(btn, true, '골든타임 분산 배치 중...');
+    
+    try {
+      const res = await fetch('/api/scheduler/relay-auto-schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      
+      if (res.ok && data.success) {
+        window.UI.showToast(data.message || '골든타임 자동 분산 완료!', 'success');
+        setTimeout(() => {
+          location.reload();
+        }, 800);
+      } else {
+        window.UI.showToast(data.detail || '분산 처리 중 오류가 발생했습니다.', 'error');
+        window.UI.setLoading(btn, false);
+      }
+    } catch (err) {
+      window.UI.showToast('통신 오류: ' + err.message, 'error');
+      window.UI.setLoading(btn, false);
+    }
+  }
+
+  /**
+   * 1-Click Apply Human Jitter and Multi-Account Stagger
+   */
+  async function runApplyScheduleJitter() {
+    const btn = document.getElementById('btn-dashboard-jitter');
+    const icon = document.getElementById('dash-jitter-icon');
+    if (btn) btn.disabled = true;
+    if (icon) icon.className = 'fa-solid fa-spinner fa-spin';
+
+    try {
+      const res = await fetch('/api/scheduler/apply-jitter', { method: 'POST' });
+      const data = await res.json();
+      if (data.status === 'SUCCESS') {
+        window.UI.showToast('🎲 ' + (data.message || '불규칙 시간차(지터) 적용 완료!'), 'success');
+        setTimeout(() => location.reload(), 900);
+      } else {
+        window.UI.showToast('지터 적용 실패: ' + (data.detail || data.message || '오류 발생'), 'error');
+      }
+    } catch (err) {
+      window.UI.showToast('통신 오류: ' + err.message, 'error');
+    } finally {
+      if (btn) btn.disabled = false;
+      if (icon) icon.className = 'fa-solid fa-dice text-amber-200';
+    }
+  }
+
+  /**
+   * Instantly publish next pending post for an account
+   */
+  async function publishNextForAccount(accId, username) {
+    if (!confirm(`[@${username}] 계정의 다음 대기 중인 예약글을 지금 즉시 실시간 발행하시겠습니까?`)) {
+      return;
+    }
+    window.UI.showToast(`[@${username}] 글을 쓰레드로 실시간 전송 중입니다...`, 'info');
+
+    try {
+      const res = await fetch(`/api/accounts/${accId}/publish-next`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.status === 'SUCCESS') {
+        alert(`🎉 [@${username} 실시간 발행 완료!]\n\n• 제목: ${data.title}\n• 게시물 ID: ${data.threads_post_id || '완료'}\n\n👉 지금 바로 쓰레드 웹이나 전용 브라우저에서 확인하실 수 있습니다!`);
+        location.reload();
+      } else {
+        window.UI.showToast('발행 실패: ' + (data.detail || data.message || '오류 발생'), 'error');
+      }
+    } catch (err) {
+      window.UI.showToast('통신 오류: ' + err.message, 'error');
+    }
+  }
+
+  /**
+   * Instantly publish a specific post by content ID
+   */
+  async function publishPostDirectly(contentId, title) {
+    if (!confirm(`'${title}'\n\n이 글을 지금 즉시 쓰레드에 실시간 발행하시겠습니까?`)) {
+      return;
+    }
+    window.UI.showToast('선택한 글을 쓰레드로 실시간 전송 중입니다...', 'info');
+
+    try {
+      const res = await fetch(`/api/scheduler/publish-now/${contentId}`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.status === 'SUCCESS') {
+        alert(`🎉 [실시간 발행 완료!]\n\n• 게시물 ID: ${data.post_id || '성공'}\n\n👉 지금 바로 쓰레드 웹에서 확인하실 수 있습니다!`);
+        location.reload();
+      } else {
+        window.UI.showToast('발행 실패: ' + (data.detail || data.message || '오류 발생'), 'error');
+      }
+    } catch (err) {
+      window.UI.showToast('통신 오류: ' + err.message, 'error');
+    }
+  }
+</script>
+{% endblock %}

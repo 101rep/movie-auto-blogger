@@ -1,0 +1,83 @@
+# 환경변수 및 민감정보
+.env
+*.env
+.env.*
+secrets.json
+
+# Python 캐시
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.pyc
+
+# 가상환경
+.venv/
+venv/
+env/
+ENV/
+
+# 로그
+logs/
+*.log
+
+# SQLite DB (로컬 메모리 DB)
+*.db
+*.sqlite
+*.sqlite3
+
+# OS 파일
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+
+# 빌드 결과물
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# 임시 파일
+scratch/
+browser_sessions/
+data/
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 대용량 바이너리 파일 (GitHub 100MB 제한)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 실행 파일
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+
+# 미디어 파일 (용량 큼)
+*.mp4
+*.mp3
+*.wav
+*.avi
+*.mov
+*.mkv
+*.flac
+*.aac
+*.ogg
+*.webm
+
+# 이미지 (결과물 폴더)
+05_결과물_및_문서/인스타_샘플_결과물/
+분석실/
+
+# Node 패키지
+node_modules/
+03_ToonForge_스튜디오/node_modules/
+03_ToonForge_스튜디오/resources/
+03_ToonForge_스튜디오/locales/

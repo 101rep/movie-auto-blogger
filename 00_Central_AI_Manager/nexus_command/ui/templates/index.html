@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NEXUS COMMAND">
+  <meta name="theme-color" content="#020617">
+  <title>{{ app_name }} — {{ subtitle }}</title>
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+            },
+            nexus: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#1e1b4b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(51, 65, 85, 0.8);
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(71, 85, 105, 1);
+    }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.96); }
+    }
+    .pulse-dot {
+      animation: pulse-slow 3s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white antialiased">
+
+  <!-- ==================== Header & Mini Dashboard ==================== -->
+  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 shrink-0 z-20 shadow-md">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
+      
+      <!-- Brand & Status Indicator -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20 font-black text-lg">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
+                <span>NEXUS COMMAND</span>
+                <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-700/50">v{{ version }}</span>
+              </h1>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-700/60">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span>
+                <span>ONLINE</span>
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 font-medium">Private AI Messenger & Unified Command Center</p>
+          </div>
+        </div>
+
+        <!-- Mobile Asset Modal Toggle -->
+        <button onclick="toggleAssetModal()" class="md:hidden px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold border border-slate-700 flex items-center gap-1.5">
+          <i class="fa-solid fa-server text-indigo-400"></i>
+          <span>자산 목록</span>
+        </button>
+      </div>
+
+      <!-- Mini Live Metric Badges -->
+      <div class="hidden md:flex items-center gap-2 text-xs">
+        <div class="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center gap-2">
+          <i class="fa-solid fa-server text-emerald-400"></i>
+          <span class="text-slate-400">서버:</span>
+          <span class="font-mono font-bold text-white">139.59.125.237 (24h)</span>
+        </div>
+        <div class="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center gap-2">
+          <i class="fa-brands fa-wordpress text-sky-400"></i>
+          <span class="text-slate-400">블로그:</span>
+          <span class="font-mono font-bold text-white">8/8 정상</span>
+        </div>
+        <div class="px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center gap-2">
+          <i class="fa-brands fa-threads text-rose-400"></i>
+          <span class="text-slate-400">스레드:</span>
+          <span class="font-mono font-bold text-white">7/7 웜업</span>
+        </div>
+        <button onclick="toggleAssetModal()" class="px-3 py-1.5 rounded-xl bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-700/60 text-indigo-200 font-bold flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-list-check text-indigo-400"></i>
+          <span>전체 자산 ({{ metrics.total_assets }}개)</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==================== Main Chat Area ==================== -->
+  <main class="flex-1 overflow-hidden max-w-4xl w-full mx-auto flex flex-col">
+    
+    <!-- Messages Scroll Container -->
+    <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+      
+      <!-- Welcome Intro Card -->
+      <div class="bg-gradient-to-br from-slate-900 to-slate-900/60 border border-slate-800 rounded-2xl p-5 shadow-sm space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-400 flex items-center justify-center font-black text-sm">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <h2 class="text-sm font-extrabold text-white">NEXUS COMMAND 준비 완료</h2>
+            <p class="text-xs text-slate-400">기존 24시간 가동 서버 자산 및 Gemini AI 두뇌와 안전하게 연동되었습니다.</p>
+          </div>
+        </div>
+        <div class="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-xl border border-slate-800/80 font-medium">
+          💡 <b>자연어로 편하게 말씀하세요:</b><br/>
+          • <i>"내 영화 블로그 주소 알려줘"</i> ➔ 자산 등록소(Asset Registry)에서 즉시 조회<br/>
+          • <i>"스레드 7개 계정 보여줘"</i> ➔ 1~7호기 큐레이션 및 픽(PICK) 페이지 렌더링<br/>
+          • <i>"전체 상태 알려줘"</i> ➔ 서버, 워커, 8대 블로그, 스레드 실시간 종합 점검<br/>
+          • <i>"3번 스레드 왜 그래?"</i> ➔ 앞선 대화 문맥(Context)을 기억하고 분석
+        </div>
+      </div>
+
+      <!-- Dynamic Messages will be injected here via JavaScript -->
+      <div id="chat-stream" class="space-y-4"></div>
+
+      <!-- Typing / Processing Indicator -->
+      <div id="typing-indicator" class="hidden flex items-center gap-2 text-slate-400 text-xs py-2 px-3 bg-slate-900/60 rounded-xl w-fit border border-slate-800">
+        <i class="fa-solid fa-circle-notch fa-spin text-indigo-400"></i>
+        <span>NEXUS AI가 자산을 조회하고 판단하는 중입니다...</span>
+      </div>
+
+    </div>
+
+    <!-- Quick Commands Bar -->
+    <div class="px-4 py-2 bg-slate-950 border-t border-slate-800/80 shrink-0">
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar text-xs">
+        <span class="text-[11px] font-bold text-slate-500 shrink-0 flex items-center gap-1">
+          <i class="fa-solid fa-bolt text-amber-400"></i> 빠른 명령:
+        </span>
+        <button onclick="sendQuickMessage('전체 상태 알려줘')" class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 font-semibold shrink-0 transition">
+          📊 전체 상태
+        </button>
+        <button onclick="sendQuickMessage('서버 상태 알려줘')" class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 font-semibold shrink-0 transition">
+          🖥️ 서버 자원
+        </button>
+        <button onclick="sendQuickMessage('스레드 7개 계정 보여줘')" class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 font-semibold shrink-0 transition">
+          🧵 스레드 7개 계정
+        </button>
+        <button onclick="sendQuickMessage('운영 중인 블로그 전부 보여줘')" class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 font-semibold shrink-0 transition">
+          ✍️ 8대 블로그 주소
+        </button>
+        <button onclick="sendQuickMessage('최근 포스팅 보여줘')" class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 font-semibold shrink-0 transition">
+          📅 최근 포스팅
+        </button>
+        <button onclick="sendQuickMessage('정시 발행 크론 돌려줘')" class="px-3 py-1 rounded-full bg-indigo-950/60 hover:bg-indigo-900/60 border border-indigo-800/60 text-indigo-300 font-semibold shrink-0 transition">
+          🚀 WP-Cron 실행
+        </button>
+        <button onclick="sendQuickMessage('검색엔진 핑 보내줘')" class="px-3 py-1 rounded-full bg-emerald-950/60 hover:bg-emerald-900/60 border border-emerald-800/60 text-emerald-300 font-semibold shrink-0 transition">
+          📡 검색엔진 핑
+        </button>
+      </div>
+    </div>
+
+    <!-- ==================== Bottom Chat Input Bar ==================== -->
+    <div class="p-4 bg-slate-900/90 backdrop-blur-md border-t border-slate-800 shrink-0 z-20">
+      <form id="chat-form" onsubmit="handleChatSubmit(event)" class="flex items-end gap-2">
+        
+        <!-- Plus Menu Button -->
+        <div class="relative">
+          <button type="button" onclick="togglePlusMenu()" title="추가 메뉴" class="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 flex items-center justify-center text-sm transition">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+          
+          <!-- Popover Menu -->
+          <div id="plus-menu" class="hidden absolute bottom-14 left-0 w-52 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl p-2 space-y-1 z-30">
+            <button type="button" onclick="sendQuickMessage('DB 백업해줘'); togglePlusMenu()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-xs font-semibold text-slate-200 flex items-center gap-2">
+              <i class="fa-solid fa-database text-amber-400"></i>
+              <span>전체 DB 백업 스냅샷</span>
+            </button>
+            <button type="button" onclick="sendQuickMessage('최근 감사 로그 보여줘'); togglePlusMenu()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-xs font-semibold text-slate-200 flex items-center gap-2">
+              <i class="fa-solid fa-clock-rotate-left text-sky-400"></i>
+              <span>보안 감사 이력 조회</span>
+            </button>
+            <button type="button" onclick="sendQuickMessage('ToonForge 스튜디오 상태'); togglePlusMenu()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-xs font-semibold text-slate-200 flex items-center gap-2">
+              <i class="fa-solid fa-palette text-rose-400"></i>
+              <span>ToonForge 웹툰 스튜디오</span>
+            </button>
+            <button type="button" onclick="sendQuickMessage('AI 쇼츠 리믹서 상태'); togglePlusMenu()" class="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-800 text-xs font-semibold text-slate-200 flex items-center gap-2">
+              <i class="fa-solid fa-video text-emerald-400"></i>
+              <span>AI 쇼츠 리믹서 현황</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Input Textarea -->
+        <div class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 focus-within:border-indigo-500 transition">
+          <textarea
+            id="chat-input"
+            rows="1"
+            placeholder="자연어로 명령하세요 (예: 영화 블로그 주소 알려줘, 스레드 7개 상태 확인해줘)"
+            class="w-full bg-transparent text-sm text-white focus:outline-none resize-none placeholder-slate-500 max-h-32 custom-scrollbar"
+            onkeydown="handleKeyDown(event)"
+            oninput="autoResize(this)"
+          ></textarea>
+        </div>
+
+        <!-- Send Button -->
+        <button
+          type="submit"
+          id="send-btn"
+          class="w-11 h-11 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white flex items-center justify-center text-sm shadow-md shadow-indigo-600/20 transition font-bold shrink-0"
+        >
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+
+      </form>
+    </div>
+
+  </main>
+
+  <!-- ==================== Full Asset Registry Modal ==================== -->
+  <div id="asset-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl">
+      
+      <!-- Modal Header -->
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-cubes text-indigo-400 text-lg"></i>
+          <div>
+            <h3 class="text-sm font-extrabold text-white">NEXUS 공식 디지털 자산 카탈로그</h3>
+            <p class="text-[11px] text-slate-400">Asset Registry에 등록된 전체 실물 자산 명세입니다.</p>
+          </div>
+        </div>
+        <button onclick="toggleAssetModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Assets List) -->
+      <div id="asset-modal-list" class="p-4 overflow-y-auto space-y-3 custom-scrollbar flex-1 text-xs">
+        <div class="text-center py-8 text-slate-500">
+          <i class="fa-solid fa-spinner fa-spin text-lg mb-2"></i>
+          <p>자산 데이터를 불러오는 중...</p>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-3 border-t border-slate-800 bg-slate-950 flex items-center justify-between text-xs text-slate-400">
+        <span>총 {{ metrics.total_assets }}개 자산 등록됨 (100% 정상)</span>
+        <button onclick="toggleAssetModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white font-bold transition">
+          닫기
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== Owner PIN Lock Screen ==================== -->
+  <div id="pin-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl space-y-5">
+      <div class="w-14 h-14 rounded-2xl bg-indigo-950 border border-indigo-700/60 text-indigo-400 flex items-center justify-center text-2xl mx-auto shadow-inner">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div>
+        <h3 class="text-lg font-extrabold text-white">NEXUS COMMAND</h3>
+        <p class="text-xs text-slate-400 mt-1">대표님 전용 개인 인증 (PIN 번호 입력)</p>
+      </div>
+
+      <div class="space-y-3">
+        <input
+          type="password"
+          id="pin-input"
+          maxlength="8"
+          inputmode="numeric"
+          placeholder="PIN 4자리 입력"
+          class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-xl tracking-widest text-white focus:outline-none focus:border-indigo-500 font-mono"
+          onkeydown="if(event.key==='Enter') verifyPin()"
+          autofocus
+        />
+        <p id="pin-error" class="text-xs text-rose-400 hidden">잘못된 PIN 번호입니다.</p>
+        <button
+          onclick="verifyPin()"
+          class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-sm shadow transition"
+        >
+          접속하기
+        </button>
+      </div>
+      <p class="text-[11px] text-slate-500">초기 보안 PIN: 7788</p>
+    </div>
+  </div>
+
+  <!-- ==================== Client Application Logic ==================== -->
+  <script>
+    const SESSION_ID = 'owner_primary_session';
+    let socket = null;
+
+    // Universal API URL Builder (supports both root and reverse proxy like /nexus/)
+    function apiUrl(endpoint) {
+      if (window.location.pathname.includes('/nexus')) {
+        const parts = endpoint.split('?');
+        const route = parts[0];
+        const query = parts.length > 1 ? '&' + parts[1] : '';
+        const base = window.location.pathname.replace(/\/$/, '') + '/';
+        return `${base}?route=${route}${query}`;
+      }
+      const base = window.location.pathname.endsWith('/') ? window.location.pathname : window.location.pathname + '/';
+      return base + endpoint;
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      checkPinAuth();
+    });
+
+    // Check PIN Authentication
+    function checkPinAuth() {
+      const saved = localStorage.getItem('nexus_pin_auth');
+      if (saved) {
+        document.getElementById('pin-modal').classList.add('hidden');
+        initWebSocket();
+        loadChatHistory();
+      } else {
+        document.getElementById('pin-modal').classList.remove('hidden');
+        setTimeout(() => {
+          const pinEl = document.getElementById('pin-input');
+          if (pinEl) pinEl.focus();
+        }, 200);
+      }
+    }
+
+    async function verifyPin() {
+      const pinEl = document.getElementById('pin-input');
+      const pin = pinEl ? pinEl.value.trim() : '';
+      const errEl = document.getElementById('pin-error');
+      if (!pin) return;
+
+      try {
+        const res = await fetch(apiUrl('api/auth/pin'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin: pin })
+        });
+        if (res.ok) {
+          localStorage.setItem('nexus_pin_auth', pin);
+          document.getElementById('pin-modal').classList.add('hidden');
+          if (errEl) errEl.classList.add('hidden');
+          initWebSocket();
+          loadChatHistory();
+        } else {
+          if (errEl) {
+            errEl.textContent = '잘못된 PIN 번호입니다.';
+            errEl.classList.remove('hidden');
+          }
+          if (pinEl) pinEl.value = '';
+        }
+      } catch (e) {
+        if (errEl) {
+          errEl.textContent = '인증 통신 오류: ' + e.message;
+          errEl.classList.remove('hidden');
+        }
+      }
+    }
+
+    // Auto resize textarea
+    function autoResize(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 128) + 'px';
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('chat-form').requestSubmit();
+      }
+    }
+
+    // Toggle Plus Menu
+    function togglePlusMenu() {
+      const menu = document.getElementById('plus-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    // WebSocket Setup
+    function initWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsPath = window.location.pathname.replace(/\/$/, '') + `/ws/chat/${SESSION_ID}`;
+      const wsUrl = `${protocol}//${window.location.host}${wsPath}`;
+      
+      try {
+        socket = new WebSocket(wsUrl);
+        socket.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          if (data.sender && data.sender !== 'USER') {
+            appendMessage(data);
+            hideTyping();
+          }
+        };
+        socket.onclose = () => {
+          setTimeout(initWebSocket, 3000); // Auto reconnect
+        };
+      } catch (e) {
+        console.warn('WebSocket connection failed, falling back to HTTP:', e);
+      }
+    }
+
+    // Load Chat History
+    async function loadChatHistory() {
+      try {
+        const res = await fetch(apiUrl(`api/messages?session_id=${SESSION_ID}`));
+        const data = await res.json();
+        const stream = document.getElementById('chat-stream');
+        stream.innerHTML = '';
+        if (data.messages && data.messages.length > 0) {
+          data.messages.forEach(msg => appendMessage(msg));
+        }
+      } catch (e) {
+        console.error('Failed to load messages:', e);
+      }
+    }
+
+    // Send Quick Message
+    function sendQuickMessage(text) {
+      const input = document.getElementById('chat-input');
+      input.value = text;
+      document.getElementById('chat-form').requestSubmit();
+    }
+
+    // Handle Form Submit
+    async function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      input.style.height = 'auto';
+
+      // Append User message immediately
+      appendMessage({
+        sender: 'USER',
+        msg_type: 'USER',
+        content: text,
+        created_at: new Date().toLocaleTimeString()
+      });
+
+      showTyping();
+
+      // Send to backend via HTTP (with WebSocket real-time broadcast)
+      try {
+        const res = await fetch(apiUrl('api/chat'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: SESSION_ID, message: text })
+        });
+        const result = await res.json();
+        if (result.message) {
+          appendMessage(result.message);
+        }
+      } catch (err) {
+        appendMessage({
+          sender: 'NEXUS',
+          msg_type: 'ERROR',
+          content: '서버 통신 중 오류가 발생했습니다: ' + err.message
+        });
+      } finally {
+        hideTyping();
+      }
+    }
+
+    function showTyping() {
+      document.getElementById('typing-indicator').classList.remove('hidden');
+      scrollToBottom();
+    }
+
+    function hideTyping() {
+      document.getElementById('typing-indicator').classList.add('hidden');
+    }
+
+    function scrollToBottom() {
+      const container = document.getElementById('messages-container');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Append Message to UI
+    function appendMessage(msg) {
+      const stream = document.getElementById('chat-stream');
+      const isUser = msg.sender === 'USER';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = isUser ? 'flex justify-end' : 'flex justify-start items-start gap-3';
+
+      if (isUser) {
+        wrapper.innerHTML = `
+          <div class="max-w-[85%] md:max-w-[70%] bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-4 py-3 rounded-2xl rounded-tr-none shadow-sm text-sm font-medium leading-relaxed">
+            <p>${escapeHtml(msg.content)}</p>
+            <span class="block text-[10px] text-indigo-200 text-right mt-1">${msg.created_at || ''}</span>
+          </div>
+        `;
+      } else {
+        let cardHtml = '';
+        if (msg.card) {
+          cardHtml = renderCard(msg.card);
+        }
+
+        wrapper.innerHTML = `
+          <div class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700/80 text-indigo-400 flex items-center justify-center font-black text-xs shrink-0 shadow">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <div class="max-w-[90%] md:max-w-[80%] space-y-2">
+            <div class="bg-slate-900 border border-slate-800 text-slate-100 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm text-sm leading-relaxed space-y-2">
+              <p>${formatMarkdown(msg.content)}</p>
+              ${cardHtml}
+              <span class="block text-[10px] text-slate-500 mt-1">${msg.created_at || ''}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      stream.appendChild(wrapper);
+      scrollToBottom();
+    }
+
+    // Render Action Cards
+    function renderCard(card) {
+      const badgeColors = {
+        green: 'bg-emerald-950/80 text-emerald-400 border-emerald-700/60',
+        red: 'bg-rose-950/80 text-rose-400 border-rose-700/60',
+        yellow: 'bg-amber-950/80 text-amber-400 border-amber-700/60',
+        blue: 'bg-indigo-950/80 text-indigo-400 border-indigo-700/60',
+        gray: 'bg-slate-800 text-slate-300 border-slate-700'
+      };
+      const badgeClass = badgeColors[card.badge_color] || badgeColors.blue;
+
+      let detailsHtml = '';
+      if (card.details && card.details.length > 0) {
+        detailsHtml = `
+          <div class="bg-slate-950/60 rounded-xl p-3 border border-slate-800/80 space-y-1.5 text-xs">
+            ${card.details.map(d => `
+              <div class="flex items-start justify-between gap-2 border-b border-slate-900/60 pb-1 last:border-0 last:pb-0">
+                <span class="text-slate-400 font-semibold shrink-0">${escapeHtml(d.label)}:</span>
+                <span class="text-slate-200 font-mono text-right break-all">
+                  ${d.value.startsWith('http') ? `<a href="${escapeHtml(d.value)}" target="_blank" class="text-indigo-400 hover:text-indigo-300 underline underline-offset-2 inline-flex items-center gap-1">${escapeHtml(d.value)} <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i></a>` : escapeHtml(d.value)}
+                </span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      let rawHtml = '';
+      if (card.raw_content) {
+        rawHtml = `
+          <details class="text-xs bg-slate-950 rounded-xl border border-slate-800 p-2.5">
+            <summary class="font-bold text-slate-400 cursor-pointer hover:text-white">상세 원문 / 로그 보기</summary>
+            <pre class="mt-2 text-[11px] font-mono text-slate-300 overflow-x-auto whitespace-pre-wrap max-h-48">${escapeHtml(card.raw_content)}</pre>
+          </details>
+        `;
+      }
+
+      let buttonsHtml = '';
+      if (card.buttons && card.buttons.length > 0) {
+        buttonsHtml = `
+          <div class="flex flex-wrap gap-2 pt-1">
+            ${card.buttons.map(b => {
+              if (b.action_type === 'open_url') {
+                return `<a href="${b.payload}" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-bold flex items-center gap-1.5 transition">
+                  <span>${escapeHtml(b.label)}</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </a>`;
+              } else if (b.action_type === 'send_message') {
+                return `<button onclick="sendQuickMessage('${escapeHtml(b.payload)}')" class="px-3 py-1.5 rounded-lg bg-indigo-950 hover:bg-indigo-900 border border-indigo-700 text-indigo-200 text-xs font-bold transition">
+                  ${escapeHtml(b.label)}
+                </button>`;
+              } else if (b.action_type === 'approve') {
+                return `<button onclick="respondApproval('${b.payload}', true)" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow transition">
+                  ${escapeHtml(b.label)}
+                </button>`;
+              } else if (b.action_type === 'reject') {
+                return `<button onclick="respondApproval('${b.payload}', false)" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 transition">
+                  ${escapeHtml(b.label)}
+                </button>`;
+              }
+              return '';
+            }).join('')}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="bg-slate-900/90 rounded-xl border border-slate-800 p-3.5 space-y-2.5 my-2">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h4 class="font-bold text-sm text-white">${escapeHtml(card.title)}</h4>
+              ${card.subtitle ? `<p class="text-xs text-slate-400 mt-0.5">${escapeHtml(card.subtitle)}</p>` : ''}
+            </div>
+            ${card.status_badge ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${badgeClass} shrink-0">${escapeHtml(card.status_badge)}</span>` : ''}
+          </div>
+          ${detailsHtml}
+          ${rawHtml}
+          ${buttonsHtml}
+        </div>
+      `;
+    }
+
+    // Handle Approval Response
+    async function respondApproval(token, approved) {
+      showTyping();
+      try {
+        const res = await fetch(apiUrl('api/approval/respond'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: token, approved: approved })
+        });
+        const data = await res.json();
+        if (data.message) {
+          appendMessage(data.message);
+        }
+      } catch (e) {
+        alert('승인 처리 중 오류가 발생했습니다: ' + e.message);
+      } finally {
+        hideTyping();
+      }
+    }
+
+    // Toggle Asset Modal
+    async function toggleAssetModal() {
+      const modal = document.getElementById('asset-modal');
+      modal.classList.toggle('hidden');
+      if (!modal.classList.contains('hidden')) {
+        loadAssetModal();
+      }
+    }
+
+    async function loadAssetModal() {
+      const container = document.getElementById('asset-modal-list');
+      try {
+        const res = await fetch(apiUrl('api/assets'));
+        const data = await res.json();
+        const assets = data.assets || [];
+
+        container.innerHTML = assets.map(a => `
+          <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-white text-xs">${escapeHtml(a.name)}</span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-slate-400 border border-slate-800">${a.type}</span>
+            </div>
+            <p class="text-[11px] text-slate-400">${escapeHtml(a.description || '')}</p>
+            ${a.url ? `<a href="${a.url}" target="_blank" class="text-[11px] text-indigo-400 hover:underline font-mono truncate block">${a.url}</a>` : ''}
+          </div>
+        `).join('');
+      } catch (e) {
+        container.innerHTML = `<p class="text-rose-400">자산 로드 실패: ${e.message}</p>`;
+      }
+    }
+
+    // Simple Escape & Markdown Formatter
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function formatMarkdown(text) {
+      if (!text) return '';
+      let out = escapeHtml(text);
+      // Bold
+      out = out.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // Italic
+      out = out.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      // Line break
+      out = out.replace(/\n/g, '<br/>');
+      return out;
+    }
+  </script>
+
+</body>
+</html>

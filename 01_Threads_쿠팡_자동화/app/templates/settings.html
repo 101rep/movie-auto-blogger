@@ -1,0 +1,628 @@
+{% extends "base.html" %}
+
+{% block title %}시스템 설정{% endblock %}
+{% block header_title %}시스템 및 엔진 설정{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+
+  <!-- Section 1: Score Weights Settings -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
+    <div>
+      <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+        <i class="fa-solid fa-calculator text-brand-600"></i>
+        <span>상품 평가 가중치 설정 (Scoring Weights)</span>
+      </h3>
+      <p class="text-xs text-slate-500 mt-1">총 100점 기준으로 각 평가 항목의 배점을 조정할 수 있습니다.</p>
+    </div>
+
+    <form id="weights-form" onsubmit="saveWeights(event)" class="space-y-4 text-xs">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">가격 적합성 배점</label>
+          <input type="number" id="w-price" value="{{ weights.price }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold text-slate-900">
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">리뷰 신뢰도 배점</label>
+          <input type="number" id="w-review" value="{{ weights.review }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold text-slate-900">
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">구매 전환력 배점</label>
+          <input type="number" id="w-purchase" value="{{ weights.purchase }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold text-slate-900">
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">문제 해결력 배점</label>
+          <input type="number" id="w-problem" value="{{ weights.problem }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold text-slate-900">
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">콘텐츠 소재성 배점</label>
+          <input type="number" id="w-content" value="{{ weights.content }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold text-slate-900">
+        </div>
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">시즌성 배점</label>
+          <input type="number" id="w-seasonality" value="{{ weights.seasonality }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold text-slate-900">
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2 rounded-xl shadow-sm transition">
+          가중치 저장
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Section 2: Partner Disclosure Settings -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
+    <div>
+      <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+        <i class="fa-solid fa-scale-balanced text-brand-600"></i>
+        <span>공정위 파트너스 고지 문구 관리</span>
+      </h3>
+      <p class="text-xs text-slate-500 mt-1">댓글 1에 자동으로 삽입되는 공정거래위원회 심사지침 준수 문구입니다.</p>
+    </div>
+
+    <form id="disclosure-form" onsubmit="saveDisclosure(event)" class="space-y-4 text-xs">
+      <div>
+        <textarea id="disclosure-text" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 font-medium focus:outline-none focus:border-brand-500">{{ partners_disclosure }}</textarea>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2 rounded-xl shadow-sm transition">
+          고지 문구 저장
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Section 3: Prompt Version Management -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
+    <div>
+      <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+        <i class="fa-solid fa-terminal text-brand-600"></i>
+        <span>AI 프롬프트 버전 현황 (Prompt Versions)</span>
+      </h3>
+      <p class="text-xs text-slate-500 mt-1">코드 분리 및 DB 기반으로 버전 관리되는 핵심 엔진 프롬프트 목록입니다.</p>
+    </div>
+
+    <div class="divide-y divide-slate-100 text-xs">
+      {% for p in prompts %}
+      <div class="py-3 flex items-start justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-900">{{ p.name }}</span>
+            <span class="bg-brand-50 text-brand-700 font-bold px-2 py-0.5 rounded text-[10px]">{{ p.version }}</span>
+            {% if p.active %}<span class="bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded text-[10px] font-bold">ACTIVE</span>{% endif %}
+          </div>
+          <p class="text-slate-500 mt-1">{{ p.description }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Section 3.5: WordPress (trendspot24.com) & Gemini AI Integration -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5" x-data="{ wpStatus: null, loading: false }">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-brands fa-wordpress text-[#21759b]"></i>
+          <span>워드프레스 (trendspot24.com) & Google Gemini 상호 연동</span>
+          <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            실시간 연동 활성화
+          </span>
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">스레드 트래픽을 워드프레스 블로그로 연결하여 <strong>[구글 애드센스 + 제휴마케팅]</strong> 더블 수익을 창출하고 메타 제재를 100% 우회합니다.</p>
+      </div>
+      <button @click="loading = true; fetch('/api/wordpress/test', {method:'POST'}).then(r=>r.json()).then(d=>{ wpStatus=d; loading=false; }).catch(e=>{ alert('연결 확인 실패: '+e); loading=false; })" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition flex items-center gap-1.5 self-start sm:self-auto">
+        <i class="fa-solid fa-arrows-rotate" :class="{ 'fa-spin': loading }"></i>
+        <span>연결 상태 테스트</span>
+      </button>
+    </div>
+
+    <!-- Live Status Box -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+      <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/70 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-slate-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-globe text-blue-600"></i> 블로그 사이트
+          </span>
+          <a href="https://trendspot24.com" target="_blank" class="text-brand-600 hover:underline font-bold text-[11px] flex items-center gap-1">
+            trendspot24.com <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+          </a>
+        </div>
+        <div class="flex items-center justify-between text-slate-600 text-[11px]">
+          <span>연동 계정:</span>
+          <span class="font-mono font-semibold text-slate-800">ktaehoon80@gmail.com</span>
+        </div>
+        <div class="flex items-center justify-between text-slate-600 text-[11px]">
+          <span>REST API 상태:</span>
+          <span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded">HTTP 200 정상 연결됨</span>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl border border-slate-200/80 bg-slate-50/70 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-slate-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> AI 글쓰기 엔진
+          </span>
+          <span class="bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded text-[11px]">Google Gemini 3.6 Flash</span>
+        </div>
+        <div class="flex items-center justify-between text-slate-600 text-[11px]">
+          <span>E-E-A-T 품질 가드:</span>
+          <span class="text-blue-700 font-bold">인간형 취재/경험 노트북 적용</span>
+        </div>
+        <div class="flex items-center justify-between text-slate-600 text-[11px]">
+          <span>Anti-Cliche 필터:</span>
+          <span class="text-emerald-700 font-bold">AI 상투어구 100% 제거 활성화</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature Pillars -->
+    <div class="p-3.5 rounded-xl border border-blue-100 bg-blue-50/50 flex flex-wrap items-center gap-3 text-xs text-blue-900">
+      <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-check-circle text-blue-600"></i> 스레드 첫 댓글 안전 브릿지 자동 연동</span>
+      <span class="text-blue-300">|</span>
+      <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-check-circle text-blue-600"></i> 구글 애드센스 + 쿠팡 파트너스 더블 수익 모드</span>
+      <span class="text-blue-300">|</span>
+      <span class="font-bold flex items-center gap-1"><i class="fa-solid fa-check-circle text-blue-600"></i> 메타 상업용 봇 제재 0% 우회</span>
+    </div>
+
+    <div x-show="wpStatus" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
+      <i class="fa-solid fa-circle-check text-emerald-600"></i>
+      <span x-text="wpStatus ? wpStatus.message : ''"></span>
+    </div>
+  </div>
+
+  <!-- Section 4: Multi-Account Management (3-Cluster Architecture) -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-brands fa-threads text-brand-600"></i>
+          <span>Threads 다중 계정 운영 클러스터 (Multi-Account)</span>
+          <span class="text-xs bg-brand-50 text-brand-700 px-2.5 py-0.5 rounded-full font-bold">10+ 계정 최적화</span>
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">계정별 특화 분야와 페르소나를 정의하여 AI가 콘텐츠와 상품을 지능적으로 분배 발행합니다.</p>
+      </div>
+      <button onclick="document.getElementById('new-account-box').classList.toggle('hidden')" class="bg-slate-900 hover:bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5 self-start md:self-auto">
+        <i class="fa-solid fa-plus"></i> 신규 계정 추가
+      </button>
+    </div>
+
+    <!-- 3-Cluster Strategy Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+      <div class="p-3.5 rounded-xl border border-blue-100 bg-blue-50/50 space-y-1">
+        <div class="font-bold text-blue-900 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span> 1. 버티컬 전문형 (카테고리)
+        </div>
+        <p class="text-[11px] text-slate-600">리빙/인테리어, 디지털/가전, 뷰티/케어 등 한 분야만 집중 공략하여 알고리즘 점수 극대화</p>
+      </div>
+      <div class="p-3.5 rounded-xl border border-purple-100 bg-purple-50/50 space-y-1">
+        <div class="font-bold text-purple-900 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-purple-500"></span> 2. 타깃 페르소나형 (화자)
+        </div>
+        <p class="text-[11px] text-slate-600">자취 5년차, 30대 찌든 직장인, 똑순이 육아맘 등 명확한 화자의 진솔한 일상 리뷰 포지셔닝</p>
+      </div>
+      <div class="p-3.5 rounded-xl border border-amber-100 bg-amber-50/50 space-y-1">
+        <div class="font-bold text-amber-900 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span> 3. 트렌드/이슈형 (소구)
+        </div>
+        <p class="text-[11px] text-slate-600">품절 대란템, 호구 탈출 비교, 1+1 쟁여템 등 즉각적인 반응과 클릭을 이끌어내는 고바이럴형</p>
+      </div>
+    </div>
+
+    <!-- Safety Alert Banner for Multi-Account & Algorithm -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 text-white text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 font-bold shrink-0">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <div>
+          <div class="font-bold text-amber-300">알고리즘 안전 가이드 (10+ 계정 운영 원칙)</div>
+          <p class="text-slate-400 text-[11px] mt-0.5">신규 계정은 <strong>3~5일 예열 모드</strong> 필수 / 1기기 1계정 원칙 준수 / <strong>스알이·품앗이 절대 금지</strong></p>
+        </div>
+      </div>
+      <button onclick="openHelpGuideModal(); switchHelpTab('tab-tips');" class="bg-white/10 hover:bg-white/20 text-white text-[11px] font-semibold px-3 py-1.5 rounded-lg transition shrink-0">
+        4대 불변의 법칙 보기 &rarr;
+      </button>
+    </div>
+
+    <!-- New Account Form Box -->
+    <div id="new-account-box" class="hidden bg-slate-50 p-5 rounded-xl border border-slate-200 text-xs space-y-4 animate-in fade-in duration-150">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-2.5">
+        <h4 class="font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-brand-600"></i> 신규 Threads 계정 및 포지셔닝 등록
+        </h4>
+        <button type="button" onclick="document.getElementById('new-account-box').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">&times;</button>
+      </div>
+
+      <form id="add-account-form" onsubmit="addAccount(event)" class="space-y-3.5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">계정 운영 클러스터 유형 <span class="text-rose-500">*</span></label>
+            <select id="acc-cluster" class="w-full bg-white border border-slate-200 rounded-lg p-2 font-medium focus:border-brand-500">
+              <option value="VERTICAL">1. 버티컬 전문형 (특정 카테고리 집중)</option>
+              <option value="PERSONA">2. 타깃 페르소나형 (특정 화자 캐릭터)</option>
+              <option value="TREND">3. 트렌드/이슈형 (가성비·품절대란 특화)</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">계정 식별 명칭 (예: 자취템 큐레이터) <span class="text-rose-500">*</span></label>
+            <input type="text" id="acc-name" required placeholder="예: 스마트 살림 큐레이터" class="w-full bg-white border border-slate-200 rounded-lg p-2 font-medium">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">Threads 사용자 핸들 <span class="text-rose-500">*</span></label>
+            <input type="text" id="acc-handle" required placeholder="예: kth.101rep 또는 @my_threads_id" class="w-full bg-white border border-slate-200 rounded-lg p-2 font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">주력 카테고리 (예: 리빙, 디지털)</label>
+            <input type="text" id="acc-category" placeholder="디지털/가전, 생활용품" class="w-full bg-white border border-slate-200 rounded-lg p-2 font-medium">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">타깃 오디언스 (예: 2030 자취생)</label>
+            <input type="text" id="acc-target" placeholder="2030 직장인, 1인가구" class="w-full bg-white border border-slate-200 rounded-lg p-2 font-medium">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">글 어조/말투 (Tone)</label>
+            <select id="acc-tone" class="w-full bg-white border border-slate-200 rounded-lg p-2 font-medium">
+              <option value="친근하고 진솔한 일상 어조">친근하고 진솔한 일상 어조 (기본)</option>
+              <option value="직장인 현실 공감 어조">직장인 현실 공감 어조 (피로, 칼퇴)</option>
+              <option value="팩트 중심 똑순이 분석 어조">팩트 중심 똑순이 분석 어조 (가성비 비교)</option>
+              <option value="호들갑 바이럴 찐후기 어조">호들갑 바이럴 찐후기 어조 (이거 미쳤다)</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">초기 운영 모드</label>
+            <select id="acc-warmup" class="w-full bg-white border border-slate-200 rounded-lg p-2 font-medium">
+              <option value="WARMING_UP">🌱 3~5일 예열 모드 (무링크 빌드업)</option>
+              <option value="ACTIVE" selected>⚡ 정상 가동 (머니포스트 결합)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">Threads User Access Token (생략 시 Mock 동작)</label>
+          <input type="password" id="acc-token" placeholder="Meta Graph API Access Token (생략 시 안전한 시뮬레이션 모드로 동작)" class="w-full bg-white border border-slate-200 rounded-lg p-2 font-mono text-[11px]">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" onclick="document.getElementById('new-account-box').classList.add('hidden')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg font-semibold transition">취소</button>
+          <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2 rounded-lg shadow-sm transition">등록 완료</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Cluster Filter Tabs -->
+    <div class="flex items-center gap-2 border-b border-slate-100 pb-2 text-xs font-semibold overflow-x-auto">
+      <button onclick="filterAccountCluster('ALL')" class="acc-filter-btn px-3 py-1.5 rounded-lg bg-slate-900 text-white" id="af-ALL">전체 계정 ({{ accounts|length }})</button>
+      <button onclick="filterAccountCluster('VERTICAL')" class="acc-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" id="af-VERTICAL">버티컬 전문형</button>
+      <button onclick="filterAccountCluster('PERSONA')" class="acc-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" id="af-PERSONA">타깃 페르소나형</button>
+      <button onclick="filterAccountCluster('TREND')" class="acc-filter-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" id="af-TREND">트렌드/이슈형</button>
+    </div>
+
+    <!-- Accounts Grid/List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="accounts-container">
+      {% for acc in accounts %}
+      <div class="account-card p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col justify-between space-y-3 hover:border-brand-300 transition" data-cluster="{{ acc.cluster_type or 'VERTICAL' }}">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-base shrink-0 shadow-sm">
+              <i class="fa-brands fa-threads"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-slate-900 text-xs truncate">{{ acc.display_name or acc.username }}</span>
+                {% if (acc.cluster_type or 'VERTICAL') == 'VERTICAL' %}
+                <span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded text-[10px] border border-blue-200/60">버티컬</span>
+                {% elif acc.cluster_type == 'PERSONA' %}
+                <span class="bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded text-[10px] border border-purple-200/60">페르소나</span>
+                {% else %}
+                <span class="bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded text-[10px] border border-amber-200/60">트렌드</span>
+                {% endif %}
+              </div>
+              <p class="text-[11px] text-slate-500 font-mono mt-0.5 truncate">@{{ acc.username }}</p>
+            </div>
+          </div>
+          <button onclick="deleteAccount({{ acc.id }})" class="text-slate-300 hover:text-rose-600 transition p-1 text-xs" title="계정 삭제">
+            <i class="fa-regular fa-trash-can"></i>
+          </button>
+        </div>
+
+        <div class="bg-slate-50 p-2.5 rounded-lg text-[11px] space-y-1 text-slate-600">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">주력 분야:</span>
+            <span class="font-semibold text-slate-800">{{ acc.category or '전체 상품' }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">타깃 독자:</span>
+            <span class="font-semibold text-slate-800">{{ acc.target_audience or '2040 일반 소비자' }}</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">말투(어조):</span>
+            <span class="font-semibold text-slate-800 truncate max-w-[140px]">{{ acc.tone or '친근한 일상체' }}</span>
+          </div>
+        </div>
+
+        <!-- Token Status & Edit Bar -->
+        <div class="flex items-center justify-between p-2.5 rounded-xl border {% if acc.access_token %}border-emerald-200 bg-emerald-50/50{% else %}border-amber-200 bg-amber-50/40{% endif %} text-[11px]">
+          <div class="flex items-center gap-1.5 min-w-0">
+            {% if acc.access_token %}
+            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <span class="font-bold text-emerald-800 flex items-center gap-1"><i class="fa-solid fa-key text-[10px]"></i> 토큰 연동됨</span>
+            <span class="text-slate-400 font-mono text-[10px] hidden sm:inline">({{ acc.access_token[:6] }}...{{ acc.access_token[-4:] }})</span>
+            {% else %}
+            <span class="w-2 h-2 rounded-full bg-amber-400 shrink-0"></span>
+            <span class="font-bold text-amber-800 flex items-center gap-1"><i class="fa-solid fa-key text-[10px]"></i> 토큰 미등록</span>
+            <span class="text-slate-400 text-[10px] hidden sm:inline">(대기/시뮬레이션)</span>
+            {% endif %}
+          </div>
+          <button type="button" onclick="openTokenModal({{ acc.id }}, '{{ acc.username }}')" class="px-2.5 py-1 rounded-lg {% if acc.access_token %}bg-white hover:bg-slate-100 text-slate-700 border border-slate-200{% else %}bg-brand-600 hover:bg-brand-700 text-white font-bold shadow-sm{% endif %} text-[10px] transition shrink-0 flex items-center gap-1">
+            <i class="fa-solid fa-pen-to-square"></i> {% if acc.access_token %}토큰 변경{% else %}🔑 토큰 등록{% endif %}
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between pt-1 text-[10px]">
+          <div class="flex items-center gap-1.5">
+            {% if acc.warmup_status == 'WARMING_UP' %}
+            <button onclick="toggleWarmup({{ acc.id }}, 'ACTIVE')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-2 py-0.5 rounded flex items-center gap-1 transition" title="클릭 시 정상 가동으로 전환">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> 예열 모드 (3~5일)
+            </button>
+            {% else %}
+            <button onclick="toggleWarmup({{ acc.id }}, 'WARMING_UP')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded flex items-center gap-1 transition" title="클릭 시 예열 모드로 전환">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 정상 가동 (4:1 믹스)
+            </button>
+            {% endif %}
+            <span class="text-slate-400">연속 빌드업: {{ acc.organic_streak or 0 }}회</span>
+          </div>
+          <span class="text-slate-400">등록일: {{ acc.created_at.strftime('%Y-%m-%d') if acc.created_at else '최근' }}</span>
+        </div>
+      </div>
+      {% else %}
+      <div class="col-span-2 py-8 text-center text-slate-400 text-xs">
+        등록된 다중 계정이 없습니다. 상단의 [+ 신규 계정 추가]를 눌러 계정을 등록해보세요.
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Token Update Modal -->
+  <div id="token-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-base">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">Threads 액세스 토큰 등록 / 변경</h4>
+            <p class="text-xs text-slate-500 font-mono" id="token-modal-handle">@username</p>
+          </div>
+        </div>
+        <button onclick="closeTokenModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="text-xs text-slate-600 space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+        <div class="font-bold text-slate-800 flex items-center gap-1.5">
+          <i class="fa-brands fa-meta text-blue-600"></i> Meta 사용자 토큰 복사 방법:
+        </div>
+        <ol class="list-decimal list-inside space-y-1 text-slate-600 text-[11px] leading-relaxed">
+          <li>Meta for Developers의 <strong>[사용자 토큰 생성기]</strong> 화면 확인</li>
+          <li>해당 계정 옆의 <strong>[액세스 토큰 생성하기]</strong> 버튼 클릭</li>
+          <li>팝업에서 <strong>[계속]</strong> 클릭 후 나타나는 <strong>장기 토큰 복사</strong></li>
+          <li>아래 입력창에 붙여넣고 <strong>[토큰 저장 및 즉시 연동]</strong> 클릭</li>
+        </ol>
+      </div>
+
+      <form onsubmit="saveToken(event)" class="space-y-3">
+        <input type="hidden" id="token-modal-acc-id">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Threads User Access Token</label>
+          <textarea id="token-modal-input" required rows="3" placeholder="THQ... 또는 THAA... 로 시작하는 토큰을 붙여넣으세요" class="w-full text-xs font-mono p-3 bg-white border border-slate-200 rounded-xl focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none"></textarea>
+        </div>
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" onclick="closeTokenModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">취소</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl shadow transition flex items-center gap-1.5">
+            <i class="fa-solid fa-check"></i> 토큰 저장 및 즉시 연동
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function saveWeights(e) {
+    e.preventDefault();
+    const payload = {
+      price: parseInt(document.getElementById('w-price').value),
+      review: parseInt(document.getElementById('w-review').value),
+      purchase: parseInt(document.getElementById('w-purchase').value),
+      problem: parseInt(document.getElementById('w-problem').value),
+      content: parseInt(document.getElementById('w-content').value),
+      seasonality: parseInt(document.getElementById('w-seasonality').value)
+    };
+
+    try {
+      const res = await fetch('/api/settings/weights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        showToast('가중치가 성공적으로 저장되었습니다!', 'success');
+      } else {
+        showToast('가중치 저장 실패', 'error');
+      }
+    } catch (err) {
+      showToast('오류: ' + err.message, 'error');
+    }
+  }
+
+  async function saveDisclosure(e) {
+    e.preventDefault();
+    const text = document.getElementById('disclosure-text').value.trim();
+
+    try {
+      const res = await fetch('/api/settings/disclosure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ disclosure: text })
+      });
+      if (res.ok) {
+        showToast('고지 문구가 저장되었습니다!', 'success');
+      } else {
+        showToast('고지 문구 저장 실패', 'error');
+      }
+    } catch (err) {
+      showToast('오류: ' + err.message, 'error');
+    }
+  }
+
+  async function addAccount(e) {
+    e.preventDefault();
+    const cluster_type = document.getElementById('acc-cluster').value;
+    const display_name = document.getElementById('acc-name').value.trim();
+    let handle = document.getElementById('acc-handle').value.trim();
+    if (handle.startsWith('@')) handle = handle.substring(1);
+    const category = document.getElementById('acc-category').value.trim();
+    const target_audience = document.getElementById('acc-target').value.trim();
+    const tone = document.getElementById('acc-tone').value;
+    const token = document.getElementById('acc-token').value.trim();
+
+    const warmup_status = document.getElementById('acc-warmup') ? document.getElementById('acc-warmup').value : 'ACTIVE';
+
+    try {
+      const res = await fetch('/api/accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: handle,
+          display_name: display_name,
+          cluster_type: cluster_type,
+          category: category || null,
+          target_audience: target_audience || null,
+          tone: tone,
+          access_token: token || null,
+          status: 'ACTIVE',
+          warmup_status: warmup_status,
+          post_ratio_mode: 'MIX_4_TO_1'
+        })
+      });
+      if (res.ok) {
+        showToast('클러스터 계정이 성공적으로 등록되었습니다!', 'success');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        const err = await res.json();
+        showToast('계정 등록 실패: ' + (err.detail || '오류'), 'error');
+      }
+    } catch (err) {
+      showToast('오류: ' + err.message, 'error');
+    }
+  }
+
+  async function toggleWarmup(accId, newStatus) {
+    try {
+      const res = await fetch(`/api/accounts/${accId}/warmup`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ warmup_status: newStatus })
+      });
+      if (res.ok) {
+        showToast(newStatus === 'WARMING_UP' ? '계정이 [예열 모드 (3~5일)]로 전환되었습니다.' : '계정이 [정상 가동 (4:1 믹스)]으로 전환되었습니다.', 'success');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast('상태 변경 실패', 'error');
+      }
+    } catch (err) {
+      showToast('오류: ' + err.message, 'error');
+    }
+  }
+
+  function filterAccountCluster(cluster) {
+    document.querySelectorAll('.acc-filter-btn').forEach(btn => {
+      btn.classList.remove('bg-slate-900', 'text-white');
+      btn.classList.add('bg-slate-100', 'text-slate-600');
+    });
+
+    const activeBtn = document.getElementById('af-' + cluster);
+    if (activeBtn) {
+      activeBtn.classList.remove('bg-slate-100', 'text-slate-600');
+      activeBtn.classList.add('bg-slate-900', 'text-white');
+    }
+
+    const cards = document.querySelectorAll('.account-card');
+    cards.forEach(card => {
+      if (cluster === 'ALL' || card.getAttribute('data-cluster') === cluster) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  async function deleteAccount(accId) {
+    if (!confirm('정말 이 계정을 삭제하시겠습니까? 연결된 콘텐츠의 계정 연결도 해제됩니다.')) return;
+    try {
+      const res = await fetch(`/api/accounts/${accId}`, { method: 'DELETE' });
+      if (res.ok) {
+        showToast('계정이 삭제되었습니다!', 'success');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast('삭제 실패', 'error');
+      }
+    } catch (err) {
+      showToast('오류: ' + err.message, 'error');
+    }
+  }
+
+  function openTokenModal(accId, username) {
+    document.getElementById('token-modal-acc-id').value = accId;
+    document.getElementById('token-modal-handle').innerText = '@' + username;
+    document.getElementById('token-modal-input').value = '';
+    document.getElementById('token-modal').classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('token-modal-input').focus();
+    }, 100);
+  }
+
+  function closeTokenModal() {
+    document.getElementById('token-modal').classList.add('hidden');
+  }
+
+  async function saveToken(e) {
+    e.preventDefault();
+    const accId = document.getElementById('token-modal-acc-id').value;
+    const token = document.getElementById('token-modal-input').value.trim();
+    if (!token) {
+      showToast('토큰을 입력해주세요.', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/accounts/${accId}/token`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: token })
+      });
+      if (res.ok) {
+        showToast('Threads 토큰이 안전하게 연동되었습니다!', 'success');
+        closeTokenModal();
+        setTimeout(() => location.reload(), 600);
+      } else {
+        const err = await res.json();
+        showToast('토큰 저장 실패: ' + (err.detail || '오류'), 'error');
+      }
+    } catch (err) {
+      showToast('오류: ' + err.message, 'error');
+    }
+  }
+</script>
+{% endblock %}

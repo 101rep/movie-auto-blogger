@@ -1,0 +1,1129 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - 상세 및 자동화{% endblock %}
+{% block header_title %}상품 파이프라인 관리{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8 pb-16">
+
+  <!-- Breadcrumb & Nav -->
+  <div class="flex items-center gap-2 text-xs text-slate-500">
+    <a href="/products" class="hover:text-brand-600 transition">상품 관리</a>
+    <span>/</span>
+    <span class="text-slate-800 font-semibold truncate">{{ product.name }}</span>
+  </div>
+
+  <!-- Product Overview Card -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-start">
+    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full md:w-52 h-52 rounded-xl object-cover bg-slate-100 border border-slate-200 shrink-0">
+    
+    <div class="flex-1 space-y-3 min-w-0">
+      <div class="flex items-center gap-2 flex-wrap">
+        <span class="bg-brand-50 text-brand-700 text-xs font-bold px-2.5 py-1 rounded-lg">{{ product.category }}</span>
+        <span class="bg-blue-50 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-lg">{{ product.shipping_type }}</span>
+        <span class="text-xs text-slate-400">ID: {{ product.external_id }}</span>
+      </div>
+
+      <h1 class="text-xl font-extrabold text-slate-900 leading-snug">{{ product.name }}</h1>
+      <p class="text-xs text-slate-600 leading-relaxed">{{ product.description }}</p>
+
+      <div class="flex items-center gap-6 pt-2 flex-wrap">
+        <div>
+          <span class="text-[11px] text-slate-400 block">쿠팡 판매가</span>
+          <span class="text-2xl font-black text-slate-900">{{ "{:,}".format(product.price) }}원</span>
+          {% if product.original_price %}
+          <span class="text-xs text-slate-400 line-through ml-1">{{ "{:,}".format(product.original_price) }}원</span>
+          {% endif %}
+        </div>
+
+        <div class="border-l border-slate-200 pl-6">
+          <span class="text-[11px] text-slate-400 block">사용자 만족도</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-amber-500 font-extrabold text-base"><i class="fa-solid fa-star"></i> {{ product.rating }}</span>
+            <span class="text-xs text-slate-500 font-medium">(누적 리뷰 {{ "{:,}".format(product.review_count) }}개)</span>
+          </div>
+        </div>
+
+        <div class="border-l border-slate-200 pl-6">
+          <span class="text-[11px] text-slate-400 block">원문 링크</span>
+          <a href="{{ product.url }}" target="_blank" class="text-xs text-blue-600 hover:underline flex items-center gap-1 font-semibold mt-1">
+            <span>쿠팡 페이지 확인</span> <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+          </a>
+        </div>
+
+        <div class="ml-auto flex items-center gap-2">
+          <button onclick="runAllProductWorkflow({{ product.id }})" id="btn-run-all" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-bolt"></i> ⚡ 이 상품 원클릭 전자동 완성 (점수+DNA+아이디어)
+          </button>
+          <button onclick="deleteCurrentProduct({{ product.id }})" class="bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs font-semibold px-3 py-2.5 rounded-xl transition flex items-center gap-1.5" title="상품 삭제">
+            <i class="fa-solid fa-trash-can"></i> <span>삭제</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid: STEP 4 (Score) & STEP 5 (DNA) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+    <!-- STEP 4: Product Score Engine (4 Cols) -->
+    <div class="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center">4</span>
+          <h3 class="font-bold text-slate-900 text-sm">상품 점수 엔진 (Scoring)</h3>
+        </div>
+        <button onclick="runScoring({{ product.id }})" id="btn-score" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
+          <i class="fa-solid fa-calculator"></i> AI 평가 실행
+        </button>
+      </div>
+
+      <div id="score-container">
+        {% if score %}
+        <div class="space-y-4">
+          <div class="bg-gradient-to-tr from-brand-900 to-indigo-900 text-white rounded-xl p-5 text-center shadow">
+            <span class="text-xs text-indigo-200 font-semibold uppercase tracking-wider">종합 큐레이션 점수</span>
+            <div class="text-4xl font-black mt-1 text-emerald-400">{{ score.total_score }} <span class="text-base font-normal text-slate-300">/ 100</span></div>
+            <p class="text-xs text-slate-200 mt-2 italic px-2 bg-white/10 py-1.5 rounded-lg font-medium">"{{ score.reason }}"</p>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between items-center py-1 border-b border-slate-100">
+              <span class="text-slate-600">가격 적합성</span>
+              <span class="font-bold text-slate-900">{{ score.price_score }} / 20</span>
+            </div>
+            <div class="flex justify-between items-center py-1 border-b border-slate-100">
+              <span class="text-slate-600">리뷰 신뢰도</span>
+              <span class="font-bold text-slate-900">{{ score.review_score }} / 20</span>
+            </div>
+            <div class="flex justify-between items-center py-1 border-b border-slate-100">
+              <span class="text-slate-600">구매 전환력</span>
+              <span class="font-bold text-slate-900">{{ score.conversion_score }} / 20</span>
+            </div>
+            <div class="flex justify-between items-center py-1 border-b border-slate-100">
+              <span class="text-slate-600">콘텐츠 소재성</span>
+              <span class="font-bold text-slate-900">{{ score.content_score }} / 15</span>
+            </div>
+            <div class="flex justify-between items-center py-1 border-b border-slate-100">
+              <span class="text-slate-600">배송 만족도</span>
+              <span class="font-bold text-slate-900">{{ score.shipping_score }} / 20</span>
+            </div>
+            <div class="flex justify-between items-center py-1 border-b border-slate-100">
+              <span class="text-slate-600">시즌성</span>
+              <span class="font-bold text-slate-900">{{ score.seasonality_score }} / 10</span>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="py-12 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-xl">
+          <i class="fa-solid fa-chart-simple text-2xl text-slate-300 mb-2"></i>
+          <p>아직 평가되지 않은 상품입니다.<br>'AI 평가 실행' 버튼을 눌러보세요.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- STEP 5: Product DNA Engine (7 Cols) -->
+    <div class="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center">5</span>
+          <h3 class="font-bold text-slate-900 text-sm">상품 DNA 엔진 (Product DNA)</h3>
+        </div>
+        <div class="flex gap-2">
+          {% if dna %}
+          <button onclick="runDNA({{ product.id }}, true)" id="btn-dna-refresh" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-3 py-1.5 rounded-lg transition">
+            <i class="fa-solid fa-arrows-rotate"></i> 재분석
+          </button>
+          {% else %}
+          <button onclick="runDNA({{ product.id }}, false)" id="btn-dna" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
+            <i class="fa-solid fa-dna"></i> 상품 DNA 분석
+          </button>
+          {% endif %}
+        </div>
+      </div>
+
+      <div id="dna-container">
+        {% if dna %}
+        <div class="space-y-4 text-xs">
+          <!-- Summary Banner -->
+          <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3.5 text-indigo-950 font-medium">
+            <span class="font-bold text-indigo-700 block mb-1"><i class="fa-solid fa-sparkles"></i> AI 핵심 요약</span>
+            {{ dna.ai_summary }}
+          </div>
+
+          <!-- 2-col Grid for DNA elements -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <span class="font-bold text-slate-700 block mb-1">🎯 타겟 고객</span>
+              <p class="text-slate-600 leading-relaxed">{{ dna.target_person }}</p>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <span class="font-bold text-slate-700 block mb-1">⚠️ 해결하는 문제</span>
+              <p class="text-slate-600 leading-relaxed">{{ dna.problem }}</p>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <span class="font-bold text-slate-700 block mb-1">💡 구매 이유 (Why Buy)</span>
+              <p class="text-slate-600 leading-relaxed">{{ dna.purchase_reason }}</p>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <span class="font-bold text-slate-700 block mb-1">🛑 망설임 요소 (Barrier)</span>
+              <p class="text-slate-600 leading-relaxed">{{ dna.purchase_barrier }}</p>
+            </div>
+          </div>
+
+          <!-- Evidence -->
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span class="font-bold text-slate-700 block mb-1">📊 실증 증거</span>
+            <p class="text-slate-600">{{ dna.evidence }}</p>
+          </div>
+        </div>
+        {% else %}
+        <div class="py-12 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-xl">
+          <i class="fa-solid fa-dna text-2xl text-slate-300 mb-2"></i>
+          <p>아직 DNA 분석이 완료되지 않았습니다.<br>'상품 DNA 분석' 버튼을 누르면 마케팅 관점에서 상품을 해체합니다.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STEP 6: Content Idea Engine (10 Angles) -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center">6</span>
+          <h3 class="font-bold text-slate-900 text-base">콘텐츠 아이디어 엔진 (10대 바이럴 각도)</h3>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">경험담, 문제해결, 비교, 가격/절약, 실수, 반전, 사용상황, 팁, 체크포인트, 예상밖 활용 10가지 각도로 후킹을 설계합니다.</p>
+      </div>
+      <button onclick="runIdeas({{ product.id }})" id="btn-ideas" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-2">
+        <i class="fa-solid fa-lightbulb"></i> 아이디어 10개 생성
+      </button>
+    </div>
+
+    <!-- Ideas Grid -->
+    <div id="ideas-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {% for idea in ideas %}
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:border-brand-300 hover:shadow-sm transition">
+        <div class="space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <span class="bg-indigo-100 text-indigo-800 text-[11px] font-bold px-2 py-0.5 rounded">
+              {{ idea.angle }}
+            </span>
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-medium">
+                목적: {{ idea.purpose }}
+              </span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded {% if idea.status == '선택' %}bg-emerald-100 text-emerald-800{% elif idea.status == '작성중' %}bg-purple-100 text-purple-800{% else %}bg-slate-200 text-slate-600{% endif %}">
+                {{ idea.status }}
+              </span>
+            </div>
+          </div>
+
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <span class="text-[10px] font-bold text-slate-400 block mb-0.5">후킹 (Hook)</span>
+            <p class="text-xs font-extrabold text-slate-900 leading-snug">"{{ idea.hook }}"</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-[11px] text-slate-600">
+            <div>
+              <span class="font-bold text-slate-500 block">타겟:</span>
+              <p class="truncate">{{ idea.target }}</p>
+            </div>
+            <div>
+              <span class="font-bold text-slate-500 block">해결 문제:</span>
+              <p class="truncate">{{ idea.problem }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 flex items-center justify-between border-t border-slate-200/60 mt-3">
+          <select onchange="updateIdeaStatus({{ idea.id }}, this.value)" class="text-[11px] bg-white border border-slate-200 rounded px-2 py-1 focus:outline-none">
+            <option value="대기" {% if idea.status == '대기' %}selected{% endif %}>대기</option>
+            <option value="선택" {% if idea.status == '선택' %}selected{% endif %}>선택</option>
+            <option value="작성중" {% if idea.status == '작성중' %}selected{% endif %}>작성중</option>
+            <option value="완료" {% if idea.status == '완료' %}selected{% endif %}>완료</option>
+            <option value="폐기" {% if idea.status == '폐기' %}selected{% endif %}>폐기</option>
+          </select>
+
+          <button onclick="openWriterModal({{ product.id }}, {{ idea.id }}, '{{ idea.hook|escape }}')" class="bg-slate-900 hover:bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
+            <i class="fa-solid fa-pen-nib"></i> Threads 글 쓰기 &rarr;
+          </button>
+        </div>
+      </div>
+      {% else %}
+      <div class="col-span-full py-12 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-xl">
+        <i class="fa-solid fa-lightbulb text-2xl text-slate-300 mb-2"></i>
+        <p>생성된 아이디어가 없습니다.<br>우측 상단의 '아이디어 10개 생성' 버튼을 클릭하세요.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- STEP 7: 🚀 [유튜브 8대 분석 반영] 네이버 쇼핑커넥트 6단계 구매설득 여정 & 롱테일 호기심 키워드 엔진 -->
+  <div class="bg-gradient-to-br from-emerald-50/50 via-white to-indigo-50/30 rounded-3xl p-7 border-2 border-emerald-500/20 shadow-lg space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-emerald-100 pb-5">
+      <div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="w-7 h-7 rounded-full bg-emerald-600 text-white text-xs font-black flex items-center justify-center shadow-sm">7</span>
+          <h3 class="font-extrabold text-slate-900 text-lg flex items-center gap-2">
+            <span>네이버 쇼핑커넥트 & 6단계 구매설득 여정 엔진</span>
+            <span class="text-[11px] bg-emerald-600 text-white px-2.5 py-0.5 rounded-full font-bold">수수료 5~30% 고마진</span>
+          </h3>
+        </div>
+        <p class="text-xs text-slate-600 mt-1.5 leading-relaxed">
+          유튜브 8대 성공 사례(유정씨·보람·내일Lab) 분석 공식 탑재: 단순 상품명 대신 <strong>롱테일 호기심 키워드 5종</strong>과 광고 거부감 0%의 <strong>6단계 스토리텔링 여정</strong>, 그리고 <strong>30초 숏폼 & Suno AI BGM</strong>을 원클릭으로 추출합니다.
+        </p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button onclick="fetchCuriosityKeywords({{ product.id }})" id="btn-curiosity-kw" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> 롱테일 키워드 5종 추출
+        </button>
+      </div>
+    </div>
+
+    <!-- Keyword Selector Container -->
+    <div class="space-y-3">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+          <i class="fa-solid fa-magnifying-glass text-emerald-600"></i> 호기심 롱테일 키워드 (클릭 시 자동 글 생성):
+        </span>
+        <span class="text-[11px] text-slate-400">네이버 1페이지 상단 노출 최적화</span>
+      </div>
+
+      <div id="pj-keywords-container" class="grid grid-cols-1 md:grid-cols-5 gap-2.5">
+        <div class="col-span-full py-8 text-center text-slate-400 text-xs border border-dashed border-emerald-200 rounded-2xl bg-emerald-50/20">
+          <i class="fa-solid fa-sparkles text-emerald-400 text-xl mb-1.5 block"></i>
+          위의 <strong>'롱테일 키워드 5종 추출'</strong> 버튼을 클릭하면 방송 파생형, 극세부 타깃형, 가성비 종결형 등 고효율 키워드가 생성됩니다.
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Bar (Platform, Persona, Tone) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm text-xs">
+      <div>
+        <label class="font-bold text-slate-700 block mb-1">
+          <i class="fa-solid fa-shield-halved text-emerald-600"></i> 플랫폼 및 공정위 규정:
+        </label>
+        <select id="pj-platform-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 font-bold text-slate-800 text-xs focus:outline-none focus:border-emerald-500">
+          <option value="NAVER_SHOPPING" selected>🟢 네이버 쇼핑커넥트 (최상단 고지 100% 자동 부착 / 내돈내산 충돌 방지)</option>
+          <option value="COUPANG">🔴 쿠팡 파트너스 (공정위 대가성 고지 포함)</option>
+          <option value="TOSS">🔵 토스 공동구매 (10% 쉐어링크 공구)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="font-bold text-slate-700 block mb-1">
+          <i class="fa-solid fa-user-tag text-indigo-600"></i> 극세부 타깃 페르소나:
+        </label>
+        <input type="text" id="pj-persona-input" placeholder="예: 키 170cm 이상 발목 시려 잠 못 자는 임산부" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2 font-medium text-slate-800 text-xs focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <div class="flex items-end">
+        <button onclick="triggerGeneratePJ({{ product.id }})" id="btn-pj-generate" class="w-full bg-slate-900 hover:bg-black text-white font-bold p-2.5 rounded-xl shadow transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-bolt text-amber-400"></i> 6단계 구매여정 글 생성 &rarr;
+        </button>
+      </div>
+    </div>
+
+    <!-- Generated Content Display (Tabs: 6-Step Post / 30s Shortform / Suno AI BGM) -->
+    <div id="pj-result-section" class="hidden space-y-4 pt-2">
+      <!-- Tabs -->
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <button onclick="switchPjTab('post')" id="tab-btn-post" class="pj-tab-btn px-4 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs shadow-sm transition flex items-center gap-1.5">
+          <i class="fa-solid fa-file-lines"></i> 1. 6단계 구매설득 본문
+        </button>
+        <button onclick="switchPjTab('shortform')" id="tab-btn-shortform" class="pj-tab-btn px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-100 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-film"></i> 2. 30초 숏폼 대본 (9:16)
+        </button>
+        <button onclick="switchPjTab('suno')" id="tab-btn-suno" class="pj-tab-btn px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-100 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-music"></i> 3. Suno AI BGM 프롬프트
+        </button>
+      </div>
+
+      <!-- Tab 1: 6-Step Post Body -->
+      <div id="pj-tab-post" class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-700">본문 내용 (최상단 공정위 고지 완벽 부착 + Anti-Cliche 검증 완료)</span>
+            <span class="text-[11px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">공정위 100% 준수</span>
+          </div>
+          <button onclick="copyPjText('pj-post-body-text')" class="text-xs text-brand-600 hover:text-brand-800 font-bold flex items-center gap-1">
+            <i class="fa-regular fa-copy"></i> 본문 복사
+          </button>
+        </div>
+        <textarea id="pj-post-body-text" rows="12" class="w-full bg-white border border-slate-200 rounded-2xl p-4 text-xs leading-relaxed text-slate-800 font-normal focus:outline-none focus:border-emerald-500 shadow-sm"></textarea>
+      </div>
+
+      <!-- Tab 2: 30s Shortform Script -->
+      <div id="pj-tab-shortform" class="hidden space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-700">네이버 클립 & 릴스 30초 세로형 대본 (4개 씬 구성)</span>
+          <button onclick="copyPjText('pj-shortform-narration')" class="text-xs text-brand-600 hover:text-brand-800 font-bold flex items-center gap-1">
+            <i class="fa-regular fa-copy"></i> 전체 나레이션 복사
+          </button>
+        </div>
+        <div id="pj-shortform-scenes" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        <textarea id="pj-shortform-narration" class="hidden"></textarea>
+      </div>
+
+      <!-- Tab 3: Suno AI BGM Prompt -->
+      <div id="pj-tab-suno" class="hidden bg-white p-5 rounded-2xl border border-slate-200 space-y-4 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-compact-disc text-indigo-600 text-lg"></i>
+            <span class="text-xs font-bold text-slate-900">Suno AI 오리지널 맞춤형 BGM 프롬프트</span>
+          </div>
+          <span class="text-[11px] bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded">저작권 프리 BGM</span>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs bg-slate-50 p-3 rounded-xl">
+          <div><span class="text-slate-400 block text-[10px]">추천 장르</span><strong id="pj-suno-genre" class="text-slate-800">-</strong></div>
+          <div><span class="text-slate-400 block text-[10px]">템포 (BPM)</span><strong id="pj-suno-bpm" class="text-slate-800">-</strong></div>
+          <div><span class="text-slate-400 block text-[10px]">악기 구성</span><strong id="pj-suno-instruments" class="text-slate-800 truncate block">-</strong></div>
+        </div>
+        <div class="space-y-1">
+          <span class="text-[11px] font-bold text-slate-600 block">Suno AI 복사용 프롬프트 명령어:</span>
+          <div class="flex items-center gap-2">
+            <input type="text" id="pj-suno-prompt-text" readonly class="flex-1 bg-slate-100 border border-slate-200 rounded-xl p-2.5 font-mono text-xs text-indigo-700 font-semibold focus:outline-none">
+            <button onclick="copyPjText('pj-suno-prompt-text')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow shrink-0 flex items-center gap-1.5">
+              <i class="fa-regular fa-copy"></i> 프롬프트 복사
+            </button>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-400 leading-relaxed italic">
+          💡 <a href="https://suno.com" target="_blank" class="text-indigo-600 underline">suno.com</a> 프롬프트 입력창에 위 명령어를 붙여넣고 [Instrumental] 옵션을 체크한 뒤 생성하면 나레이션을 방해하지 않는 30초 맞춤형 BGM이 완성됩니다.
+        </p>
+      </div>
+
+      <!-- Content Save Action Footer -->
+      <div class="p-4 bg-white rounded-2xl border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-3 shadow-sm">
+        <div class="text-xs text-slate-500">
+          이 6단계 설득글을 콘텐츠 보관소로 저장하시겠습니까?
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="savePjContent('DRAFT')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs transition">
+            임시 저장 (DRAFT)
+          </button>
+          <button onclick="savePjContent('APPROVED')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-xl text-xs shadow transition flex items-center gap-1.5">
+            <i class="fa-solid fa-check"></i> 최종 승인 저장 (APPROVED)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Threads Writer Modal (STEP 7~9) -->
+<div id="writer-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <!-- Modal Header -->
+    <div class="p-6 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center font-bold">
+          <i class="fa-brands fa-threads"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-900 text-sm">Threads 본문 & 댓글 생성 엔진</h3>
+          <p class="text-[11px] text-slate-500">모바일 특화 문체, 사실 기반 검증, AI 냄새 제거 규칙 적용</p>
+        </div>
+      </div>
+      <button onclick="closeWriterModal()" class="text-slate-400 hover:text-slate-600 text-lg p-1">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+      
+      <!-- Control Panel: Hook Styles & Operational Strategies -->
+      <div class="space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+        
+        <!-- 4 Cheat-key Hook Styles -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt text-amber-500"></i> 1초 후킹 4대 치트키 문체 (영상 실전 분석 기반):
+            </span>
+            <span class="text-[10px] text-slate-500 font-medium">원클릭 실시간 생성</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button type="button" onclick="setHookStyle('loss_aversion')" class="hook-btn bg-white border border-slate-200 hover:border-brand-500 text-slate-700 px-3 py-2 rounded-xl text-left transition" data-hook="loss_aversion">
+              <div class="font-bold text-slate-900 text-[11px] flex items-center gap-1">
+                <span>💸 손실회피형</span>
+              </div>
+              <p class="text-[10px] text-slate-500 mt-0.5 truncate">"모르면 5만원 날릴 뻔"</p>
+            </button>
+            <button type="button" onclick="setHookStyle('counter_intuitive')" class="hook-btn bg-white border border-slate-200 hover:border-brand-500 text-slate-700 px-3 py-2 rounded-xl text-left transition" data-hook="counter_intuitive">
+              <div class="font-bold text-slate-900 text-[11px] flex items-center gap-1">
+                <span>🛑 역발상 고발형</span>
+              </div>
+              <p class="text-[10px] text-slate-500 mt-0.5 truncate">"유명하다고 사지 마세요"</p>
+            </button>
+            <button type="button" onclick="setHookStyle('alternative')" class="hook-btn bg-white border border-slate-200 hover:border-brand-500 text-slate-700 px-3 py-2 rounded-xl text-left transition" data-hook="alternative">
+              <div class="font-bold text-slate-900 text-[11px] flex items-center gap-1">
+                <span>⚖️ 소비대안형</span>
+              </div>
+              <p class="text-[10px] text-slate-500 mt-0.5 truncate">"비싼 브랜드 대신 이거"</p>
+            </button>
+            <button type="button" onclick="setHookStyle('daily_reality')" class="hook-btn bg-white border border-slate-200 hover:border-brand-500 text-slate-700 px-3 py-2 rounded-xl text-left transition" data-hook="daily_reality">
+              <div class="font-bold text-slate-900 text-[11px] flex items-center gap-1">
+                <span>☕ 극현실 일상형</span>
+              </div>
+              <p class="text-[10px] text-slate-500 mt-0.5 truncate">"퇴근 후 삶의 질 상승"</p>
+            </button>
+          </div>
+          <!-- General Tone Variations -->
+          <div class="flex flex-wrap items-center gap-1.5 mt-2.5 pt-2 border-t border-slate-200/70">
+            <span class="text-[11px] text-slate-500 mr-1">일반 어조:</span>
+            <button type="button" onclick="setHookStyle('default')" class="hook-btn bg-slate-900 text-white px-2.5 py-1 rounded-lg font-semibold text-[11px] transition" data-hook="default">기본 작성</button>
+            <button type="button" onclick="setHookStyle('natural')" class="hook-btn bg-white border border-slate-200 text-slate-600 px-2.5 py-1 rounded-lg text-[11px] hover:bg-slate-100 transition" data-hook="natural">자연스럽게</button>
+            <button type="button" onclick="setHookStyle('short')" class="hook-btn bg-white border border-slate-200 text-slate-600 px-2.5 py-1 rounded-lg text-[11px] hover:bg-slate-100 transition" data-hook="short">더 짧게</button>
+            <button type="button" onclick="setHookStyle('hook')" class="hook-btn bg-white border border-slate-200 text-slate-600 px-2.5 py-1 rounded-lg text-[11px] hover:bg-slate-100 transition" data-hook="hook">강한 후킹</button>
+            <button type="button" onclick="setHookStyle('info')" class="hook-btn bg-white border border-slate-200 text-slate-600 px-2.5 py-1 rounded-lg text-[11px] hover:bg-slate-100 transition" data-hook="info">정보 중심</button>
+          </div>
+        </div>
+
+        <!-- Operational Rules Grid: Strategy, Platform, Mix, Account -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">
+              <i class="fa-solid fa-link text-indigo-500"></i> 본문 링크 우회 전략:
+            </label>
+            <select id="writer-strategy-select" onchange="changeCommentStrategy()" class="w-full bg-white border border-slate-200 rounded-xl p-2 font-medium text-slate-800 text-xs focus:outline-none focus:border-brand-500">
+              <option value="TIMED_COMMENT">⏱️ 1~3분 시간차 첫 댓글 (120초 지연 + 공정위)</option>
+              <option value="BIO_LINK">🔗 스마트 브릿지 (인포크링크 / 바이오 유도)</option>
+              <option value="ORGANIC">🌱 계정 예열 / 빌드업 (링크 없음)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">
+              <i class="fa-solid fa-shop text-rose-500"></i> 제휴 마케팅 플랫폼:
+            </label>
+            <select id="writer-platform-select" onchange="changeCommentStrategy()" class="w-full bg-white border border-slate-200 rounded-xl p-2 font-medium text-slate-800 text-xs focus:outline-none focus:border-brand-500">
+              <option value="COUPANG">쿠팡 파트너스</option>
+              <option value="OLIVE_YOUNG">올리브영 어필리에이트</option>
+              <option value="OHOUSE">오늘의집 큐레이터</option>
+              <option value="ADPICK">애드픽</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">
+              <i class="fa-solid fa-scale-balanced text-emerald-500"></i> 4:1 골든 믹스 포스트 성격:
+            </label>
+            <select id="writer-post-type-select" class="w-full bg-white border border-slate-200 rounded-xl p-2 font-medium text-slate-800 text-xs focus:outline-none focus:border-brand-500">
+              <option value="MONEY_POST">💰 머니포스트 (수익화 링크/바이오 유도)</option>
+              <option value="ORGANIC_BUILDUP">🌱 오가닉 빌드업 (순수 정보/공감 팁)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Target Account Selector -->
+        <div>
+          <label class="font-bold text-slate-700 block mb-1">
+            <i class="fa-brands fa-threads text-black"></i> 발행 타깃 계정 (다중 계정):
+          </label>
+          <select id="writer-account-select" class="w-full bg-white border border-slate-200 rounded-xl p-2.5 font-semibold text-slate-800 text-xs focus:outline-none focus:border-brand-500">
+            <option value="">🤖 AI 스마트 자동 매칭 (상품 카테고리에 최적화된 계정 자동 배정)</option>
+            {% for acc in accounts %}
+            <option value="{{ acc.id }}">
+              [{{ '버티컬' if acc.cluster_type == 'VERTICAL' else ('페르소나' if acc.cluster_type == 'PERSONA' else '트렌드') }}] @{{ acc.username }} ({{ acc.display_name }}) - {{ '예열중' if acc.warmup_status == 'WARMING_UP' else '정상가동' }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Threads Post Body Preview (Mobile styled) -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-slate-700">Threads 본문 미리보기</span>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] text-slate-400">본문 내 외부링크 0개 (알고리즘 페널티 완전 차단)</span>
+            <span class="text-[11px] text-slate-400 font-medium">수정 가능</span>
+          </div>
+        </div>
+        <div class="threads-card p-4 bg-slate-50 border border-slate-200">
+          <textarea id="modal-post-body" rows="9" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs leading-relaxed text-slate-800 font-normal focus:outline-none focus:border-brand-500"></textarea>
+        </div>
+      </div>
+
+      <!-- Comments Section (STEP 8) -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-slate-700">연계 댓글 (개별 수정 가능)</span>
+          <span id="comment-status-badge" class="text-[11px] text-emerald-600 font-semibold"><i class="fa-solid fa-clock"></i> 120초 시간차 댓글 + 공정위 문구 포함</span>
+        </div>
+
+        <div id="modal-comments-container" class="space-y-2">
+          <!-- Comments dynamically generated -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="p-6 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div class="text-[11px] text-slate-500">
+        상태: <span class="font-bold text-brand-600">DRAFT (초안)</span> &rarr; 최종 검토 후 승인 가능
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="saveFinalContent('DRAFT')" class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-4 py-2 rounded-xl text-xs font-semibold transition">
+          임시 저장 (DRAFT)
+        </button>
+        <button onclick="saveFinalContent('APPROVED')" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2 rounded-xl text-xs font-semibold shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-check"></i> 최종 승인 저장 (APPROVED)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let activeProductId = {{ product.id }};
+  let activeIdeaId = null;
+  let currentComments = [];
+
+  // 1. Scoring
+  async function runScoring(productId) {
+    const btn = document.getElementById('btn-score');
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 채점 중...`;
+
+    try {
+      const res = await fetch(`/api/workflow/score/${productId}`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        showToast('상품 점수화 완료!', 'success');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast(data.detail || '점수화 실패', 'error');
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-calculator"></i> AI 평가 실행`;
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+      btn.disabled = false;
+    }
+  }
+
+  // 2. DNA
+  async function runDNA(productId, forceRefresh = false) {
+    const btn = forceRefresh ? document.getElementById('btn-dna-refresh') : document.getElementById('btn-dna');
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 분석 중...`;
+    }
+
+    try {
+      const res = await fetch(`/api/workflow/dna/${productId}?force_refresh=${forceRefresh}`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        showToast('상품 DNA 생성 완료!', 'success');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast(data.detail || 'DNA 분석 실패', 'error');
+        if (btn) btn.disabled = false;
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  // 3. Ideas
+  async function runIdeas(productId) {
+    const btn = document.getElementById('btn-ideas');
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 10개 생성 중...`;
+
+    try {
+      const res = await fetch(`/api/workflow/ideas/${productId}`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`10대 각도 아이디어 ${data.count}개 생성 완료!`, 'success');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast(data.detail || '아이디어 생성 실패', 'error');
+        btn.disabled = false;
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+      btn.disabled = false;
+    }
+  }
+
+  async function updateIdeaStatus(ideaId, status) {
+    try {
+      const res = await fetch(`/api/workflow/ideas/${ideaId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        showToast('아이디어 상태가 변경되었습니다.', 'success');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    }
+  }
+
+  // 4. Threads Writer Modal
+  let currentHookStyle = 'loss_aversion';
+
+  async function openWriterModal(productId, ideaId, hook) {
+    activeProductId = productId;
+    activeIdeaId = ideaId;
+    currentHookStyle = 'loss_aversion';
+
+    document.getElementById('writer-modal').classList.remove('hidden');
+    setHookStyle('loss_aversion');
+  }
+
+  function closeWriterModal() {
+    document.getElementById('writer-modal').classList.add('hidden');
+  }
+
+  function setHookStyle(style) {
+    currentHookStyle = style;
+    document.querySelectorAll('.hook-btn').forEach(b => {
+      if (b.dataset.hook === style) {
+        b.classList.remove('bg-white', 'text-slate-700', 'text-slate-600');
+        b.classList.add('bg-slate-900', 'text-white', 'border-slate-900');
+      } else {
+        b.classList.remove('bg-slate-900', 'text-white', 'border-slate-900');
+        b.classList.add('bg-white', 'text-slate-700');
+      }
+    });
+    generateDraft(style);
+  }
+
+  async function changeCommentStrategy() {
+    const strategy = document.getElementById('writer-strategy-select').value;
+    const platform = document.getElementById('writer-platform-select').value;
+    const badge = document.getElementById('comment-status-badge');
+
+    if (badge) {
+      if (strategy === 'BIO_LINK') {
+        badge.className = 'text-[11px] text-indigo-600 font-semibold';
+        badge.innerHTML = '<i class="fa-solid fa-circle-info"></i> 프로필 바이오 유도 (본문/댓글 무링크 안전)';
+      } else if (strategy === 'TIMED_COMMENT') {
+        badge.className = 'text-[11px] text-emerald-600 font-semibold';
+        badge.innerHTML = '<i class="fa-solid fa-clock"></i> 120초 시간차 댓글 + 공정위 문구 자동 장착';
+      } else {
+        badge.className = 'text-[11px] text-slate-500 font-semibold';
+        badge.innerHTML = '<i class="fa-solid fa-leaf"></i> 순수 예열 빌드업 포스트 (무링크)';
+      }
+    }
+
+    try {
+      const commRes = await fetch('/api/workflow/comments/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: activeProductId,
+          strategy: strategy,
+          affiliate_platform: platform
+        })
+      });
+      const commData = await commRes.json();
+      currentComments = commData.comments || [];
+      renderComments(currentComments);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function generateDraft(mode) {
+    const bodyEl = document.getElementById('modal-post-body');
+    bodyEl.value = 'Threads 본문을 알고리즘 안전 규칙에 맞춰 작성하는 중입니다...';
+
+    const strategy = document.getElementById('writer-strategy-select') ? document.getElementById('writer-strategy-select').value : 'TIMED_COMMENT';
+    const platform = document.getElementById('writer-platform-select') ? document.getElementById('writer-platform-select').value : 'COUPANG';
+
+    try {
+      // 1. Write Post
+      const postRes = await fetch('/api/workflow/threads/write', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: activeProductId,
+          idea_id: activeIdeaId,
+          rewrite_mode: mode
+        })
+      });
+      const postData = await postRes.json();
+      bodyEl.value = postData.body;
+
+      // 2. Generate Comments with strategy
+      const commRes = await fetch('/api/workflow/comments/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: activeProductId,
+          strategy: strategy,
+          affiliate_platform: platform
+        })
+      });
+      const commData = await commRes.json();
+      currentComments = commData.comments || [];
+      renderComments(currentComments);
+
+    } catch (e) {
+      bodyEl.value = '오류: ' + e.message;
+    }
+  }
+
+  function renderComments(comments) {
+    const container = document.getElementById('modal-comments-container');
+    if (!comments || comments.length === 0) {
+      container.innerHTML = `
+        <div class="p-3 rounded-xl bg-slate-100 text-slate-500 text-center text-[11px]">
+          생성된 연계 댓글이 없습니다 (순수 오가닉 모드이거나 대기 중).
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = comments.map((c, i) => `
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1.5">
+        <div class="flex items-center justify-between text-[11px] font-bold text-slate-600">
+          <div class="flex items-center gap-1.5">
+            <span class="w-4 h-4 rounded-full bg-slate-900 text-white text-[9px] flex items-center justify-center">${c.sequence}</span>
+            <span>댓글 ${c.sequence}</span>
+            ${c.delay_seconds ? `<span class="bg-indigo-50 text-indigo-700 text-[10px] px-1.5 py-0.5 rounded font-medium"><i class="fa-solid fa-stopwatch"></i> ${c.delay_seconds}초 후 시간차 등록</span>` : ''}
+            ${c.link_type === 'BIO_BRIDGE' ? `<span class="bg-purple-50 text-purple-700 text-[10px] px-1.5 py-0.5 rounded font-medium">프로필 스마트 브릿지</span>` : ''}
+          </div>
+          <span class="text-slate-400 font-normal">개별 수정 가능</span>
+        </div>
+        <textarea id="comment-text-${i}" rows="2" class="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs text-slate-800 focus:outline-none focus:border-brand-500">${c.body}</textarea>
+        ${c.link ? `<div class="text-[10px] text-slate-500 truncate flex items-center gap-1"><i class="fa-solid fa-link text-indigo-400"></i> 연결 링크: <span class="font-mono text-indigo-600">${c.link}</span></div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  async function saveFinalContent(status) {
+    const body = document.getElementById('modal-post-body').value.trim();
+    if (!body) {
+      showToast('본문 내용이 비어있습니다.', 'error');
+      return;
+    }
+
+    const accountIdVal = document.getElementById('writer-account-select').value;
+    const strategyVal = document.getElementById('writer-strategy-select').value;
+    const platformVal = document.getElementById('writer-platform-select').value;
+    const postTypeVal = document.getElementById('writer-post-type-select').value;
+
+    const commentsToSave = currentComments.map((c, i) => {
+      const textarea = document.getElementById(`comment-text-${i}`);
+      return {
+        sequence: c.sequence,
+        body: textarea ? textarea.value.trim() : c.body,
+        link: c.link,
+        status: 'ACTIVE',
+        delay_seconds: c.delay_seconds || 120,
+        link_type: c.link_type || 'DIRECT_AFFILIATE'
+      };
+    });
+
+    try {
+      const res = await fetch('/api/workflow/content/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: activeProductId,
+          idea_id: activeIdeaId,
+          account_id: accountIdVal ? parseInt(accountIdVal) : null,
+          title: `{{ product.name }} 큐레이션 글`,
+          body: body,
+          status: status,
+          post_type: postTypeVal,
+          hook_style: currentHookStyle,
+          comment_strategy: strategyVal,
+          affiliate_platform: platformVal,
+          comments: commentsToSave
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`콘텐츠가 [${status}] 상태로 성공적으로 저장되었습니다!`, 'success');
+        closeWriterModal();
+        setTimeout(() => location.href = '/content', 600);
+      } else {
+        showToast(data.detail || '저장 실패', 'error');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    }
+  }
+
+  async function deleteCurrentProduct(productId) {
+    if (!confirm('정말 이 상품을 삭제하시겠습니까? 연결된 점수, DNA, 생성된 아이디어 및 본문도 함께 삭제됩니다.')) return;
+    try {
+      const res = await fetch(`/api/products/${productId}`, { method: 'DELETE' });
+      if (res.ok) {
+        showToast('상품이 삭제되었습니다. 상품 목록으로 이동합니다.', 'success');
+        setTimeout(() => { location.href = '/products'; }, 600);
+      } else {
+        showToast('삭제 실패', 'error');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    }
+  }
+
+  async function runAllProductWorkflow(productId) {
+    const btn = document.getElementById('btn-run-all');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 1/3단계: AI 점수 평가 중...';
+
+    try {
+      // 1. Scoring
+      await runScoring(productId);
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 2/3단계: 상품 DNA 분석 중...';
+
+      // 2. DNA
+      await runDna(productId);
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 3/3단계: 10대 각도 아이디어 생성 중...';
+
+      // 3. Ideas
+      await generateIdeas(productId);
+
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> 전 공정 완료!';
+      showToast('점수 평가, DNA 분석, 10대 각도 아이디어가 모두 완료되었습니다!', 'success');
+      
+      // Smooth scroll to ideas section
+      const ideaSection = document.getElementById('ideas-container');
+      if (ideaSection) {
+        ideaSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  }
+
+  // -------------------------------------------------------------
+  // STEP 7: 네이버 쇼핑커넥트 & 6단계 구매설득 여정 엔진 JS
+  // -------------------------------------------------------------
+  let currentPjKeywords = [];
+  let selectedPjKeyword = null;
+  let currentPjResult = null;
+
+  async function fetchCuriosityKeywords(productId) {
+    const btn = document.getElementById('btn-curiosity-kw');
+    const container = document.getElementById('pj-keywords-container');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 롱테일 키워드 추출 중...';
+
+    try {
+      const res = await fetch(`/api/workflow/purchasing-journey/keywords/${productId}`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.keywords) {
+        currentPjKeywords = data.keywords;
+        renderCuriosityKeywords(data.keywords);
+        showToast('호기심 롱테일 키워드 5종이 생성되었습니다!', 'success');
+        // Auto-select first keyword and trigger PJ generation
+        if (data.keywords.length > 0) {
+          selectPjKeyword(0);
+        }
+      } else {
+        showToast('키워드 생성 실패', 'error');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> 롱테일 키워드 5종 재추출';
+    }
+  }
+
+  function renderCuriosityKeywords(keywords) {
+    const container = document.getElementById('pj-keywords-container');
+    container.innerHTML = keywords.map((k, idx) => `
+      <div onclick="selectPjKeyword(${idx})" id="pj-kw-card-${idx}" class="pj-kw-card cursor-pointer bg-white border border-slate-200 hover:border-emerald-500 rounded-2xl p-3.5 space-y-1.5 transition shadow-sm hover:shadow text-left flex flex-col justify-between">
+        <div>
+          <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full inline-block mb-1">
+            ${k.type_label}
+          </span>
+          <h4 class="text-xs font-black text-slate-900 leading-snug break-keep">${k.keyword}</h4>
+        </div>
+        <p class="text-[10px] text-slate-500 line-clamp-2 mt-1 leading-relaxed">${k.description}</p>
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-emerald-600 font-bold">
+          <span>선택하여 글 생성</span>
+          <i class="fa-solid fa-arrow-right text-[9px]"></i>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function selectPjKeyword(index) {
+    document.querySelectorAll('.pj-kw-card').forEach((el, i) => {
+      if (i === index) {
+        el.classList.remove('bg-white', 'border-slate-200');
+        el.classList.add('bg-emerald-50/80', 'border-emerald-600', 'ring-2', 'ring-emerald-500/30');
+      } else {
+        el.classList.remove('bg-emerald-50/80', 'border-emerald-600', 'ring-2', 'ring-emerald-500/30');
+        el.classList.add('bg-white', 'border-slate-200');
+      }
+    });
+
+    const item = currentPjKeywords[index];
+    if (item) {
+      selectedPjKeyword = item.keyword;
+      triggerGeneratePJ(activeProductId, item.keyword);
+    }
+  }
+
+  async function triggerGeneratePJ(productId, customKeyword = null) {
+    const btn = document.getElementById('btn-pj-generate');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 6단계 구매여정 생성 중...';
+
+    const platform = document.getElementById('pj-platform-select').value;
+    const persona = document.getElementById('pj-persona-input').value.trim() || null;
+    const keyword = customKeyword || selectedPjKeyword || null;
+
+    try {
+      const res = await fetch('/api/workflow/purchasing-journey/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: productId,
+          keyword: keyword,
+          persona: persona,
+          platform: platform
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.result) {
+        currentPjResult = data.result;
+        displayPjResult(data.result);
+        showToast('6단계 구매설득 글과 숏폼 대본이 완성되었습니다!', 'success');
+      } else {
+        showToast('생성 실패: ' + (data.detail || '오류'), 'error');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
+
+  function displayPjResult(result) {
+    const section = document.getElementById('pj-result-section');
+    section.classList.remove('hidden');
+
+    // 1. Post Body
+    document.getElementById('pj-post-body-text').value = result.body;
+
+    // 2. Shortform scenes
+    const scenesContainer = document.getElementById('pj-shortform-scenes');
+    const scenes = result.shortform_script.scenes || [];
+    scenesContainer.innerHTML = scenes.map(s => `
+      <div class="bg-white border border-slate-200 rounded-xl p-3 space-y-1.5 shadow-sm">
+        <div class="flex items-center justify-between text-[11px] font-bold text-slate-700">
+          <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">씬 ${s.scene} (${s.time})</span>
+          <span class="text-slate-400 font-normal truncate max-w-[150px]">${s.caption}</span>
+        </div>
+        <p class="text-[10px] text-slate-500 font-mono bg-slate-50 p-1.5 rounded">${s.visual}</p>
+        <p class="text-xs text-slate-800 font-semibold leading-relaxed">"${s.audio}"</p>
+      </div>
+    `).join('');
+    document.getElementById('pj-shortform-narration').value = result.shortform_script.full_narration || '';
+
+    // 3. Suno AI prompt
+    const suno = result.suno_bgm;
+    document.getElementById('pj-suno-genre').innerText = suno.genre;
+    document.getElementById('pj-suno-bpm').innerText = suno.bpm;
+    document.getElementById('pj-suno-instruments').innerText = suno.instruments;
+    document.getElementById('pj-suno-prompt-text').value = suno.suno_prompt;
+
+    // Default to Post Tab
+    switchPjTab('post');
+  }
+
+  function switchPjTab(tabName) {
+    document.querySelectorAll('.pj-tab-btn').forEach(btn => {
+      btn.classList.remove('bg-slate-900', 'text-white', 'shadow-sm');
+      btn.classList.add('bg-white', 'border', 'border-slate-200', 'text-slate-600');
+    });
+
+    const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+    if (activeBtn) {
+      activeBtn.classList.remove('bg-white', 'border', 'border-slate-200', 'text-slate-600');
+      activeBtn.classList.add('bg-slate-900', 'text-white', 'shadow-sm');
+    }
+
+    document.getElementById('pj-tab-post').classList.toggle('hidden', tabName !== 'post');
+    document.getElementById('pj-tab-shortform').classList.toggle('hidden', tabName !== 'shortform');
+    document.getElementById('pj-tab-suno').classList.toggle('hidden', tabName !== 'suno');
+  }
+
+  function copyPjText(elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const text = el.value || el.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('클립보드에 복사되었습니다!', 'success');
+    }).catch(() => {
+      showToast('복사 실패', 'error');
+    });
+  }
+
+  async function savePjContent(status) {
+    if (!currentPjResult) {
+      showToast('먼저 6단계 글을 생성해주세요.', 'error');
+      return;
+    }
+    const bodyText = document.getElementById('pj-post-body-text').value.trim();
+    if (!bodyText) {
+      showToast('본문이 비어있습니다.', 'error');
+      return;
+    }
+
+    const platform = document.getElementById('pj-platform-select').value;
+    const title = currentPjResult.title || '네이버 쇼핑커넥트 6단계 구매설득 글';
+
+    try {
+      const res = await fetch('/api/workflow/content/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: activeProductId,
+          title: title,
+          body: bodyText,
+          status: status,
+          post_type: 'MONEY_POST',
+          hook_style: 'PURCHASING_JOURNEY',
+          comment_strategy: platform === 'NAVER_SHOPPING' ? 'ORGANIC' : 'TIMED_COMMENT',
+          affiliate_platform: platform
+        })
+      });
+      if (res.ok) {
+        showToast(`콘텐츠 보관소에 [${status}] 상태로 성공적으로 저장되었습니다!`, 'success');
+        setTimeout(() => location.href = '/content', 700);
+      } else {
+        const err = await res.json();
+        showToast('저장 실패: ' + (err.detail || '오류'), 'error');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    }
+  }
+</script>
+{% endblock %}

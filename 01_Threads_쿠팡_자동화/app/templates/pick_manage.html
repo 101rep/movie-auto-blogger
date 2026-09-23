@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Header & Overview -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+    <div class="space-y-1">
+      <div class="flex items-center gap-2.5">
+        <span class="w-8 h-8 rounded-xl bg-black text-white flex items-center justify-center font-black text-sm">
+          P
+        </span>
+        <h1 class="text-xl font-black text-slate-900 tracking-tight">자체 제작 '픽(PICK)' 큐레이션 관리 센터</h1>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800 border border-blue-200">
+          5대 커머스 (토스 10% 포함) 연동
+        </span>
+      </div>
+      <p class="text-xs text-slate-500 font-medium">
+        토스 쉐어링크(10% 수수료) + 리틀리 CPC + 인포크링크 쇼핑 특화를 결합한 7개 계정 독점 멀티링크 허브입니다.
+      </p>
+    </div>
+
+    <!-- Sourcing Action Buttons -->
+    <div class="flex items-center gap-2">
+      <button onclick="autoSourceAll()" id="btn-source-all" class="px-4 py-2.5 bg-gradient-to-r from-blue-700 via-indigo-900 to-slate-900 hover:from-blue-800 hover:to-black text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md transition">
+        <i class="fa-solid fa-bolt text-amber-300"></i>
+        <span>5대 커머스 (토스 10% 포함) 핫딜 일괄 소싱</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Key Performance Metrics Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center text-xl">
+        <i class="fa-brands fa-threads"></i>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-slate-400">운영 중인 PICK 페이지</p>
+        <p class="text-2xl font-black text-slate-900">{{ accounts|length }}개 계정</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+        <i class="fa-solid fa-box-open"></i>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-slate-400">진열된 핫딜 큐레이션</p>
+        <p class="text-2xl font-black text-slate-900">{{ total_items }}개</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl">
+        <i class="fa-solid fa-arrow-pointer"></i>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-slate-400">누적 방문자 클릭 수</p>
+        <p class="text-2xl font-black text-sky-600">{{ total_clicks }}회</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+        <i class="fa-regular fa-bell"></i>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-slate-400">핫딜 알림 구독자 (DB)</p>
+        <p class="text-2xl font-black text-emerald-600">{{ total_leads }}명</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7 Accounts PICK Overview Cards -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-base font-black text-slate-900 flex items-center gap-2">
+        <i class="fa-solid fa-mobile-screen-button text-brand-600"></i>
+        <span>7개 쓰레드 계정별 실시간 PICK 페이지 현황</span>
+      </h2>
+      <span class="text-xs text-slate-500 font-medium">
+        클릭 시 실제 모바일 화면을 새 창에서 확인할 수 있습니다.
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {% for item in accounts %}
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4 flex flex-col justify-between hover:border-slate-300 transition">
+        
+        <!-- Header Info -->
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-base shadow">
+              {{ item.account.display_name[0] if item.account.display_name else item.account.username[0].upper() }}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-black text-slate-900 text-sm">@{{ item.account.username.lstrip('@') }}</span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {% if item.account.cluster_type == 'VERTICAL' %}bg-indigo-100 text-indigo-700{% elif item.account.cluster_type == 'TREND' %}bg-rose-100 text-rose-700{% else %}bg-amber-100 text-amber-800{% endif %}">
+                  {{ item.account.cluster_type }}
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 font-medium mt-0.5">{{ item.account.category }}</p>
+            </div>
+          </div>
+
+          <!-- Live URL Open Button -->
+          <div class="flex items-center gap-1.5">
+            <button onclick="copyPickUrl('{{ item.pick_url }}')" title="링크 복사" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs transition">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+            <a href="{{ item.pick_url }}" target="_blank" class="px-3 py-1.5 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow transition">
+              <span>페이지 보기</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Curated Items Preview Table -->
+        <div class="bg-slate-50 rounded-xl p-3 space-y-2 text-xs">
+          <div class="flex items-center justify-between text-[11px] font-bold text-slate-400 border-b border-slate-200/60 pb-1.5">
+            <span>진열 상품 목록 ({{ item.item_count }}개)</span>
+            <span>누적 클릭 {{ item.clicks }}회</span>
+          </div>
+
+          {% if item.pick_items %}
+          <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+            {% for p in item.pick_items %}
+            <div class="flex items-center justify-between bg-white p-2 rounded-lg border border-slate-200/60">
+              <div class="flex items-center gap-1.5 min-w-0 pr-2">
+                <span class="text-[10px] font-mono font-black bg-slate-900 text-amber-300 px-1.5 py-0.5 rounded shrink-0">
+                  #{{ p.item_code or (100 + loop.index) }}
+                </span>
+                <span class="text-[10px] font-black px-1.5 py-0.5 rounded shrink-0 {% if p.affiliate_platform == 'COUPANG' %}bg-rose-100 text-rose-700{% elif p.affiliate_platform == 'TOSS' %}bg-blue-100 text-blue-700{% elif p.affiliate_platform == 'OLIVE_YOUNG' %}bg-emerald-100 text-emerald-700{% elif p.affiliate_platform == 'OHOUSE' %}bg-sky-100 text-sky-700{% else %}bg-orange-100 text-orange-700{% endif %}">
+                  {{ p.affiliate_platform }}
+                </span>
+                <span class="font-bold text-slate-800 truncate">{{ p.title }}</span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="font-extrabold text-slate-900">{{ "{:,}".format(p.sale_price) }}원</span>
+                <span class="text-[10px] text-slate-400 font-semibold">({{ p.clicks_count or 0 }}클릭)</span>
+                <button onclick="deleteItem({{ p.id }})" class="text-slate-300 hover:text-rose-500 transition">
+                  <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4 text-slate-400">
+            진열된 상품이 없습니다. 자동 소싱을 실행하세요.
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Footer Control Buttons -->
+        <div class="flex items-center justify-between pt-1 border-t border-slate-100 text-xs">
+          <span class="text-slate-400 font-mono text-[11px] truncate max-w-[200px]">
+            http://localhost:8080{{ item.pick_url }}
+          </span>
+          <button onclick="autoSourceSingle({{ item.account.id }})" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold rounded-lg flex items-center gap-1 transition">
+            <i class="fa-solid fa-rotate text-[10px]"></i>
+            <span>단독 재소싱</span>
+          </button>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Subscribers / Leads Table -->
+  {% if leads %}
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+    <div class="flex items-center justify-between">
+      <h3 class="font-black text-sm text-slate-900 flex items-center gap-2">
+        <i class="fa-regular fa-bell text-sky-600"></i>
+        <span>핫딜 알림 구독자 명단 ({{ leads|length }}명)</span>
+      </h3>
+      <span class="text-xs text-slate-400">인포크링크 스타일 고객 DB 확보</span>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs text-left">
+        <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
+          <tr>
+            <th class="py-2.5 px-3">연락 수단</th>
+            <th class="py-2.5 px-3">연락처 / ID</th>
+            <th class="py-2.5 px-3">유입 계정 ID</th>
+            <th class="py-2.5 px-3">신청 일시</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for l in leads %}
+          <tr>
+            <td class="py-2.5 px-3 font-bold text-slate-700">{{ l.contact_type }}</td>
+            <td class="py-2.5 px-3 font-mono font-bold text-slate-900">{{ l.contact_value }}</td>
+            <td class="py-2.5 px-3 text-slate-500">Account #{{ l.account_id }}</td>
+            <td class="py-2.5 px-3 text-slate-400">{{ l.created_at.strftime('%Y-%m-%d %H:%M') if l.created_at else '-' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+  function copyPickUrl(path) {
+    const full = window.location.origin + path;
+    navigator.clipboard.writeText(full).then(() => {
+      alert("✅ 픽(PICK) 주소가 복사되었습니다:\n" + full);
+    });
+  }
+
+  async function autoSourceAll() {
+    const btn = document.getElementById('btn-source-all');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 5대 커머스(토스 10% 포함) 핫딜 소싱 중...';
+
+    try {
+      const res = await fetch('/api/pick/auto-source-all', { method: 'POST' });
+      const data = await res.json();
+      alert("🎉 " + data.message);
+      window.location.reload();
+    } catch (err) {
+      alert("소싱 처리 중 오류가 발생했습니다.");
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-bolt text-amber-300"></i> 5대 커머스 (토스 10% 포함) 핫딜 일괄 소싱';
+    }
+  }
+
+  async function autoSourceSingle(accountId) {
+    try {
+      const res = await fetch(`/api/pick/${accountId}/auto-source`, { method: 'POST' });
+      const data = await res.json();
+      alert("🎉 " + data.message);
+      window.location.reload();
+    } catch (err) {
+      alert("소싱 처리 중 오류가 발생했습니다.");
+    }
+  }
+
+  async function deleteItem(itemId) {
+    if (!confirm("이 상품 큐레이션을 삭제하시겠습니까?")) return;
+    try {
+      const res = await fetch(`/api/pick/item/${itemId}`, { method: 'DELETE' });
+      window.location.reload();
+    } catch (err) {
+      alert("삭제 실패");
+    }
+  }
+</script>
+{% endblock %}

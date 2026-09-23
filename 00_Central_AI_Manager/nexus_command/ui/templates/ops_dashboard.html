@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NEXUS COMMAND — 운영 모니터링 대시보드</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;800&display=swap">
+  
+  <style>
+    body { font-family: 'Pretendard', sans-serif; -webkit-tap-highlight-color: transparent; }
+    .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(0.95); } }
+  </style>
+</head>
+<body class="min-h-full flex flex-col bg-slate-950 text-slate-100">
+
+  <!-- Header -->
+  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 sticky top-0 z-30 shadow-md">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-emerald-500 flex items-center justify-center text-white shadow-lg">
+          <i class="fa-solid fa-chart-line text-lg"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-base text-white">NEXUS OPS DASHBOARD</h1>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-700/50 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 pulse-dot"></span>
+              <span>LIVE</span>
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400">WordPress 7개 블로그 & Threads 자동화 실시간 통합 관제</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="/" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">
+          <i class="fa-solid fa-robot mr-1"></i> AI 콘솔
+        </a>
+        <button onclick="fetchOpsData()" class="text-xs px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition">
+          <i class="fa-solid fa-arrows-rotate mr-1"></i> 새로고침
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-6xl mx-auto w-full p-4 space-y-6 flex-1">
+
+    <!-- KPI Metric Cards Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <!-- Card 1: Today's Workload -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold mb-1">
+          <span>오늘 총 작업량</span>
+          <i class="fa-solid fa-layer-group text-indigo-400"></i>
+        </div>
+        <div class="text-2xl font-extrabold text-white" id="stat-workload">-</div>
+        <div class="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
+          <span>WP + Threads 작업</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Success Rate -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold mb-1">
+          <span>성공률</span>
+          <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        </div>
+        <div class="text-2xl font-extrabold text-emerald-400" id="stat-success-rate">-</div>
+        <div class="text-[11px] text-slate-400 mt-1">
+          <span id="stat-success-count">-</span>건 완료
+        </div>
+      </div>
+
+      <!-- Card 3: Failure Rate -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold mb-1">
+          <span>실패율</span>
+          <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+        </div>
+        <div class="text-2xl font-extrabold text-rose-400" id="stat-fail-rate">-</div>
+        <div class="text-[11px] text-slate-400 mt-1">
+          <span id="stat-fail-count">-</span>건 오류
+        </div>
+      </div>
+
+      <!-- Card 4: Scheduled Waiting -->
+      <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 text-xs font-semibold mb-1">
+          <span>예약 대기 글</span>
+          <i class="fa-solid fa-clock text-amber-400"></i>
+        </div>
+        <div class="text-2xl font-extrabold text-amber-400" id="stat-waiting-count">-</div>
+        <div class="text-[11px] text-slate-400 mt-1">WP 정시 발행 대기</div>
+      </div>
+    </div>
+
+    <!-- 2 Column Section: WP & Threads Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      
+      <!-- Left Column: WordPress Publishing Monitor -->
+      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <h2 class="font-bold text-sm text-white flex items-center gap-2">
+            <i class="fa-brands fa-wordpress text-blue-400"></i>
+            <span>WordPress 7개 블로그 발행 현황</span>
+          </h2>
+          <span class="text-[11px] font-mono text-slate-400" id="wp-date-display">-</span>
+        </div>
+
+        <!-- WP Posts List -->
+        <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1" id="wp-posts-container">
+          <div class="text-center py-8 text-slate-500 text-xs">데이터 로딩 중...</div>
+        </div>
+      </div>
+
+      <!-- Right Column: Threads Automation Monitor -->
+      <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <h2 class="font-bold text-sm text-white flex items-center gap-2">
+            <i class="fa-brands fa-threads text-emerald-400"></i>
+            <span>Threads 7대 계정 활동 기록 (threads_task)</span>
+          </h2>
+          <span class="text-[11px] font-mono text-slate-400" id="threads-summary-display">-</span>
+        </div>
+
+        <!-- Threads Tasks List -->
+        <div class="space-y-2 max-h-[380px] overflow-y-auto pr-1" id="threads-tasks-container">
+          <div class="text-center py-8 text-slate-500 text-xs">데이터 로딩 중...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section: Recent Errors & Self-Healing Log -->
+    <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-4 space-y-3">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <h2 class="font-bold text-sm text-rose-400 flex items-center gap-2">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span>최근 오류 및 실패 모니터링 (3회 재시도 실패 알림 연동)</span>
+        </h2>
+        <span class="text-xs text-slate-400">텔레그램 <code>/error</code> & <code>/retry</code></span>
+      </div>
+
+      <div class="space-y-2" id="errors-container">
+        <div class="text-xs text-slate-400 py-3 text-center">오류 기록을 확인하고 있습니다...</div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    async function fetchOpsData() {
+      try {
+        const res = await fetch('/api/ops/summary');
+        if (!res.ok) throw new Error('데이터 조회 실패');
+        const data = await res.json();
+        renderDashboard(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderDashboard(data) {
+      // 1. Metrics
+      document.getElementById('stat-workload').innerText = (data.today_workload || 0) + '건';
+      document.getElementById('stat-success-rate').innerText = (data.success_rate || 100) + '%';
+      document.getElementById('stat-success-count').innerText = data.success_count || 0;
+      document.getElementById('stat-fail-rate').innerText = (data.failure_rate || 0) + '%';
+      document.getElementById('stat-fail-count').innerText = data.failure_count || 0;
+      document.getElementById('stat-waiting-count').innerText = (data.waiting_count || 0) + '편';
+
+      document.getElementById('wp-date-display').innerText = data.date || '';
+      document.getElementById('threads-summary-display').innerText = 
+        `게시물 ${data.threads_summary?.posts?.success || 0}건 / 댓글 ${data.threads_summary?.comments?.success || 0}건 / 좋아요 ${data.threads_summary?.likes?.success || 0}건`;
+
+      // 2. WP Posts
+      const wpBox = document.getElementById('wp-posts-container');
+      const posts = data.wp_posts || [];
+      if (posts.length === 0) {
+        wpBox.innerHTML = '<div class="text-center py-8 text-slate-500 text-xs">오늘 발행된 포스트가 없습니다.</div>';
+      } else {
+        wpBox.innerHTML = posts.map(p => {
+          const isSucc = p.is_success;
+          const badgeColor = isSucc ? 'bg-emerald-950/80 text-emerald-400 border-emerald-700/50' : (p.is_failed ? 'bg-rose-950/80 text-rose-400 border-rose-700/50' : 'bg-amber-950/80 text-amber-400 border-amber-700/50');
+          const statusText = isSucc ? '발행 성공' : (p.is_failed ? '발행 실패' : '예약 대기');
+          const wpIdHtml = p.wp_id ? `<span class="text-[10px] font-mono text-slate-400">ID: #${p.wp_id}</span>` : '';
+
+          return `
+            <div class="bg-slate-950/60 border border-slate-800/80 rounded-lg p-3 hover:border-slate-700 transition flex items-start justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-[11px] font-semibold text-indigo-300 bg-indigo-950/70 px-2 py-0.5 rounded">${p.site_name}</span>
+                  <span class="text-[11px] text-slate-400 font-mono"><i class="fa-regular fa-clock mr-1"></i>${p.scheduled_time}</span>
+                  ${wpIdHtml}
+                </div>
+                <h3 class="text-xs font-semibold text-slate-200 truncate">${p.title}</h3>
+                ${p.failure_reason ? `<p class="text-[10px] text-rose-400 mt-1">원인: ${p.failure_reason}</p>` : ''}
+              </div>
+              <span class="text-[10px] font-bold px-2 py-1 rounded border shrink-0 ${badgeColor}">${statusText}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 3. Threads Tasks
+      const thBox = document.getElementById('threads-tasks-container');
+      const tasks = data.threads_tasks || [];
+      if (tasks.length === 0) {
+        thBox.innerHTML = '<div class="text-center py-8 text-slate-500 text-xs">최근 활동 기록이 없습니다.</div>';
+      } else {
+        thBox.innerHTML = tasks.map(t => {
+          const isSucc = t.status === 'SUCCESS';
+          const icon = t.action === 'POST' ? 'fa-pen-nib text-indigo-400' : (t.action === 'COMMENT' ? 'fa-comment-dots text-emerald-400' : 'fa-heart text-rose-400');
+          return `
+            <div class="bg-slate-950/60 border border-slate-800/80 rounded-lg p-3 hover:border-slate-700 transition flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center shrink-0">
+                  <i class="fa-solid ${icon} text-xs"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-xs font-bold text-slate-200 truncate">@${t.account} <span class="text-[11px] font-normal text-slate-400">• ${t.action}</span></div>
+                  <div class="text-[10px] text-slate-400 truncate">${t.result || t.target_url || '-'}</div>
+                </div>
+              </div>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded ${isSucc ? 'text-emerald-400 bg-emerald-950/50' : 'text-rose-400 bg-rose-950/50'}">${t.status}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // 4. Errors
+      const errBox = document.getElementById('errors-container');
+      const errs = data.recent_errors || [];
+      if (errs.length === 0) {
+        errBox.innerHTML = '<div class="bg-slate-950/50 border border-emerald-900/30 rounded-lg p-3 text-center text-xs text-emerald-400"><i class="fa-solid fa-circle-check mr-1"></i> 현재 시스템에 등록된 오류 및 실패 내역이 없습니다. (전체 정상)</div>';
+      } else {
+        errBox.innerHTML = errs.map(e => `
+          <div class="bg-rose-950/30 border border-rose-900/50 rounded-lg p-3 flex items-start justify-between gap-3">
+            <div>
+              <div class="text-xs font-bold text-rose-300 flex items-center gap-1.5">
+                <span>[${e.system}]</span>
+                <span>${e.target}</span>
+                <span class="text-[10px] text-slate-400 font-mono">${e.time || ''}</span>
+              </div>
+              <div class="text-xs text-slate-200 mt-1">${e.title}</div>
+              <div class="text-[11px] text-rose-400/90 font-mono mt-0.5">원인: ${e.reason}</div>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-1 rounded bg-rose-900/80 text-rose-200 shrink-0">FAILED</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Auto load on start & refresh every 10 seconds
+    fetchOpsData();
+    setInterval(fetchOpsData, 10000);
+  </script>
+</body>
+</html>

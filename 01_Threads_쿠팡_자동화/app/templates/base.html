@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Threads x 쿠팡 자동화{% endblock %} - AI 자율 마케팅 시스템</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              900: '#4c1d95',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.mermaid) {
+        mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+      }
+    });
+  </script>
+  <style>
+    @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+    body { font-family: 'Pretendard', sans-serif; }
+    .threads-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 1rem;
+      background: white;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 flex h-screen overflow-hidden">
+
+  <!-- Left Sidebar -->
+  <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between shrink-0 shadow-xl z-20">
+    <div class="flex-1 overflow-y-auto custom-scrollbar">
+      <div class="h-16 flex items-center px-6 border-b border-slate-800 gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-lg">
+          <i class="fa-brands fa-threads"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-sm tracking-wide">THREADS x COUPANG</h1>
+          <p class="text-[10px] text-emerald-400 font-semibold">풀 오토메이션 시스템 v2.0</p>
+        </div>
+      </div>
+
+      <nav class="p-4 space-y-1.5 text-sm font-medium">
+        <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {% if active_menu == 'dashboard' %}bg-brand-600 text-white font-semibold shadow-md{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
+          <i class="fa-solid fa-chart-pie w-5"></i>
+          <span>대시보드</span>
+        </a>
+
+        <a href="/products" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {% if active_menu == 'products' %}bg-brand-600 text-white font-semibold shadow-md{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
+          <i class="fa-solid fa-box-open w-5"></i>
+          <span>상품 관리</span>
+        </a>
+
+        <a href="/ideas" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {% if active_menu == 'ideas' %}bg-brand-600 text-white font-semibold shadow-md{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
+          <i class="fa-solid fa-lightbulb w-5"></i>
+          <span>아이디어 관리</span>
+        </a>
+
+        <a href="/content" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {% if active_menu == 'content' %}bg-brand-600 text-white font-semibold shadow-md{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
+          <i class="fa-solid fa-pen-nib w-5"></i>
+          <span>콘텐츠 제작/검수</span>
+        </a>
+
+        <div class="pt-3 pb-1 px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+          발행 & 학습 엔진
+        </div>
+
+        <a href="/calendar" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {% if active_menu == 'calendar' %}bg-brand-600 text-white font-semibold shadow-md{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
+          <i class="fa-solid fa-calendar-days w-5"></i>
+          <span>콘텐츠 캘린더</span>
+        </a>
+
+        <a href="/analytics" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {% if active_menu == 'analytics' %}bg-brand-600 text-white font-semibold shadow-md{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
+          <i class="fa-solid fa-chart-line w-5"></i>
+          <span>성과 & AI 학습</span>
+        </a>
+
+        <a href="/pick-manage" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {% if active_menu == 'pick' %}bg-brand-600 text-white font-semibold shadow-md{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
+          <i class="fa-solid fa-store w-5 text-amber-400"></i>
+          <span>픽(PICK) 큐레이션</span>
+          <span class="ml-auto text-[10px] bg-amber-500/20 text-amber-300 font-black px-1.5 py-0.5 rounded">NEW</span>
+        </a>
+
+        <a href="/warmup" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {% if active_menu == 'warmup' %}bg-brand-600 text-white font-semibold shadow-md{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
+          <i class="fa-solid fa-seedling w-5 text-emerald-400"></i>
+          <span>양성화 진단 센터</span>
+          <span class="ml-auto text-[10px] bg-emerald-500/20 text-emerald-300 font-black px-1.5 py-0.5 rounded">신뢰도</span>
+        </a>
+
+        <div class="pt-3 pb-1 px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+          설정
+        </div>
+
+        <a href="/settings" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition {% if active_menu == 'settings' %}bg-brand-600 text-white font-semibold shadow-md{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">
+          <i class="fa-solid fa-sliders w-5"></i>
+          <span>시스템 & 다중 계정</span>
+        </a>
+
+        <div class="pt-3 pb-1 px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+          도움말 & 문서
+        </div>
+
+        <button onclick="openHelpGuideModal(); switchHelpTab('tab-system-manual');" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition text-indigo-300 hover:bg-slate-800 hover:text-white text-sm font-medium">
+          <i class="fa-solid fa-book-bookmark w-5 text-indigo-400"></i>
+          <span>시스템 마스터 설명서</span>
+          <span class="ml-auto text-[10px] bg-indigo-500/30 text-indigo-300 font-black px-1.5 py-0.5 rounded">v2.0</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="p-4 border-t border-slate-800 text-xs text-slate-400">
+      <div class="flex items-center gap-2 mb-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-medium text-slate-200">자동 운영 워커 대기중</span>
+      </div>
+      <p class="text-[11px]">검수, 예약, 성과 분석 및 자가 학습 루프 가동</p>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <!-- Top Header -->
+    <header class="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shrink-0 shadow-sm">
+      <div class="flex items-center gap-3">
+        <h2 class="font-bold text-lg text-slate-800">{% block header_title %}대시보드{% endblock %}</h2>
+        <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-bold">풀 파이프라인 (PHASE 1~5) 가동</span>
+      </div>
+
+      <div class="flex items-center gap-3 text-sm">
+        <!-- System Help & User Guide Button -->
+        <button onclick="openHelpGuideModal()" class="flex items-center gap-1.5 bg-gradient-to-r from-brand-50 to-indigo-50 hover:from-brand-100 hover:to-indigo-100 text-brand-700 border border-brand-200/80 px-3.5 py-1.5 rounded-full text-xs font-bold shadow-sm transition transform hover:-translate-y-0.5 active:translate-y-0">
+          <i class="fa-solid fa-circle-question text-brand-600"></i>
+          <span>상세설명 및 도움말</span>
+        </button>
+
+        <div class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-full text-slate-600 text-xs">
+          <i class="fa-solid fa-bolt text-amber-500"></i>
+          <span>Master Orchestrator Active</span>
+        </div>
+        <button onclick="handleTopNewProductClick()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-plus"></i> 새 상품 탐색/추가
+        </button>
+      </div>
+    </header>
+
+    <!-- Page Body -->
+    <main class="flex-1 overflow-y-auto p-8">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <!-- Include Help Guide Modal -->
+  {% include "help_modal.html" %}
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2"></div>
+
+  <script>
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bg = type === 'success' ? 'bg-emerald-600' : 'bg-rose-600';
+      const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+      toast.className = `${bg} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm transition-all duration-300 transform translate-y-4 opacity-0`;
+      toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.remove('translate-y-4', 'opacity-0');
+      }, 10);
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-4');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function handleTopNewProductClick() {
+      if (typeof openManualProductModal === 'function') {
+        openManualProductModal();
+      } else {
+        location.href = '/products?open_modal=1';
+      }
+    }
+
+    // Auto open manual registration if url has ?open_modal=1
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('open_modal') === '1' && typeof openManualProductModal === 'function') {
+        openManualProductModal();
+      }
+    });
+  </script>
+
+  <!-- Core Modular Architecture Scripts -->
+  <script src="/static/js/core/cache.js"></script>
+  <script src="/static/js/core/ui.js"></script>
+  <script src="/static/js/core/apiClient.js"></script>
+  <script src="/static/js/core/state.js"></script>
+  <script src="/static/js/services/accountService.js"></script>
+  <script src="/static/js/services/autopilotService.js"></script>
+  <script src="/static/js/services/contentService.js"></script>
+  <script src="/static/js/services/schedulerService.js"></script>
+  <script src="/static/js/services/productService.js"></script>
+  <script src="/static/js/actions/autopilotActions.js"></script>
+  <script src="/static/js/actions/contentActions.js"></script>
+  <script src="/static/js/actions/settingsActions.js"></script>
+  <script src="/static/js/actions/productActions.js"></script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,845 @@
+{% extends "base.html" %}
+
+{% block title %}양성화 정밀 진단 센터{% endblock %}
+{% block header_title %}메타 알고리즘 양성화(Warmup) 정밀 진단 센터{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8 pb-12">
+
+  <!-- Top Hero Banner (Clean White Luxury Design) -->
+  <div class="bg-white rounded-3xl p-7 lg:p-8 shadow-sm border border-slate-200/90 relative space-y-6">
+    <!-- Top Header: Title & Action Toolbar -->
+    <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+      
+      <!-- Left: Title and Description -->
+      <div class="space-y-3 max-w-3xl">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>메타(Meta) 알고리즘 실시간 분석 엔진 가동 중</span>
+          <span class="bg-emerald-200/60 text-emerald-800 text-[10px] px-1.5 py-0.5 rounded font-black">옵션 1 하이브리드</span>
+        </div>
+
+        <h2 class="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
+          7개 전 계정 <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600">양성화(Warmup) 안전 예열</span> 정밀 진단
+        </h2>
+
+        <p class="text-slate-600 text-xs lg:text-sm leading-relaxed">
+          날짜만 채우고 성급히 제휴 링크를 올리다 계정이 섀도우밴(정지/노출 0)되는 위험을 원천 차단합니다.<br class="hidden sm:inline"/>
+          능동적 <strong>선소통(스하리) 25건(40점) + 연속 웜업 3일(20점) + 피드 실조회수 200회(20점) + 무링크 공감글 3건(20점)</strong>을 완수할 때까지 시스템이 자율적으로 기간을 연장하며 안전성을 지킵니다.
+        </p>
+
+        <!-- 4-Pillar Visual Guide Ribbon -->
+        <div class="pt-1 flex flex-wrap items-center gap-2 text-xs">
+          <span class="text-slate-400 font-semibold text-[11px] mr-1"><i class="fa-solid fa-scale-balanced text-slate-400"></i> 심사 기준:</span>
+          <span class="bg-pink-50 text-pink-700 border border-pink-200 px-2.5 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1.5">
+            <i class="fa-solid fa-comments text-pink-500"></i> 선댓글 40점 <span class="text-slate-400 font-normal">/ 25건</span>
+          </span>
+          <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1.5">
+            <i class="fa-solid fa-calendar-check text-indigo-500"></i> 활동일수 20점 <span class="text-slate-400 font-normal">/ 3일</span>
+          </span>
+          <span class="bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1.5">
+            <i class="fa-solid fa-eye text-blue-500"></i> 실조회수 20점 <span class="text-slate-400 font-normal">/ 200회</span>
+          </span>
+          <span class="bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg font-bold text-[11px] flex items-center gap-1.5">
+            <i class="fa-solid fa-feather text-emerald-500"></i> 공감글 20점 <span class="text-slate-400 font-normal">/ 3건</span>
+          </span>
+          <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-lg font-black text-[11px]">
+            합격 70.0점 + Hard Gate
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: Action Buttons Group -->
+      <div class="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0 min-w-[240px]">
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="triggerOutboundBatch()" id="btn-outbound-batch" class="bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 active:scale-95" title="타겟 게시물 선댓글 소통 가동">
+            <i class="fa-solid fa-comments text-amber-300" id="outbound-icon"></i> <span>스하리 웜업</span>
+          </button>
+          <button onclick="syncAllWarmup()" id="btn-sync-warmup" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 active:scale-95" title="신뢰도 점수 및 지표 즉시 재측정">
+            <i class="fa-solid fa-arrows-rotate" id="sync-icon"></i> <span>신뢰도 재측정</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-1.5">
+          <button onclick="applyScheduleJitter()" id="btn-apply-jitter" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/80 font-bold text-[11px] px-2.5 py-2 rounded-xl transition flex items-center justify-center gap-1 text-center" title="봇 탐지 회피용 랜덤 시간차 지터 분산">
+            <i class="fa-solid fa-dice text-amber-600" id="jitter-icon"></i> <span>지터 적용</span>
+          </button>
+          <button onclick="generateDesktopShortcuts()" id="btn-desktop-shortcuts" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 font-bold text-[11px] px-2.5 py-2 rounded-xl transition flex items-center justify-center gap-1 text-center" title="7개 계정 바로가기 아이콘 생성">
+            <i class="fa-solid fa-desktop text-indigo-600"></i> <span>접속기 생성</span>
+          </button>
+          <a href="/" class="bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 font-semibold text-[11px] px-2.5 py-2 rounded-xl transition flex items-center justify-center gap-1 text-center">
+            <i class="fa-solid fa-chart-pie text-slate-500"></i> <span>대시보드</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Stats Row (Clean White & Soft Pastel Cards) -->
+    <div class="pt-5 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-slate-50/70 hover:bg-slate-50 border border-slate-200/70 rounded-2xl p-4 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-slate-500">예열 관리 계정</span>
+          <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs"><i class="fa-solid fa-users"></i></span>
+        </div>
+        <div class="text-xl font-black text-slate-900 mt-1">{{ evaluations|length }}개 계정</div>
+        <div class="text-[11px] text-emerald-600 font-semibold mt-0.5 flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 100% 순수 오가닉 모드
+        </div>
+      </div>
+
+      <div class="bg-amber-50/40 hover:bg-amber-50/70 border border-amber-200/60 rounded-2xl p-4 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-amber-800">졸업 합격 커트라인</span>
+          <span class="w-8 h-8 rounded-xl bg-amber-100/80 text-amber-700 flex items-center justify-center text-xs"><i class="fa-solid fa-award"></i></span>
+        </div>
+        <div class="text-xl font-black text-amber-700 mt-1">70.0점 이상</div>
+        <div class="text-[11px] text-amber-800/80 font-medium mt-0.5">
+          Hard Gate 필수 관문 동시 충족
+        </div>
+      </div>
+
+      <div class="bg-teal-50/40 hover:bg-teal-50/70 border border-teal-200/60 rounded-2xl p-4 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-teal-800">AI 서브댓글 답글 봇</span>
+          <span class="w-8 h-8 rounded-xl bg-teal-100/80 text-teal-700 flex items-center justify-center text-xs"><i class="fa-solid fa-robot"></i></span>
+        </div>
+        <div class="text-xl font-black text-teal-700 mt-1">2분 주기 가동</div>
+        <div class="text-[11px] text-teal-800/80 font-medium mt-0.5">
+          독자 상호작용 지표 실시간 부스팅
+        </div>
+      </div>
+
+      <div class="bg-emerald-50/40 hover:bg-emerald-50/70 border border-emerald-200/60 rounded-2xl p-4 transition">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold text-emerald-800">제휴 링크 노출 상태</span>
+          <span class="w-8 h-8 rounded-xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center text-xs"><i class="fa-solid fa-shield-halved"></i></span>
+        </div>
+        <div class="text-xl font-black text-emerald-700 mt-1">🔒 안전 잠금 (보호 중)</div>
+        <div class="text-[11px] text-emerald-800/80 font-medium mt-0.5">
+          조건 미달 시 +2일 자동 연장 방어
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accounts Warmup Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    {% for acc in evaluations %}
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-5 hover:shadow-md transition relative flex flex-col justify-between">
+      
+      <!-- Top Account Header -->
+      <div class="space-y-3">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <a href="https://www.threads.net/@{{ acc.username.lstrip('@') }}" target="_blank" title="쓰레드 공식 프로필 열기" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-900 to-indigo-900 hover:from-sky-700 hover:to-indigo-800 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0 transition group">
+              <i class="fa-brands fa-threads group-hover:scale-110 transition-transform"></i>
+            </a>
+            <div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <a href="https://www.threads.net/@{{ acc.username.lstrip('@') }}" target="_blank" title="쓰레드 공식 프로필 열기" class="font-bold text-slate-900 text-base hover:text-sky-600 flex items-center gap-1 transition group">
+                  <span>@{{ acc.username.lstrip('@') }}</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400 group-hover:text-sky-600 transition"></i>
+                </a>
+                <span class="text-[10px] font-black px-2 py-0.5 rounded-full 
+                  {% if acc.cluster_type == 'VERTICAL' %}bg-blue-50 text-blue-700 border border-blue-200
+                  {% elif acc.cluster_type == 'TREND' %}bg-purple-50 text-purple-700 border border-purple-200
+                  {% else %}bg-emerald-50 text-emerald-700 border border-emerald-200{% endif %}">
+                  {{ acc.cluster_type }}
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 font-medium">{{ acc.display_name }}</p>
+            </div>
+          </div>
+
+          <!-- Extended badge if any -->
+          {% if acc.extended_days > 0 %}
+          <span class="text-[10px] bg-red-50 text-red-700 font-black px-2 py-1 rounded-lg border border-red-200 shrink-0">
+            +{{ acc.extended_days }}일 연장됨
+          </span>
+          {% endif %}
+        </div>
+
+        <!-- Trust Score Gauge Card -->
+        <div class="p-4 rounded-2xl 
+          {% if acc.is_graduated %}bg-emerald-50/70 border border-emerald-200
+          {% elif acc.trust_score >= 70 %}bg-teal-50/70 border border-teal-200
+          {% else %}bg-slate-50 border border-slate-200/80{% endif %}">
+          
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+              <i class="fa-solid fa-shield-halved text-brand-600"></i> 메타 신뢰도 (Trust Score)
+            </span>
+            <span class="text-lg font-black 
+              {% if acc.trust_score >= 70 %}text-emerald-700
+              {% elif acc.trust_score >= 40 %}text-amber-600
+              {% else %}text-slate-700{% endif %}">
+              {{ acc.trust_score }} <span class="text-xs font-normal text-slate-500">/ 100점</span>
+            </span>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full bg-slate-200 rounded-full h-2.5 mt-2.5 overflow-hidden">
+            <div class="h-2.5 rounded-full transition-all duration-500
+              {% if acc.trust_score >= 70 %}bg-emerald-500
+              {% elif acc.trust_score >= 40 %}bg-amber-500
+              {% else %}bg-indigo-500{% endif %}" 
+              style="width: {{ [acc.trust_score, 100.0]|min }}%">
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] mt-2">
+            <span class="font-bold 
+              {% if acc.is_graduated %}text-emerald-700
+              {% elif acc.trust_score >= 70 %}text-teal-700
+              {% else %}text-amber-700{% endif %}">
+              {% if acc.is_graduated %}
+                🎉 100% 수료 (수익화 모드 활성 가능)
+              {% elif acc.trust_score >= 70 %}
+                ✅ 70점 돌파 (오가닉 4건 달성 시 최종 졸업)
+              {% else %}
+                🌱 예열 진행 중 (목표 70점 필요)
+              {% endif %}
+            </span>
+            <span class="text-slate-500">커트라인 70점</span>
+          </div>
+        </div>
+
+        <!-- 4-Core Requirements Checklist -->
+        <!-- 4-Core Requirements Checklist (Option 1 Hybrid) -->
+        <div class="space-y-2.5 pt-1">
+          <div class="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+            <span>하이브리드 4대 평가 지표</span>
+            <span class="text-[10px] text-emerald-600 font-bold">100점 만점 심사</span>
+          </div>
+
+          <!-- 1. 타 계정 웜업 선댓글 (40점) -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-700 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-comments text-indigo-600 text-[11px]"></i>
+                <span>타 계정 웜업 선댓글</span>
+                <span class="text-[10px] bg-indigo-50 text-indigo-700 font-bold px-1.5 py-0.2 rounded">40점</span>
+              </span>
+              <span class="font-bold text-slate-900">
+                {{ acc.metrics.outbound_comments }} / {{ acc.metrics.target_outbound }}건
+                {% if acc.metrics.outbound_comments >= acc.metrics.target_outbound %}
+                <span class="text-emerald-600 font-bold ml-1">✓ 만점</span>
+                {% else %}
+                <span class="text-indigo-600 font-medium text-[11px] ml-1">({{ acc.metrics.outbound_score }}점)</span>
+                {% endif %}
+              </span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-indigo-600 h-1.5 rounded-full transition-all duration-500" style="width: {{ [(acc.metrics.outbound_comments / acc.metrics.target_outbound * 100), 100]|min }}%"></div>
+            </div>
+          </div>
+
+          <!-- 2. 연속 웜업 활동 일수 (20점) -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-700 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-calendar-check text-purple-600 text-[11px]"></i>
+                <span>연속 웜업 활동 일수</span>
+                <span class="text-[10px] bg-purple-50 text-purple-700 font-bold px-1.5 py-0.2 rounded">20점</span>
+              </span>
+              <span class="font-bold text-slate-900">
+                {{ acc.metrics.streak_days }} / {{ acc.metrics.target_streak }}일
+                {% if acc.metrics.streak_days >= acc.metrics.target_streak %}
+                <span class="text-emerald-600 font-bold ml-1">✓ 만점</span>
+                {% else %}
+                <span class="text-purple-600 font-medium text-[11px] ml-1">({{ acc.metrics.streak_score }}점)</span>
+                {% endif %}
+              </span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-purple-600 h-1.5 rounded-full transition-all duration-500" style="width: {{ [(acc.metrics.streak_days / acc.metrics.target_streak * 100), 100]|min }}%"></div>
+            </div>
+          </div>
+
+          <!-- 3. 피드 실조회수 & 프로필 유입 (20점) -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-700 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-eye text-blue-600 text-[11px]"></i>
+                <span>피드 실조회수 & 유입</span>
+                <span class="text-[10px] bg-blue-50 text-blue-700 font-bold px-1.5 py-0.2 rounded">20점</span>
+              </span>
+              <span class="font-bold text-slate-900">
+                {{ acc.metrics.views }} / {{ acc.metrics.target_views }}회
+                {% if acc.metrics.views >= acc.metrics.target_views %}
+                <span class="text-emerald-600 font-bold ml-1">✓ 만점</span>
+                {% else %}
+                <span class="text-blue-600 font-medium text-[11px] ml-1">({{ acc.metrics.views_score }}점)</span>
+                {% endif %}
+              </span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-500" style="width: {{ [(acc.metrics.views / acc.metrics.target_views * 100), 100]|min }}%"></div>
+            </div>
+          </div>
+
+          <!-- 4. 순수 무링크 공감글 발행 (20점) -->
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-700 font-semibold flex items-center gap-1.5">
+                <i class="fa-solid fa-feather-pointed text-amber-600 text-[11px]"></i>
+                <span>무링크 공감글 누적</span>
+                <span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-1.5 py-0.2 rounded">20점</span>
+              </span>
+              <span class="font-bold text-slate-900">
+                {{ acc.metrics.published_organic }} / {{ acc.metrics.target_organic }}건
+                {% if acc.metrics.published_organic >= acc.metrics.target_organic %}
+                <span class="text-emerald-600 font-bold ml-1">✓ 만점</span>
+                {% else %}
+                <span class="text-amber-600 font-medium text-[11px] ml-1">({{ acc.metrics.organic_score }}점)</span>
+                {% endif %}
+              </span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-amber-500 h-1.5 rounded-full transition-all duration-500" style="width: {{ [(acc.metrics.published_organic / acc.metrics.target_organic * 100), 100]|min }}%"></div>
+            </div>
+          </div>
+
+          <!-- 5. 오늘 스하리(선소통) 활동 현황 -->
+          <div class="space-y-1 pt-1 border-t border-slate-100">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-600 flex items-center gap-1.5">
+                <i class="fa-solid fa-paper-plane text-emerald-600 text-[11px]"></i> 오늘 선댓글 완수
+              </span>
+              <span class="font-semibold text-slate-800">
+                {{ acc.outbound.today_count }} / {{ acc.outbound.daily_limit }}건
+                {% if acc.outbound.today_count >= acc.outbound.daily_limit %}
+                <span class="text-emerald-600 font-bold ml-1">✓ 오늘 목표 달성</span>
+                {% else %}
+                <span class="text-indigo-600 text-[11px] font-medium ml-1">({{ acc.outbound.remaining_today }}건 대기)</span>
+                {% endif %}
+              </span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div class="bg-emerald-500 h-1.5 rounded-full transition-all duration-500" style="width: {{ [(acc.outbound.today_count / acc.outbound.daily_limit * 100), 100]|min }}%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remaining Requirements Checklist -->
+        {% if acc.remaining_requirements %}
+        <div class="bg-amber-50/60 border border-amber-200/60 rounded-xl p-2.5 space-y-1">
+          <div class="text-[11px] font-bold text-amber-800 flex items-center gap-1">
+            <i class="fa-solid fa-circle-exclamation"></i> 잔여 졸업 요구 조건
+          </div>
+          <ul class="text-[11px] text-amber-900 space-y-0.5 list-disc list-inside">
+            {% for req in acc.remaining_requirements %}
+            <li>{{ req }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% else %}
+        <div class="bg-emerald-50/60 border border-emerald-200/60 rounded-xl p-2.5 text-[11px] font-bold text-emerald-800 flex items-center gap-1.5">
+          <i class="fa-solid fa-circle-check text-emerald-600"></i> 모든 신뢰도 지표가 완벽히 충족되었습니다!
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-3 border-t border-slate-100 space-y-2">
+        <button onclick="launchDedicatedBrowser({{ acc.account_id }}, '{{ acc.username }}', '{{ acc.login_password or 'q1w2e3r4!!' }}')" class="w-full bg-gradient-to-r from-slate-900 to-indigo-950 hover:from-black hover:to-indigo-900 text-white text-xs font-bold py-2.5 rounded-xl border border-slate-800 transition flex items-center justify-center gap-2 shadow-sm hover:shadow active:scale-[0.99]">
+          <i class="fa-solid fa-laptop-code text-cyan-400"></i>
+          <span>PC 전용 격리 브라우저 실행</span>
+          <span class="text-[10px] bg-white/20 text-cyan-200 px-1.5 py-0.5 rounded font-mono">1-Click</span>
+        </button>
+        <button onclick="publishNextPost({{ acc.account_id }}, '{{ acc.username }}')" id="btn-publish-next-{{ acc.account_id }}" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold py-2.5 rounded-xl shadow-sm hover:shadow transition flex items-center justify-center gap-2 active:scale-[0.99]" title="대기 중인 다음 오가닉 글을 지금 즉시 쓰레드에 실시간 발행합니다.">
+          <i class="fa-solid fa-bolt-lightning text-yellow-300"></i>
+          <span>⚡ 지금 즉시 1건 실시간 발행</span>
+          <span class="text-[10px] bg-white/20 text-white px-1.5 py-0.5 rounded font-semibold">Publish Now</span>
+        </button>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="triggerOutboundSingle({{ acc.account_id }}, '{{ acc.username }}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold py-2 rounded-xl border border-blue-200 hover:border-blue-300 transition flex items-center justify-center gap-1">
+            <i class="fa-solid fa-paper-plane text-blue-600"></i> <span>스하리+1</span>
+          </button>
+          <button onclick="extendWarmup({{ acc.account_id }}, '{{ acc.username }}')" class="bg-slate-100 hover:bg-amber-50 hover:text-amber-800 text-slate-700 text-xs font-bold py-2 rounded-xl border border-slate-200 hover:border-amber-300 transition flex items-center justify-center gap-1">
+            <i class="fa-solid fa-plus text-amber-500"></i> <span>+2일 연장</span>
+          </button>
+          <a href="/pick/@{{ acc.username }}" target="_blank" class="bg-slate-100 hover:bg-brand-50 hover:text-brand-700 text-slate-700 text-xs font-bold py-2 rounded-xl border border-slate-200 hover:border-brand-200 transition flex items-center justify-center gap-1">
+            <i class="fa-solid fa-store text-amber-500"></i> <span>픽스토어</span>
+          </a>
+        </div>
+        <button onclick="openOutboundLogs({{ acc.account_id }}, '{{ acc.username }}')" class="w-full bg-slate-50 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 text-xs font-bold py-2 rounded-xl border border-slate-200 hover:border-indigo-200 transition flex items-center justify-center gap-1.5 shadow-2xs">
+          <i class="fa-solid fa-clock-rotate-left text-indigo-500"></i>
+          <span>📜 스하리(선소통) 활동내역 보기</span>
+          <span class="text-[10px] bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded-full font-mono font-semibold">로그</span>
+        </button>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Educational & Grounding Guide -->
+  <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg">
+        <i class="fa-solid fa-lightbulb"></i>
+      </div>
+      <div>
+        <h4 class="font-bold text-slate-900 text-base">알고리즘 양성화(Warmup)가 왜 필수적인가요?</h4>
+        <p class="text-xs text-slate-500">계정 영구 정지 및 섀도우밴(노출 제로)을 예방하는 핵심 보안 수칙</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs leading-relaxed text-slate-600">
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1.5">
+        <div class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">1</span>
+          메타 상업 스팸 봇 감지 회피
+        </div>
+        <p>신규 계정이 생성되자마자 링크를 올리면 메타 알고리즘은 즉시 상업용 어뷰징 봇으로 간주하여 영구 노출 제한을 겁니다.</p>
+      </div>
+
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1.5">
+        <div class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">2</span>
+          독자 인터랙션(댓글) 신뢰도 확보
+        </div>
+        <p>2분 주기 서브댓글 봇이 독자들과 자연스러운 티키타카를 나누며 계정의 실제 활성 지수(Trust Score)를 급상승시킵니다.</p>
+      </div>
+
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1.5">
+        <div class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+          <span class="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">3</span>
+          완벽 예열 후 4:1 황금 비율 수익화
+        </div>
+        <p>70점 이상 신뢰도를 쌓은 계정만 '오가닉 4건 : 제휴 1건' 비율로 안전하게 전환되어 장기 생존 수익 머신이 완성됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Outbound Interaction Log Modal -->
+<div id="outbound-log-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
+    <!-- Modal Header -->
+    <div class="p-5 bg-slate-900 text-white flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-lg border border-indigo-500/30">
+          <i class="fa-solid fa-comments"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-base md:text-lg text-white flex items-center gap-2">
+            <span id="modal-account-username">@username</span>
+            <span class="text-xs bg-indigo-500/30 text-indigo-300 px-2 py-0.5 rounded-full font-normal">스하리(선소통) 활동 로그</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5" id="modal-today-summary">
+            오늘 소통: 0 / 10건 (안전 상한선 이내 분산 진행)
+          </p>
+        </div>
+      </div>
+      <button onclick="closeOutboundModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- 4 Stats Summary Cards -->
+    <div class="grid grid-cols-4 gap-2 p-3.5 bg-slate-50 border-b border-slate-100 text-center">
+      <div class="bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
+        <div class="text-[10px] text-slate-400 font-medium">오늘 소통 진행</div>
+        <div class="text-xs md:text-sm font-bold text-indigo-600 mt-0.5" id="modal-stat-today">0 / 10건</div>
+      </div>
+      <div class="bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
+        <div class="text-[10px] text-slate-400 font-medium">누적 선소통</div>
+        <div class="text-xs md:text-sm font-bold text-slate-800 mt-0.5" id="modal-stat-total">0건</div>
+      </div>
+      <div class="bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
+        <div class="text-[10px] text-slate-400 font-medium">프로필 유입 기여</div>
+        <div class="text-xs md:text-sm font-bold text-emerald-600 mt-0.5" id="modal-stat-views">+0회</div>
+      </div>
+      <div class="bg-white p-2.5 rounded-xl border border-slate-200/80 shadow-2xs">
+        <div class="text-[10px] text-slate-400 font-medium">현재 예약 블록</div>
+        <div class="text-[11px] font-bold text-amber-600 mt-0.5 truncate" id="modal-stat-block" title="블록">-</div>
+      </div>
+    </div>
+
+    <!-- Filter Toggle Bar -->
+    <div class="px-5 py-2.5 bg-white border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl text-xs font-semibold">
+        <button id="filter-btn-all" onclick="filterOutboundLogs('all')" class="px-3 py-1 rounded-lg bg-white text-slate-900 shadow-2xs transition">
+          전체 내역 (<span id="modal-tab-all-count">0</span>)
+        </button>
+        <button id="filter-btn-today" onclick="filterOutboundLogs('today')" class="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">
+          오늘 소통만 (<span id="modal-tab-today-count">0</span>)
+        </button>
+      </div>
+      <div class="text-[11px] text-slate-400 flex items-center gap-1">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <span>실시간 KST 기준 정렬</span>
+      </div>
+    </div>
+
+    <!-- Modal Content List -->
+    <div class="p-5 overflow-y-auto space-y-3.5 flex-1 divide-y divide-slate-100" id="modal-logs-container">
+      <div class="py-8 text-center text-slate-400 text-sm">
+        <i class="fa-solid fa-spinner fa-spin text-xl text-indigo-500 mb-2"></i>
+        <p>활동 로그를 불러오는 중입니다...</p>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="p-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+      <div class="flex items-center gap-1.5 text-[11px]">
+        <i class="fa-solid fa-shield-halved text-emerald-600"></i>
+        <span>하루 최대 10건 제한 • 40~75분 안전 시간차 및 불규칙 지터 자동 적용</span>
+      </div>
+      <button onclick="closeOutboundModal()" class="px-3.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl transition text-xs">
+        닫기 (Esc)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive JavaScript -->
+<script>
+async function syncAllWarmup() {
+  const btn = document.getElementById('btn-sync-warmup');
+  const icon = document.getElementById('sync-icon');
+  btn.disabled = true;
+  icon.classList.add('fa-spin');
+
+  try {
+    const res = await fetch('/api/accounts/warmup/sync-all', { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'SUCCESS') {
+      alert('✅ 전 계정 양성화 신뢰도 심사가 최신 데이터로 동기화되었습니다!');
+      location.reload();
+    } else {
+      alert('동기화 실패: ' + (data.message || '오류 발생'));
+    }
+  } catch (err) {
+    alert('네트워크 오류가 발생했습니다: ' + err);
+  } finally {
+    btn.disabled = false;
+    icon.classList.remove('fa-spin');
+  }
+}
+
+async function triggerOutboundBatch() {
+  const btn = document.getElementById('btn-outbound-batch');
+  const icon = document.getElementById('outbound-icon');
+  btn.disabled = true;
+  icon.classList.add('fa-spin');
+
+  try {
+    const res = await fetch('/api/accounts/outbound/batch', { credentials: 'omit', method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'SUCCESS') {
+      alert(`💬 [스하리 선소통 웜업 세션 완료]\n성공: ${data.success_count}건 / 실패: ${data.fail_count}건\n모든 활성 계정이 타겟 글에 페르소나 가치 댓글을 성공적으로 남겼습니다!`);
+      location.reload();
+    } else {
+      alert('스하리 실행 실패: ' + (data.message || '오류 발생'));
+    }
+  } catch (err) {
+    alert('스하리 요청 중 네트워크 오류가 발생했습니다: ' + err);
+  } finally {
+    btn.disabled = false;
+    icon.classList.remove('fa-spin');
+  }
+}
+
+async function triggerOutboundSingle(accountId, username) {
+  try {
+    const res = await fetch(`/api/accounts/${accountId}/outbound`, { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'SUCCESS') {
+      alert(`💬 [@${username} 스하리 성공!]\n타겟: @${data.target_author}\n작성 댓글: "${data.comment}"\n지터 대기: ${data.jitter_delay_sec}초 반영`);
+      location.reload();
+    } else {
+      alert(`스하리 실패: ${data.message || '오늘 일일 한도(10건)에 도달했거나 오류가 발생했습니다.'}`);
+    }
+  } catch (err) {
+    alert('요청 중 오류가 발생했습니다: ' + err);
+  }
+}
+
+async function extendWarmup(accountId, username) {
+  if (!confirm(`@${username} 계정의 양성화 기간을 +2일 연장하고, 고화력 질문/공감 콘텐츠 2개를 자동 생성하여 예약하시겠습니까?`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/accounts/${accountId}/warmup/extend`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ days: 2 })
+    });
+    const data = await res.json();
+    if (data.status === 'SUCCESS') {
+      alert(data.message);
+      location.reload();
+    } else {
+      alert('연장 처리 실패: ' + (data.message || '오류 발생'));
+    }
+  } catch (err) {
+    alert('요청 중 오류가 발생했습니다: ' + err);
+  }
+}
+
+async function launchDedicatedBrowser(accountId, username, password) {
+  try {
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(password);
+    }
+    const res = await fetch(`/api/accounts/${accountId}/launch-browser`, { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'SUCCESS') {
+      alert(`🖥️ [@${username} 전용 격리 브라우저 실행 완료!]\n\n• 아이디 : ${username}\n• 비밀번호 : ${password} (클립보드 자동 복사됨!)\n\n👉 지금 열린 브라우저 창에서 [Ctrl + V]를 눌러 바로 로그인하세요.\n👉 최초 1회 로그인 시 크롬의 '비밀번호 저장'을 누르시면 다음부터는 완전 자동 로그인됩니다.`);
+    } else {
+      alert('브라우저 실행 실패: ' + (data.detail || '오류 발생'));
+    }
+  } catch (err) {
+    alert('브라우저 실행 중 오류가 발생했습니다: ' + err);
+  }
+}
+
+async function generateDesktopShortcuts() {
+  const btn = document.getElementById('btn-desktop-shortcuts');
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/accounts/desktop-shortcuts/generate', { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'SUCCESS') {
+      alert(`🎉 [바탕화면 전용 접속기 7개 생성 완료!]\n\n저장 경로: 바탕화면 > '쓰레드_계정별_접속기' 폴더\n\n스마트폰을 켤 필요 없이 바탕화면 아이콘을 더블클릭하시면 각 계정으로 즉시 독립 접속됩니다!`);
+    } else {
+      alert('생성 실패: ' + (data.detail || '오류 발생'));
+    }
+  } catch (err) {
+    alert('바로가기 생성 중 오류가 발생했습니다: ' + err);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function publishNextPost(accountId, username) {
+  if (!confirm(`[@${username}] 계정의 다음 대기 중인 오가닉 글을 지금 즉시 쓰레드에 실시간 발행하시겠습니까?`)) {
+    return;
+  }
+  const btn = document.getElementById(`btn-publish-next-${accountId}`);
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>쓰레드로 실시간 전송 중...</span>';
+  }
+
+  try {
+    const res = await fetch(`/api/accounts/${accountId}/publish-next`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok && data.status === 'SUCCESS') {
+      const msg = `🎉 [@${username} 실시간 발행 성공!]\n\n• 글 제목: ${data.title}\n• 게시물 ID: ${data.threads_post_id || '완료'}\n\n👉 지금 바로 쓰레드 웹 또는 전용 브라우저에서 실시간으로 확인하실 수 있습니다!`;
+      alert(msg);
+      location.reload();
+    } else {
+      alert('발행 실패: ' + (data.detail || data.message || '오류가 발생했습니다.'));
+    }
+  } catch (err) {
+    alert('발행 요청 중 네트워크 오류가 발생했습니다: ' + err);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
+}
+
+async function applyScheduleJitter() {
+  const btn = document.getElementById('btn-apply-jitter');
+  const icon = document.getElementById('jitter-icon');
+  btn.disabled = true;
+  if (icon) icon.className = 'fa-solid fa-spinner fa-spin';
+
+  try {
+    const res = await fetch('/api/scheduler/apply-jitter', { method: 'POST' });
+    const data = await res.json();
+    if (data.status === 'SUCCESS') {
+      alert(`🎲 [봇 방지 불규칙 시간차(지터) 적용 완료!]\n\n${data.message}\n\n모든 예약 글의 발행 시각이 계정별 10~15분 간격 분산 및 초/분 단위 랜덤 지터로 자동 재배치되었습니다. (메타 알고리즘의 봇 탐지 완벽 회피)`);
+      location.reload();
+    } else {
+      alert('지터 적용 실패: ' + (data.detail || data.message || '오류 발생'));
+    }
+  } catch (err) {
+    alert('요청 중 오류가 발생했습니다: ' + err);
+  } finally {
+    btn.disabled = false;
+    if (icon) icon.className = 'fa-solid fa-dice text-amber-200';
+  }
+}
+
+let currentModalData = null;
+let currentModalFilter = 'all';
+
+function getCommentStyleBadge(style) {
+  if (style.includes('정보')) {
+    return 'bg-blue-100/70 text-blue-700 border-blue-200';
+  } else if (style.includes('질문') || style.includes('토론')) {
+    return 'bg-amber-100/70 text-amber-800 border-amber-200';
+  } else {
+    return 'bg-rose-100/70 text-rose-700 border-rose-200';
+  }
+}
+
+function filterOutboundLogs(filterType) {
+  currentModalFilter = filterType;
+  const btnAll = document.getElementById('filter-btn-all');
+  const btnToday = document.getElementById('filter-btn-today');
+  
+  if (filterType === 'all') {
+    btnAll.className = 'px-3 py-1 rounded-lg bg-white text-slate-900 shadow-2xs font-bold transition';
+    btnToday.className = 'px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium';
+  } else {
+    btnAll.className = 'px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition font-medium';
+    btnToday.className = 'px-3 py-1 rounded-lg bg-white text-slate-900 shadow-2xs font-bold transition';
+  }
+  renderModalLogs();
+}
+
+function renderModalLogs() {
+  const container = document.getElementById('modal-logs-container');
+  if (!currentModalData || !currentModalData.logs || currentModalData.logs.length === 0) {
+    container.innerHTML = `
+      <div class="py-12 text-center text-slate-400 space-y-2">
+        <i class="fa-regular fa-comment-dots text-3xl text-slate-300"></i>
+        <p class="font-medium text-slate-600">아직 작성된 아웃바운드 소통 이력이 없습니다.</p>
+        <p class="text-xs text-slate-400">[스하리+1] 버튼을 누르거나 백그라운드 워커가 돌면 자동으로 소통 로그가 쌓입니다.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let logs = currentModalData.logs;
+  if (currentModalFilter === 'today') {
+    // 오늘 날짜에 해당하는 로그만 필터링 (KST 기준)
+    const todayStr = new Date().toISOString().slice(0, 10);
+    logs = logs.filter(l => (l.created_at_kst || '').startsWith(todayStr) || logs.indexOf(l) < (currentModalData.today_count || 0));
+  }
+
+  if (logs.length === 0) {
+    container.innerHTML = `
+      <div class="py-12 text-center text-slate-400 space-y-2">
+        <i class="fa-regular fa-calendar-xmark text-3xl text-slate-300"></i>
+        <p class="font-medium text-slate-600">선택한 필터 조건에 해당하는 활동 로그가 없습니다.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  logs.forEach((item, idx) => {
+    const badgeClass = getCommentStyleBadge(item.comment_style || '100%공감형');
+    html += `
+      <div class="pt-3.5 first:pt-0 space-y-2">
+        <div class="flex items-center justify-between text-xs">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200 font-mono text-[11px]">
+              #${idx + 1}
+            </span>
+            <a href="${item.profile_url}" target="_blank" class="font-bold text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1">
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+              <span>${item.target_author}</span>
+            </a>
+            <span class="text-[10px] px-2 py-0.5 rounded-md border font-semibold ${badgeClass}">
+              ${item.comment_style || '100%공감형'}
+            </span>
+            <span class="text-slate-400 text-[11px] hidden sm:inline">• ${item.niche_category}</span>
+          </div>
+          <div class="flex items-center gap-1.5 text-slate-400 text-[11px] font-mono">
+            <i class="fa-regular fa-clock"></i>
+            <span>${item.created_at_kst}</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 space-y-2 shadow-2xs">
+          <div class="text-[11px] text-slate-500 font-medium flex items-center gap-1.5 bg-slate-100/70 px-2.5 py-1.5 rounded-lg">
+            <i class="fa-solid fa-crosshairs text-indigo-500 text-[10px]"></i>
+            <span class="text-slate-700 font-semibold truncate">상대방 원문: "${item.target_post_snippet}"</span>
+          </div>
+          <div class="text-xs font-semibold text-slate-800 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs leading-relaxed">
+            💬 "${item.comment_body}"
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 pt-1">
+            <div class="flex items-center gap-2">
+              <span class="bg-slate-200/70 text-slate-700 px-2 py-0.5 rounded text-[10px] font-medium">
+                ⏱️ 대기 딜레이: ${item.jitter_delay_sec}초
+              </span>
+              <span class="text-emerald-600 font-bold flex items-center gap-1 text-[11px]">
+                <i class="fa-solid fa-chart-line"></i> 노출 +${item.views_boost}회 / 신뢰도 점수 기여
+              </span>
+            </div>
+            <a href="${item.profile_url}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-bold text-[11px] flex items-center gap-1 hover:underline">
+              상대방 프로필 방문 <i class="fa-solid fa-chevron-right text-[9px]"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+async function openOutboundLogs(accountId, username) {
+  const modal = document.getElementById('outbound-log-modal');
+  const userTitle = document.getElementById('modal-account-username');
+  const todaySummary = document.getElementById('modal-today-summary');
+  const container = document.getElementById('modal-logs-container');
+
+  userTitle.textContent = `@${username}`;
+  todaySummary.textContent = '로그 조회 중...';
+  container.innerHTML = `
+    <div class="py-12 text-center text-slate-400 text-sm">
+      <i class="fa-solid fa-spinner fa-spin text-2xl text-indigo-500 mb-2"></i>
+      <p>스하리 활동 내역을 불러오는 중입니다...</p>
+    </div>
+  `;
+  modal.classList.remove('hidden');
+
+  try {
+    const res = await fetch(`/api/accounts/${accountId}/outbound/logs`);
+    const data = await res.json();
+    currentModalData = data;
+    
+    // 헤더 및 4대 요약 카운터 갱신
+    todaySummary.innerHTML = `오늘 소통: <strong class="text-indigo-400">${data.today_count} / ${data.daily_limit}건</strong> (오늘 잔여: ${data.remaining_today}건) | 누적 소통: ${data.total_count}건`;
+    
+    document.getElementById('modal-stat-today').textContent = `${data.today_count} / ${data.daily_limit}건`;
+    document.getElementById('modal-stat-total').textContent = `${data.total_count}건`;
+    document.getElementById('modal-stat-views').textContent = `+${data.today_views_boost}회`;
+    
+    const block = data.current_block || {};
+    document.getElementById('modal-stat-block').textContent = block.name ? `${block.name.split(' ')[0]}` : '활동 중';
+    document.getElementById('modal-stat-block').title = `${block.name || ''} (${block.time_range || ''})`;
+
+    document.getElementById('modal-tab-all-count').textContent = (data.logs || []).length;
+    document.getElementById('modal-tab-today-count').textContent = data.today_count || 0;
+
+    currentModalFilter = 'all';
+    renderModalLogs();
+  } catch (err) {
+    container.innerHTML = `
+      <div class="py-8 text-center text-rose-500 text-sm">
+        <p>로그를 불러오는 중 오류가 발생했습니다: ${err.message}</p>
+      </div>
+    `;
+  }
+}
+
+function closeOutboundModal() {
+  const modal = document.getElementById('outbound-log-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+// 모달 외부 클릭 및 ESC 닫기 이벤트 리스너
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeOutboundModal();
+});
+document.getElementById('outbound-log-modal')?.addEventListener('click', (e) => {
+  if (e.target.id === 'outbound-log-modal') closeOutboundModal();
+});
+</script>
+{% endblock %}

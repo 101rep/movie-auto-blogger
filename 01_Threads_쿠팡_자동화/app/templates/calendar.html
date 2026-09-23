@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}콘텐츠 캘린더{% endblock %}
+{% block header_title %}콘텐츠 캘린더 & 예약 발행 센터{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8">
+
+  <!-- Header Banner -->
+  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+        <i class="fa-solid fa-calendar-days text-brand-600"></i>
+        <span>예약 발행 일정 현황</span>
+        <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full font-bold">{{ events|length }}건 예약됨</span>
+      </h3>
+      <p class="text-xs text-slate-500 mt-1">Threads 최적 업로드 골든 타임(출근길 08:00, 점심 12:30, 퇴근/취침 21:00)에 맞춰 발행 일정을 관리하세요.</p>
+    </div>
+
+    <div>
+      <button onclick="document.getElementById('schedule-modal').classList.remove('hidden')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-2">
+        <i class="fa-solid fa-clock"></i> 새 콘텐츠 예약 등록
+      </button>
+    </div>
+  <!-- Multi-Account Cluster Filter Tabs -->
+  <div class="flex items-center gap-2 border-b border-slate-100 pb-2 text-xs font-semibold overflow-x-auto">
+    <span class="text-slate-400 mr-1 flex items-center gap-1"><i class="fa-solid fa-filter"></i> 계정 클러스터:</span>
+    <button onclick="filterCalendarCluster('ALL')" class="cal-cluster-btn px-3 py-1.5 rounded-lg bg-slate-900 text-white font-bold text-xs transition" data-cluster="ALL">전체 일정 ({{ events|length }})</button>
+    <button onclick="filterCalendarCluster('VERTICAL')" class="cal-cluster-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium text-xs transition" data-cluster="VERTICAL">버티컬 전문</button>
+    <button onclick="filterCalendarCluster('PERSONA')" class="cal-cluster-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium text-xs transition" data-cluster="PERSONA">타깃 페르소나</button>
+    <button onclick="filterCalendarCluster('TREND')" class="cal-cluster-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium text-xs transition" data-cluster="TREND">트렌드/이슈</button>
+  </div>
+
+  <!-- Timeline Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for ev in events %}
+    <div class="calendar-item-card bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4 hover:border-brand-300 hover:shadow-md transition flex flex-col justify-between" data-cluster="{{ ev.account_cluster or 'NONE' }}">
+      <div class="space-y-2.5">
+        <div class="flex items-center justify-between gap-1 flex-wrap">
+          <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+            <i class="fa-regular fa-clock"></i> {{ ev.scheduled_at }}
+          </span>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-100 text-purple-800">
+            {{ ev.status }}
+          </span>
+        </div>
+
+        {% if ev.account_username %}
+        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-lg border text-[11px] font-semibold w-fit
+          {% if ev.account_cluster == 'VERTICAL' %}bg-indigo-50 border-indigo-200 text-indigo-700
+          {% elif ev.account_cluster == 'PERSONA' %}bg-emerald-50 border-emerald-200 text-emerald-700
+          {% elif ev.account_cluster == 'TREND' %}bg-amber-50 border-amber-200 text-amber-700
+          {% else %}bg-slate-50 border-slate-200 text-slate-700{% endif %}">
+          <i class="fa-brands fa-threads"></i>
+          <span>@{{ ev.account_username }}</span>
+          <span class="text-[9px] px-1 py-0.2 rounded font-bold
+            {% if ev.account_cluster == 'VERTICAL' %}bg-indigo-100 text-indigo-800
+            {% elif ev.account_cluster == 'PERSONA' %}bg-emerald-100 text-emerald-800
+            {% elif ev.account_cluster == 'TREND' %}bg-amber-100 text-amber-800
+            {% else %}bg-slate-200 text-slate-700{% endif %}">
+            {{ '버티컬' if ev.account_cluster == 'VERTICAL' else ('페르소나' if ev.account_cluster == 'PERSONA' else '트렌드') }}
+          </span>
+        </div>
+        {% endif %}
+
+        <h4 class="font-bold text-sm text-slate-900 line-clamp-2 leading-snug">{{ ev.title }}</h4>
+        <p class="text-xs text-slate-500"><i class="fa-solid fa-tag text-[10px] text-slate-400 mr-1"></i>상품: {{ ev.product_name }}</p>
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+        <span class="text-[11px] text-slate-400">품질지수: <strong class="text-brand-600">{{ ev.quality_score or 90 }}점</strong></span>
+        <div class="flex items-center gap-2">
+          <button onclick="publishNow({{ ev.id }})" class="bg-slate-900 hover:bg-brand-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition shadow-sm flex items-center gap-1">
+            <i class="fa-solid fa-paper-plane"></i> 즉시 발행
+          </button>
+          <button onclick="cancelSchedule({{ ev.id }})" class="text-slate-400 hover:text-rose-600 px-2 py-1.5 transition" title="예약 취소">
+            <i class="fa-solid fa-ban"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="col-span-full py-16 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-2xl bg-white">
+      <i class="fa-solid fa-calendar-xmark text-3xl text-slate-300 mb-2"></i>
+      <p>현재 예약된 일정이 없습니다.<br>승인된 콘텐츠를 캘린더에 예약하여 자동 발행을 시작하세요.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- Schedule Modal -->
+<div id="schedule-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in-95">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <h3 class="font-bold text-slate-900 text-sm">콘텐츠 예약 발행 등록</h3>
+      <button onclick="document.getElementById('schedule-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <form onsubmit="submitSchedule(event)" class="space-y-4 text-xs">
+      <div>
+        <label class="font-bold text-slate-700 block mb-1">발행할 콘텐츠 선택 (승인 완료 건)</label>
+        <select id="modal-content-id" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:border-brand-500">
+          {% for ac in approved_contents %}
+          <option value="{{ ac.id }}">{{ ac.title }}</option>
+          {% else %}
+          <option value="">승인된(APPROVED) 콘텐츠가 없습니다.</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label class="font-bold text-slate-700 block mb-1">예약 일시 선택</label>
+        <input type="datetime-local" id="modal-schedule-time" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:border-brand-500">
+      </div>
+
+      <div class="pt-2 flex justify-end gap-2">
+        <button type="button" onclick="document.getElementById('schedule-modal').classList.add('hidden')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-xl">
+          취소
+        </button>
+        <button type="submit" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-2 rounded-xl shadow">
+          예약 확정
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function submitSchedule(e) {
+    e.preventDefault();
+    const contentId = document.getElementById('modal-content-id').value;
+    const timeVal = document.getElementById('modal-schedule-time').value;
+
+    if (!contentId || !timeVal) {
+      showToast('콘텐츠와 예약 일시를 모두 선택해주세요.', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/scheduler/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content_id: parseInt(contentId),
+          scheduled_at: new Date(timeVal).toISOString()
+        })
+      });
+      if (res.ok) {
+        showToast('콘텐츠가 성공적으로 예약되었습니다!', 'success');
+        document.getElementById('schedule-modal').classList.add('hidden');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast('예약 등록 실패', 'error');
+      }
+    } catch (err) {
+      showToast('오류: ' + err.message, 'error');
+    }
+  }
+
+  function filterCalendarCluster(cluster) {
+    document.querySelectorAll('.cal-cluster-btn').forEach(b => {
+      if (b.dataset.cluster === cluster) {
+        b.className = 'cal-cluster-btn px-3 py-1.5 rounded-lg bg-slate-900 text-white font-bold text-xs transition';
+      } else {
+        b.className = 'cal-cluster-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium text-xs transition';
+      }
+    });
+
+    const cards = document.querySelectorAll('.calendar-item-card');
+    cards.forEach(card => {
+      if (cluster === 'ALL' || card.dataset.cluster === cluster) {
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+  }
+
+  async function cancelSchedule(contentId) {
+    if (!confirm('이 예약 일정을 취소하시겠습니까?')) return;
+    try {
+      const res = await fetch(`/api/scheduler/cancel/${contentId}`, { method: 'POST' });
+      if (res.ok) {
+        showToast('예약이 취소되었습니다.', 'success');
+        setTimeout(() => location.reload(), 600);
+      }
+    } catch (err) {
+      showToast('오류: ' + err.message, 'error');
+    }
+  }
+
+  async function publishNow(contentId) {
+    if (!confirm('Threads에 지금 즉시 본문과 댓글을 발행하시겠습니까?')) return;
+    try {
+      const res = await fetch(`/api/scheduler/publish/${contentId}`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(`발행 완료! (Post ID: ${data.post_id})`, 'success');
+        setTimeout(() => location.href = '/analytics', 800);
+      } else {
+        showToast(data.detail || '발행 실패', 'error');
+      }
+    } catch (err) {
+      showToast('오류: ' + err.message, 'error');
+    }
+  }
+
+  // Pre-fill tomorrow 08:30 in date picker
+  document.addEventListener('DOMContentLoaded', () => {
+    const picker = document.getElementById('modal-schedule-time');
+    if (picker) {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      d.setHours(8, 30, 0, 0);
+      picker.value = d.toISOString().slice(0, 16);
+    }
+  });
+</script>
+{% endblock %}

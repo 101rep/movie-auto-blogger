@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>멍당근 - 동네 펫용품 무료나눔 & 양방향 안심 펫시터 매칭</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            },
+            coral: {
+              50: '#fff1f0',
+              500: '#ff7e67',
+              600: '#ea580c'
+            }
+          },
+          borderRadius: {
+            '3xl': '24px',
+            '4xl': '32px',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- html2pdf.js for Doctor Chart Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Kakao Map & JS SDK -->
+  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=a0a8a6c45e622ea183ef6fc5ae3f3e5d&libraries=services&autoload=false"></script>
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
+
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="멍당근">
+  <meta name="theme-color" content="#ea580c">
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 flex justify-center min-h-screen antialiased select-none">
+
+  <!-- Mobile Frame Container -->
+  <div id="app-container" class="w-full max-w-md bg-white min-h-screen shadow-xl relative flex flex-col pb-28 overflow-x-hidden border-x border-slate-200/80">
+    
+    <!-- 🥕 [FLOATING NOTIFICATION] 멍당근 실시간 나눔 음성 알림 배너 -->
+    <div id="mungdanggeun-alarm-banner" class="fixed top-12 left-1/2 -translate-x-1/2 w-11/12 max-w-sm bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 text-white p-3.5 rounded-2xl shadow-2xl z-50 transform -translate-y-28 opacity-0 transition-all duration-300 pointer-events-none flex items-center justify-between border border-orange-400">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-xl shrink-0 animate-bounce">
+          🐶🥕
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[9px] font-black bg-white text-orange-600 px-1.5 py-0.2 rounded-full">멍 당근! 실시간 나눔</span>
+            <span class="text-[10px] text-orange-100" id="alarm-banner-time">방금 전</span>
+          </div>
+          <h4 id="alarm-banner-title" class="font-bold text-xs text-white truncate max-w-[180px]">3.5kg 소형견 겨울 패딩 나눔 도착!</h4>
+        </div>
+      </div>
+      <div class="flex items-center gap-1">
+        <button onclick="handleAlarmBannerClick()" class="px-2.5 py-1.5 bg-white text-orange-600 hover:bg-orange-50 rounded-xl text-[11px] font-black shadow-sm shrink-0 pointer-events-auto transition-transform active:scale-95">
+          보기
+        </button>
+        <button onclick="dismissAlarmBanner()" class="text-white/80 hover:text-white p-1 pointer-events-auto">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Top Status Bar Simulation -->
+    <div class="sticky top-0 z-40 bg-white/95 backdrop-blur-md px-5 py-2 flex items-center justify-between border-b border-slate-100 text-xs text-slate-400">
+      <div class="font-bold flex items-center gap-1.5 text-slate-800">
+        <span id="current-time">09:19</span>
+        <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <i data-lucide="wifi" class="w-3.5 h-3.5 text-slate-600"></i>
+        <i data-lucide="signal" class="w-3.5 h-3.5 text-slate-600"></i>
+        <div class="flex items-center gap-0.5 font-bold text-[10px] text-slate-700">
+          <i data-lucide="battery" class="w-4 h-4 text-emerald-500"></i>
+          <span>90%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Header (Wayo Style Bright Branding + Dual Mode Switcher) -->
+    <header class="px-4 py-3 flex items-center justify-between bg-white sticky top-8 z-30 border-b border-slate-100 shadow-xs">
+      <div class="flex items-center gap-1.5">
+        <button id="btn-back-nav" onclick="switchTab('home')" class="hidden p-1 -ml-1 text-slate-700 hover:bg-slate-100 rounded-full">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </button>
+        <span class="relative inline-flex items-center justify-center animate-dog-carrot cursor-pointer mr-0.5"><span class="text-2xl">🐶</span><span class="absolute -bottom-1 -right-1 text-sm transform -rotate-12">🥕</span></span>
+        <h1 id="header-title" class="text-xl font-black tracking-tight text-orange-600">멍당근</h1>
+      </div>
+
+      <!-- Dual Mode Switcher (견주 ↔ 펫시터) -->
+      <div class="flex items-center gap-2">
+        <div class="flex bg-slate-100 p-0.5 rounded-full text-[11px] font-black border border-slate-200">
+          <button id="btn-mode-owner" onclick="switchAppMode('owner')" class="px-2.5 py-1 rounded-full bg-white text-blue-600 shadow-sm transition-all">🐕 견주</button>
+          <button id="btn-mode-sitter" onclick="switchAppMode('sitter')" class="px-2.5 py-1 rounded-full text-slate-500 hover:text-slate-800 transition-all">🏠 펫시터</button>
+        </div>
+
+        <!-- Social Auth Login Button -->
+        <button id="btn-header-auth" onclick="openAuthModal()" class="flex items-center gap-1 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-bold shadow-sm transition-transform active:scale-95">
+          <i data-lucide="log-in" class="w-3.5 h-3.5"></i>
+          <span id="header-auth-label">로그인</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main id="tab-content" class="flex-1 overflow-y-auto">
+
+      <!-- ================= 1. HOME TAB ================= -->
+      <section id="view-home" class="tab-view space-y-4 px-4 pt-2">
+        
+        <!-- Dynamic Pet Profile & Custom Welcome Header -->
+        <div class="pet-card rounded-3xl p-4 bg-gradient-to-r from-blue-50/70 via-sky-50/40 to-indigo-50/70 border border-blue-100/80 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div onclick="openPetProfileModal()" class="relative cursor-pointer group">
+                <div id="home-pet-avatar" class="w-16 h-16 rounded-2xl bg-white border-2 border-blue-200 shadow-md flex items-center justify-center text-3xl overflow-hidden group-hover:scale-105 transition-transform">
+                  🐕
+                </div>
+                <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] shadow border-2 border-white">
+                  📷
+                </div>
+              </div>
+
+              <div class="space-y-0.5">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-600 text-white font-black">내 반려견</span>
+                  <span id="home-pet-subtext" class="text-xs font-bold text-slate-500">말티즈 • 3세 • 3.4kg</span>
+                </div>
+                <h2 id="home-welcome-title" class="text-lg font-black text-slate-900 leading-snug">
+                  <span id="home-pet-name" class="text-blue-600">초코</span>와 함께하는<br>
+                  따뜻한 멍당근 동네생활 🥕
+                </h2>
+              </div>
+            </div>
+
+            <button onclick="openPetProfileModal()" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 text-xs font-bold shadow-sm shrink-0 flex items-center gap-1 transition-transform active:scale-95">
+              <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+              <span>아이 변경</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 🥕 [PET MARKET] 멍당근 - 동네 펫용품 무료나눔 & 중고거래 장터 -->
+        <div class="pet-card rounded-3xl p-4 border border-orange-100 shadow-sm space-y-3 bg-gradient-to-b from-orange-50/40 via-white to-white">
+          <div class="flex items-center justify-between px-1">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl animate-dog-carrot cursor-pointer">🐶🥕</span>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <h3 class="text-base font-black text-slate-900">멍당근 동네 나눔장터</h3>
+                  <span id="market-current-radius-badge" class="text-[9px] bg-orange-600 text-white font-black px-1.5 py-0.2 rounded-full shadow-xs">반경 1km</span>
+                </div>
+                <p id="market-neighborhood-text" class="text-[11px] text-slate-500 font-medium">📍 역삼1동 기준 • 반경 1km 내 나눔 탐색 중</p>
+              </div>
+            </div>
+            <button onclick="openMarketWriteModal()" class="px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-full text-xs font-black shadow-sm flex items-center gap-1 transition-transform active:scale-95">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>나눔/판매</span>
+            </button>
+          </div>
+
+          <!-- 📍 1km · 3km · 5km · 10km Radius Selector & 🔊 Voice Alarm Control Bar -->
+          <div class="bg-orange-50/80 p-2.5 rounded-2xl border border-orange-200/80 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <div class="flex items-center gap-1 text-slate-700 font-bold">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-orange-600"></i>
+                <span>동네 반경:</span>
+              </div>
+              <div class="flex gap-1" id="radius-btn-group">
+                <button onclick="setMarketRadius(1, this)" class="radius-pill-btn active text-[10px] px-2.5 py-1 rounded-full bg-orange-600 text-white font-black shadow-xs">1km</button>
+                <button onclick="setMarketRadius(3, this)" class="radius-pill-btn text-[10px] px-2.5 py-1 rounded-full bg-white text-slate-700 font-bold border border-slate-200">3km</button>
+                <button onclick="setMarketRadius(5, this)" class="radius-pill-btn text-[10px] px-2.5 py-1 rounded-full bg-white text-slate-700 font-bold border border-slate-200">5km</button>
+                <button onclick="setMarketRadius(10, this)" class="radius-pill-btn text-[10px] px-2.5 py-1 rounded-full bg-white text-slate-700 font-bold border border-slate-200">10km</button>
+                <button onclick="setMarketRadius('all', this)" class="radius-pill-btn text-[10px] px-2.5 py-1 rounded-full bg-white text-slate-700 font-bold border border-slate-200">전체</button>
+              </div>
+            </div>
+
+            <!-- Voice Alarm & Test Bar -->
+            <div class="flex items-center justify-between pt-1 border-t border-orange-200/60 text-[11px]">
+              <div class="flex items-center gap-1.5">
+                <button onclick="toggleMungVoiceAlarm()" id="btn-voice-alarm-toggle" class="flex items-center gap-1 text-[10px] font-bold text-orange-700 bg-white px-2 py-0.5 rounded-lg border border-orange-200 shadow-2xs">
+                  <i data-lucide="volume-2" class="w-3 h-3 text-orange-600"></i>
+                  <span id="voice-alarm-status-text">음성 알람: ON</span>
+                </button>
+                <span class="text-[10px] text-slate-500 font-medium">📢 "멍 당근" <b id="current-voice-num-badge" class="text-orange-600">(1번 기본)</b></span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button onclick="openVoiceSelectorModal()" class="flex items-center gap-1 px-2.5 py-0.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-[10px] font-black shadow-xs transition-transform active:scale-95">
+                  <span>🎙️ 10종 선택</span>
+                </button>
+                <button onclick="testMungDanggeunVoiceAlarm()" class="flex items-center gap-1 px-2 py-0.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-[10px] font-black shadow-xs transition-transform active:scale-95">
+                  <span>▶️ 재생</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Market Category Filter Pills -->
+          <div class="flex gap-1.5 overflow-x-auto pb-1 text-[11px] font-bold">
+            <button onclick="filterMarketCategory('all', this)" class="market-tab-btn active px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap">전체 보기</button>
+            <button onclick="filterMarketCategory('free', this)" class="market-tab-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap">🎁 100% 무료나눔만</button>
+            <button onclick="filterMarketCategory('fit', this)" class="market-tab-btn px-3 py-1.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">🐶 우리 아이 맞춤 (3.4kg)</button>
+            <button onclick="filterMarketCategory('food', this)" class="market-tab-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap">🍗 사료/간식</button>
+            <button onclick="filterMarketCategory('cloth', this)" class="market-tab-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap">👕 의류/하네스</button>
+            <button onclick="filterMarketCategory('gear', this)" class="market-tab-btn px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 whitespace-nowrap">🚗 유모차/가전</button>
+          </div>
+
+          <!-- Market Items Grid / List -->
+          <div id="market-items-container" class="space-y-2.5">
+            <!-- Dynamic items rendered via JS -->
+          </div>
+        </div>
+
+        <!-- 🏡 [WAYO STYLE] 양방향 스마트 안심 매칭 (전문 펫시터 ↔ 견주 돌봄 의뢰서) -->
+        <div class="space-y-3 pt-1">
+          <div class="flex items-center justify-between px-1">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h3 class="text-base font-black text-slate-900">🏡 안심 펫시터 & 돌봄 의뢰</h3>
+                <span class="text-[9px] bg-blue-600 text-white font-black px-1.5 py-0.2 rounded-full shadow-2xs">양방향 매칭</span>
+              </div>
+              <p class="text-[11px] text-slate-400">자격증 펫시터와 견주 맞춤 의뢰서의 1:1 안심 연결</p>
+            </div>
+            
+            <!-- Quick Action Write Button based on Tab -->
+            <div id="sitter-feed-action-btn-box">
+              <button onclick="openOwnerRequestWriteModal()" class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-black shadow-xs transition-transform active:scale-95">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span id="btn-sitter-feed-write-label">돌봄 구해요</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Dual Tab Switcher: [전문 펫시터 (돌봐드려요)] ↔ [견주 돌봄 의뢰서 (돌봄 구해요)] -->
+          <div class="flex bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-black">
+            <button id="tab-btn-sitter-list" onclick="switchSitterFeedTab('sitters')" class="flex-1 py-2 rounded-xl bg-white text-blue-600 shadow-sm flex items-center justify-center gap-1.5 transition-all">
+              <span>🏠 전문 펫시터 (돌봐드려요)</span>
+            </button>
+            <button id="tab-btn-owner-requests" onclick="switchSitterFeedTab('requests')" class="flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1.5 transition-all">
+              <span>🐕 견주 의뢰서 (돌봄 구해요)</span>
+              <span id="owner-request-count-badge" class="text-[9px] px-1.5 py-0.2 rounded-full bg-rose-500 text-white font-black">2건</span>
+            </button>
+          </div>
+
+          <!-- Dynamic Bidirectional Feed Container -->
+          <div id="sitter-bidirectional-feed-container" class="space-y-3">
+            <!-- Rendered dynamically by renderBidirectionalSitterFeed() in JS -->
+          </div>
+        </div>
+
+        <!-- 💬 [KAKAO ALIMTALK] 와요(wayo) 스타일 공식 알림톡 웰컴 & 혜택 바 -->
+        <div onclick="openKakaoAlimtalkModal()" class="pet-card rounded-3xl p-4 bg-gradient-to-r from-amber-50 via-yellow-50/60 to-orange-50 border border-yellow-200 shadow-sm cursor-pointer hover:border-yellow-400 transition-all active:scale-99 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-[#fee500] flex items-center justify-center text-2xl shadow-sm shrink-0">
+              💬
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[9px] font-black bg-[#fee500] text-slate-900 px-1.5 py-0.2 rounded-full shadow-2xs">카카오 알림톡</span>
+                <span class="text-[10px] text-amber-800 font-bold">와요 펫시터 & 멍당근 가족 환영</span>
+              </div>
+              <h4 class="font-black text-sm text-slate-900 mt-0.5">펫시터가 집으로 와요! 🏡</h4>
+              <p class="text-[10px] text-slate-500">채널 추가 시 방문 펫시터 3,000원 + 나눔 2,000P</p>
+            </div>
+          </div>
+          <div class="px-2.5 py-1.5 rounded-xl bg-[#fee500] text-[#191919] text-[10px] font-black shadow-xs shrink-0 flex items-center gap-0.5">
+            <span>알림톡 보기</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+          </div>
+        </div>
+
+        <!-- 🛡️ [AIRCOVER] 멍당근 안심 케어 최대 500만원 보상 보증제 배너 -->
+        <div class="bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-blue-500/15 border border-emerald-500/30 rounded-3xl p-4 flex items-center justify-between shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-xl shadow">
+              🛡️
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="text-xs font-black text-emerald-800">멍당근 안심 100% 보증제</span>
+                <span class="text-[9px] bg-emerald-600 text-white font-black px-1.5 py-0.2 rounded-full">에어커버</span>
+              </div>
+              <p class="text-[11px] text-slate-600 mt-0.5">돌봄 중 사고/질병 발생 시 최대 500만원 병원비 지원 (표준 약관 준수)</p>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= 2. AI SCANNER TAB ================= -->
+      <section id="view-ai" class="tab-view hidden p-4 space-y-4">
+        <div class="bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 text-white rounded-3xl p-5 shadow-md relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-xs bg-white/20 px-2.5 py-0.5 rounded-full font-bold">✨ Gemini 비전 AI 엔진</span>
+            <span class="text-xs text-blue-100">100% 평생 무료</span>
+          </div>
+          <h3 class="text-xl font-black mt-2">📸 AI 1초 사진 건강 스캐너</h3>
+          <p class="text-xs text-blue-100 mt-1">이상 부위(피부 붉은기, 귀 안쪽, 대변, 눈물 자국)를 촬영해 주세요.</p>
+        </div>
+
+        <!-- Camera Upload Box -->
+        <div id="ai-dropzone" onclick="triggerAIScan()" class="border-2 border-dashed border-blue-300 hover:border-blue-500 rounded-3xl p-6 text-center cursor-pointer bg-blue-50/40 hover:bg-blue-50/70 transition-all space-y-2">
+          <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-3xl mx-auto shadow-inner">
+            📷
+          </div>
+          <div>
+            <p class="text-sm font-black text-slate-800">터치하여 사진 촬영 / 갤러리 업로드</p>
+            <p class="text-xs text-slate-400 mt-0.5">JPG, PNG (100% 무료 무제한 분석)</p>
+          </div>
+        </div>
+
+        <!-- AI Result Box -->
+        <div id="ai-result-box" class="hidden pet-card rounded-3xl p-5 space-y-3 border border-emerald-200 bg-emerald-50/30 animate-slide-up">
+          <div class="flex items-center justify-between border-b border-emerald-200/60 pb-2">
+            <div class="flex items-center gap-1.5">
+              <span class="text-emerald-600 font-black text-sm">✅ AI 비전 정밀 분석 완료</span>
+            </div>
+            <span class="text-xs font-bold text-slate-500">신뢰도 96.4%</span>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="p-3 bg-white rounded-2xl border border-emerald-100 shadow-sm space-y-1">
+              <div class="flex justify-between items-center font-bold">
+                <span class="text-slate-800">🔍 의심 소견</span>
+                <span class="text-rose-600 font-black">지루성 피부염 88%</span>
+              </div>
+              <p class="text-slate-600">피부 표면의 경미한 발적 및 각질이 관찰됩니다. 습도 조절과 저자극 약용 샴푸 관리를 권장합니다.</p>
+            </div>
+
+            <button onclick="addAIResultToChart()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl shadow-sm text-xs flex items-center justify-center gap-1.5">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>이 분석 결과를 닥터 차트에 자동 기록하기</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. COMPATIBILITY & MBTI TAB ================= -->
+      <section id="view-compat" class="tab-view hidden p-4 space-y-4">
+        <div class="bg-gradient-to-r from-rose-500 to-orange-500 text-white rounded-3xl p-5 shadow-md">
+          <span class="text-xs bg-white/20 px-2.5 py-0.5 rounded-full font-bold">💖 멍냥 케미 분석실</span>
+          <h3 class="text-xl font-black mt-2">반려견 성향 MBTI & 소통 번역</h3>
+          <p class="text-xs text-rose-100 mt-1">우리 아이의 숨겨진 마음과 친구 댕댕이와의 궁합을 확인하세요!</p>
+        </div>
+
+        <!-- Voice Translator Card -->
+        <div class="pet-card rounded-3xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">🎙️</span>
+              <div>
+                <h4 class="font-black text-sm text-slate-800">멍냥 음성/울음소리 AI 번역기</h4>
+                <p class="text-[11px] text-slate-400">짖거나 낑낑대는 소리 주파수 해석</p>
+              </div>
+            </div>
+          </div>
+
+          <button id="btn-voice-record" onclick="simulateVoiceAnalysis()" class="w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-2xl border border-rose-200 text-xs flex items-center justify-center gap-2">
+            <span>🎙️ 터치하여 5초간 소리 듣기</span>
+          </button>
+
+          <div id="voice-analysis-result" class="hidden p-3 bg-rose-50/50 rounded-2xl border border-rose-100 text-xs space-y-1">
+            <p class="font-bold text-rose-700">🐾 AI 번역 결과: "지금 당장 산책 나가고 싶어요! 🐾"</p>
+            <p class="text-slate-500 text-[11px]">흥분 지수 78% • 꼬리 흔듦 동반 • 간식 요구 소견</p>
+          </div>
+        </div>
+
+        <!-- Compatibility Test Card -->
+        <div class="pet-card rounded-3xl p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="text-2xl">💕</span>
+              <div>
+                <h4 class="font-black text-sm text-slate-800">친구 댕댕이와의 바이럴 궁합 테스트</h4>
+                <p class="text-[11px] text-slate-400">산책 친구와 함께하는 케미 측정</p>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="openCompatibilityModal()" class="w-full py-3 bg-gradient-to-r from-rose-500 to-orange-500 text-white font-black rounded-2xl shadow-sm text-xs flex items-center justify-center gap-1.5">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>우리 초코와 친구 궁합 측정하기</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= 4. DOCTOR CHART TAB ================= -->
+      <section id="view-chart" class="tab-view hidden p-4 space-y-4">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-3xl p-5 shadow-md">
+          <div class="flex items-center justify-between">
+            <span class="text-xs bg-white/20 px-2.5 py-0.5 rounded-full font-bold">🩺 동물병원 원장님 전송 차트</span>
+            <span class="text-xs text-blue-100">원클릭 PDF / 카톡</span>
+          </div>
+          <h3 class="text-xl font-black mt-2">일일 3초 V-체크 건강 일기</h3>
+          <p class="text-xs text-blue-100 mt-1">오늘의 식욕, 배변, 증상을 3초 만에 기록하세요.</p>
+        </div>
+
+        <div class="pet-card rounded-3xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-slate-800">📅 기록 일자</span>
+            <input type="date" id="chart-date-input" class="text-xs p-1.5 rounded-xl border border-slate-200 font-bold bg-slate-50">
+          </div>
+
+          <!-- Appetite -->
+          <div class="space-y-1.5">
+            <span class="text-xs font-bold text-slate-600">🍖 식욕 상태</span>
+            <div class="grid grid-cols-4 gap-1.5 text-xs">
+              <button onclick="selectCheck(this, 'appetite', '매우좋음')" class="check-btn py-2 rounded-xl text-center border">매우좋음</button>
+              <button onclick="selectCheck(this, 'appetite', '정상')" class="check-btn active py-2 rounded-xl text-center border bg-blue-600 text-white font-bold">정상</button>
+              <button onclick="selectCheck(this, 'appetite', '약간감소')" class="check-btn py-2 rounded-xl text-center border">약간감소</button>
+              <button onclick="selectCheck(this, 'appetite', '거의안먹음')" class="check-btn py-2 rounded-xl text-center border">안먹음</button>
+            </div>
+          </div>
+
+          <!-- Stool -->
+          <div class="space-y-1.5">
+            <span class="text-xs font-bold text-slate-600">💩 대변 상태</span>
+            <div class="grid grid-cols-4 gap-1.5 text-xs">
+              <button onclick="selectCheck(this, 'stool', '정상변')" class="check-btn active py-2 rounded-xl text-center border bg-blue-600 text-white font-bold">정상변</button>
+              <button onclick="selectCheck(this, 'stool', '묽은변')" class="check-btn py-2 rounded-xl text-center border">묽은변</button>
+              <button onclick="selectCheck(this, 'stool', '설사')" class="check-btn py-2 rounded-xl text-center border">설사</button>
+              <button onclick="selectCheck(this, 'stool', '혈변/점액')" class="check-btn py-2 rounded-xl text-center border">혈변</button>
+            </div>
+          </div>
+
+          <!-- Symptoms -->
+          <div class="space-y-1.5">
+            <span class="text-xs font-bold text-slate-600">⚠️ 이상 징후 (다중 선택)</span>
+            <div class="grid grid-cols-3 gap-1.5 text-xs">
+              <button onclick="toggleMultiCheck(this, '구토')" class="symptom-btn py-2 rounded-xl text-center border">구토</button>
+              <button onclick="toggleMultiCheck(this, '기침/켁켁')" class="symptom-btn py-2 rounded-xl text-center border">기침</button>
+              <button onclick="toggleMultiCheck(this, '가려움/긁음')" class="symptom-btn py-2 rounded-xl text-center border">가려움</button>
+              <button onclick="toggleMultiCheck(this, '눈물/눈곱')" class="symptom-btn py-2 rounded-xl text-center border">눈물/눈곱</button>
+              <button onclick="toggleMultiCheck(this, '절뚝거림')" class="symptom-btn py-2 rounded-xl text-center border">다리절음</button>
+              <button onclick="toggleMultiCheck(this, '기력저하')" class="symptom-btn py-2 rounded-xl text-center border">기력저하</button>
+            </div>
+          </div>
+
+          <!-- Memo -->
+          <div class="space-y-1.5">
+            <span class="text-xs font-bold text-slate-600">📝 특이사항 메모</span>
+            <input type="text" id="chart-memo-input" placeholder="산책 시간, 약 복용 상태 등을 기록하세요" class="w-full text-xs p-3 rounded-2xl border border-slate-200 bg-slate-50">
+          </div>
+
+          <!-- Actions -->
+          <div class="pt-2 flex gap-2">
+            <button onclick="saveHealthLog()" class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl text-xs shadow-sm">
+              오늘 기록 저장하기
+            </button>
+            <button onclick="exportDoctorChartPDF()" class="px-4 py-3 bg-slate-900 hover:bg-black text-white font-bold rounded-2xl text-xs flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i>
+              <span>PDF 출력</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <span class="text-xs font-black text-slate-800 px-1">📋 최근 기록 내역</span>
+          <div id="chart-history-list" class="space-y-2"></div>
+        </div>
+      </section>
+
+      <!-- ================= 5. SETTINGS & PROFILE TAB ================= -->
+      <section id="view-settings" class="tab-view hidden p-4 space-y-3">
+        <div id="settings-user-box" class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-3xl p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div id="user-avatar-badge" class="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center text-2xl font-bold shadow-md overflow-hidden">
+                🐶
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span id="user-display-name" class="font-black text-base text-slate-900">게스트 보호자님</span>
+                  <span id="user-provider-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-bold">비회원</span>
+                </div>
+                <p id="user-email-text" class="text-xs text-slate-500 mt-0.5">로그인하고 차트 클라우드 동기화</p>
+              </div>
+            </div>
+            <button id="btn-settings-auth" onclick="openAuthModal()" class="px-3.5 py-2 rounded-2xl bg-blue-600 text-white text-xs font-black shadow-sm hover:bg-blue-700">
+              로그인
+            </button>
+          </div>
+        </div>
+
+        <div class="pet-card rounded-3xl p-2 divide-y divide-slate-100 text-sm">
+          <button onclick="openKakaoAlimtalkModal()" class="w-full flex items-center justify-between p-3.5 hover:bg-yellow-50/50 rounded-2xl transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">💬</span>
+              <span class="font-bold text-slate-800">카카오톡 공식 알림톡 & 채널 혜택</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] bg-[#fee500] text-slate-900 px-2 py-0.5 rounded-full font-black">3,000원 쿠폰</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+            </div>
+          </button>
+
+          <button onclick="openVoiceSelectorModal()" class="w-full flex items-center justify-between p-3.5 hover:bg-orange-50/50 rounded-2xl transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">🎙️</span>
+              <span class="font-bold text-slate-800">5살 여아 "멍당근" 음성 알람 10종 설정</span>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </button>
+
+          <!-- 💡 온보딩 가이드 다시보기 -->
+          <button onclick="openOnboardingModal(true)" class="w-full flex items-center justify-between p-3.5 hover:bg-orange-50/40 rounded-2xl transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">💡</span>
+              <span class="font-bold text-slate-800">멍당근 시작 가이드 (튜토리얼 다시보기)</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">1분 안내</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+            </div>
+          </button>
+
+          <!-- 🛡️ 법적 보호: 이용약관 및 통신판매중개 면책 규정 -->
+          <button onclick="openTermsModal('terms')" class="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-2xl transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">⚖️</span>
+              <span class="font-bold text-slate-800">서비스 이용약관 & 법적 면책 조항</span>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </button>
+
+          <!-- 🔒 법적 보호: 개인정보 처리방침 -->
+          <button onclick="openTermsModal('privacy')" class="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-2xl transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">🔒</span>
+              <span class="font-bold text-slate-800">개인정보 처리방침 & 위치기반서비스</span>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </button>
+
+          <!-- 🛡️ 에어커버 안심 보증 규정 -->
+          <button onclick="openTermsModal('aircover')" class="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-2xl transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">🛡️</span>
+              <span class="font-bold text-slate-800">에어커버 최대 500만원 안심 보증 규정</span>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </button>
+
+          <button onclick="alert('📢 v3.3.0 최신 정식 버전입니다. (모든 법적 약관 및 면책 조항 완비)')" class="w-full flex items-center justify-between p-3.5 hover:bg-slate-50 rounded-2xl transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">✨</span>
+              <span class="font-bold text-slate-800">앱 버전 정보 (v3.3.0 정식 출시판)</span>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 py-2 flex justify-around z-40 shadow-lg">
+      <button onclick="switchTab('home')" id="nav-home" class="nav-btn active flex flex-col items-center gap-0.5 text-blue-600 flex-1 py-1">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        <span class="text-[10px] font-bold">홈</span>
+      </button>
+
+      <button onclick="switchTab('ai')" id="nav-ai" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 flex-1 py-1">
+        <i data-lucide="sparkles" class="w-5 h-5"></i>
+        <span class="text-[10px] font-bold">AI검진</span>
+      </button>
+
+      <button onclick="switchTab('compat')" id="nav-compat" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 flex-1 py-1">
+        <i data-lucide="heart" class="w-5 h-5"></i>
+        <span class="text-[10px] font-bold">멍냥궁합</span>
+      </button>
+
+      <button onclick="switchTab('chart')" id="nav-chart" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 flex-1 py-1">
+        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
+        <span class="text-[10px] font-bold">닥터차트</span>
+      </button>
+
+      <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-600 flex-1 py-1">
+        <i data-lucide="user" class="w-5 h-5"></i>
+        <span class="text-[10px] font-bold">내정보</span>
+      </button>
+    </nav>
+
+    <!-- ================= MODALS ================= -->
+    <!-- ================= Modal: 멍당근 최초 실행 온보딩 튜토리얼 (Swipeable Walkthrough Carousel) ================= -->
+    <div id="modal-onboarding" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-5 border border-slate-100 shadow-2xl relative flex flex-col justify-between min-h-[530px] max-h-[90vh] animate-slide-up text-left overflow-hidden">
+        
+        <!-- Onboarding Top Bar (Progress Badge + Skip Button) -->
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-black bg-orange-600 text-white px-2.5 py-0.5 rounded-full shadow-2xs">멍당근 가이드</span>
+            <span id="onboarding-step-indicator" class="text-xs font-bold text-slate-400">1 / 4</span>
+          </div>
+          <button onclick="skipOnboarding()" class="text-xs font-black text-slate-400 hover:text-slate-700 px-2.5 py-1 rounded-xl hover:bg-slate-100 transition-colors flex items-center gap-0.5">
+            <span>건너뛰기</span>
+            <i data-lucide="chevrons-right" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- Slides Container (Swipeable) -->
+        <div id="onboarding-slider" class="flex-1 py-4 flex flex-col justify-center select-none cursor-grab">
+          
+          <!-- Slide 1: 🥕 무료나눔 & 음성 알람 -->
+          <div class="onboarding-slide active space-y-4 text-center" data-slide="0">
+            <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center text-5xl shadow-lg shadow-orange-500/30 animate-bounce">
+              🐶🥕
+            </div>
+            <div class="space-y-1.5">
+              <span class="text-[11px] font-black text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full">동네 펫라이프 혁신</span>
+              <h3 class="text-xl font-black text-slate-900 leading-snug">
+                동네 펫용품 무료나눔 &<br><span class="text-orange-600">"멍당근~?"</span> 실시간 알람
+              </h3>
+              <p class="text-xs text-slate-500 leading-relaxed max-w-[260px] mx-auto">
+                아이 안 쓰는 사료·간식·의류·유모차!<br>
+                동네 이웃과 3초 만에 따뜻하게 나눔하세요.
+              </p>
+            </div>
+            <div class="p-3 bg-orange-50/70 rounded-2xl border border-orange-100 text-[11px] text-slate-700 space-y-1 text-left">
+              <div class="flex items-center gap-1.5 font-bold text-orange-800">
+                <i data-lucide="volume-2" class="w-3.5 h-3.5 text-orange-600"></i>
+                <span>5살 여아 애교 목소리 10종 실시간 알림 탑재</span>
+              </div>
+              <p class="text-[10px] text-slate-500 pl-5">새 나눔이 올라오면 "멍당그은~?" 음성으로 즉시 알려드려요!</p>
+            </div>
+          </div>
+
+          <!-- Slide 2: 🏡 안심 1:1 펫시터 & 돌봄 의뢰 -->
+          <div class="onboarding-slide hidden space-y-4 text-center" data-slide="1">
+            <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-blue-600 to-sky-400 text-white flex items-center justify-center text-5xl shadow-lg shadow-blue-500/30">
+              🏠👩‍⚕️
+            </div>
+            <div class="space-y-1.5">
+              <span class="text-[11px] font-black text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">와요 스타일 안심 매칭</span>
+              <h3 class="text-xl font-black text-slate-900 leading-snug">
+                전문 펫시터 ↔ 견주 의뢰<br><span class="text-blue-600">스마트 양방향 안심 매칭</span>
+              </h3>
+              <p class="text-xs text-slate-500 leading-relaxed max-w-[260px] mx-auto">
+                펫시터의 상세 프로필과 가격 확인부터,<br>
+                견주의 맞춤 돌봄 의뢰서 등록까지 1:1 연결!
+              </p>
+            </div>
+            <div class="p-3 bg-blue-50/70 rounded-2xl border border-blue-100 text-[11px] text-slate-700 space-y-1 text-left">
+              <div class="flex items-center gap-1.5 font-bold text-blue-800">
+                <i data-lucide="heart-handshake" class="w-3.5 h-3.5 text-blue-600"></i>
+                <span>돌봐드려요(펫시터) & 돌봄 구해요(견주) 양방향</span>
+              </div>
+              <p class="text-[10px] text-slate-500 pl-5">카카오 알림톡 실시간 연동 및 동네 거리별 맞춤 탐색 지원</p>
+            </div>
+          </div>
+
+          <!-- Slide 3: 🛡️ 에어커버 500만원 & 전자계약서 -->
+          <div class="onboarding-slide hidden space-y-4 text-center" data-slide="2">
+            <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-emerald-600 to-teal-400 text-white flex items-center justify-center text-5xl shadow-lg shadow-emerald-500/30">
+              🛡️📄
+            </div>
+            <div class="space-y-1.5">
+              <span class="text-[11px] font-black text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">법적 분쟁 100% 예방</span>
+              <h3 class="text-xl font-black text-slate-900 leading-snug">
+                에어커버 최대 500만원 &<br><span class="text-emerald-600">디지털 안심 돌봄 계약서</span>
+              </h3>
+              <p class="text-xs text-slate-500 leading-relaxed max-w-[260px] mx-auto">
+                모바일 원클릭 서명으로 계약을 체결하고,<br>
+                돌봄 중 부상 시 병원비 실비 지원을 받으세요.
+              </p>
+            </div>
+            <div class="p-3 bg-emerald-50/70 rounded-2xl border border-emerald-100 text-[11px] text-slate-700 space-y-1 text-left">
+              <div class="flex items-center gap-1.5 font-bold text-emerald-800">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span>표준 전자 계약서 & 플랫폼 공식 면책 규정 준수</span>
+              </div>
+              <p class="text-[10px] text-slate-500 pl-5">견주와 펫시터 모두가 안심할 수 있는 안전 거래 보증</p>
+            </div>
+          </div>
+
+          <!-- Slide 4: 📸 AI 스캐너 & 닥터 차트 -->
+          <div class="onboarding-slide hidden space-y-4 text-center" data-slide="3">
+            <div class="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-tr from-violet-600 to-purple-400 text-white flex items-center justify-center text-5xl shadow-lg shadow-purple-500/30">
+              📸🩺
+            </div>
+            <div class="space-y-1.5">
+              <span class="text-[11px] font-black text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded-full">AI 헬스케어 & 차트</span>
+              <h3 class="text-xl font-black text-slate-900 leading-snug">
+                AI 1초 사진 건강 스캔 &<br><span class="text-purple-600">3초 닥터 건강 일기</span>
+              </h3>
+              <p class="text-xs text-slate-500 leading-relaxed max-w-[260px] mx-auto">
+                피부·대변·눈물 1초 사진 분석부터,<br>
+                동물병원 원장님 제출용 PDF 차트 원클릭 출력!
+              </p>
+            </div>
+            <div class="p-3 bg-purple-50/70 rounded-2xl border border-purple-100 text-[11px] text-slate-700 space-y-1 text-left">
+              <div class="flex items-center gap-1.5 font-bold text-purple-800">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-purple-600"></i>
+                <span>평생 100% 무료 무제한 AI 비전 분석 제공</span>
+              </div>
+              <p class="text-[10px] text-slate-500 pl-5">우리 아이의 매일 식욕·배변 상태를 손쉽게 관리하세요.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Onboarding Bottom Controls -->
+        <div class="space-y-3 pt-2 border-t border-slate-100">
+          <!-- Dots Indicator -->
+          <div class="flex justify-center items-center gap-2" id="onboarding-dots">
+            <button onclick="goToOnboardingSlide(0)" class="w-6 h-2 rounded-full bg-orange-600 transition-all"></button>
+            <button onclick="goToOnboardingSlide(1)" class="w-2 h-2 rounded-full bg-slate-200 transition-all"></button>
+            <button onclick="goToOnboardingSlide(2)" class="w-2 h-2 rounded-full bg-slate-200 transition-all"></button>
+            <button onclick="goToOnboardingSlide(3)" class="w-2 h-2 rounded-full bg-slate-200 transition-all"></button>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex gap-2">
+            <button id="btn-onboarding-prev" onclick="prevOnboardingSlide()" class="hidden px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl text-xs transition-transform active:scale-95">
+              이전
+            </button>
+            <button id="btn-onboarding-next" onclick="nextOnboardingSlide()" class="flex-1 py-3 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white font-black rounded-2xl text-xs shadow-md transition-transform active:scale-95 flex items-center justify-center gap-1">
+              <span id="onboarding-next-text">다음 (1/4)</span>
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ================= Modal: 이용약관 / 개인정보 / 에어커버 법적 고지 모달 ================= -->
+    <div id="modal-terms" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-5 space-y-3.5 border border-slate-100 animate-slide-up text-left shadow-2xl overflow-y-auto max-h-[85vh]">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl" id="terms-modal-icon">⚖️</span>
+            <div>
+              <h3 class="font-black text-sm text-slate-900" id="terms-modal-title">서비스 이용약관 & 면책조항</h3>
+              <p class="text-[10px] text-slate-400">멍당근 공식 법적 고지 규정</p>
+            </div>
+          </div>
+          <button onclick="closeTermsModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div id="terms-modal-body" class="text-xs text-slate-600 leading-relaxed space-y-2 p-3 bg-slate-50 rounded-2xl border border-slate-100 max-h-[50vh] overflow-y-auto">
+          <!-- Dynamic Content Loaded by JS -->
+        </div>
+
+        <button onclick="closeTermsModal()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl text-xs shadow-md">
+          확인하였습니다 ✨
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal: Voice Selector -->
+    <div id="modal-voice-selector" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-5 space-y-4 border border-slate-100 animate-slide-up text-left shadow-2xl overflow-y-auto max-h-[85vh]">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl animate-dog-carrot">👧🥕</span>
+            <div>
+              <h3 class="font-black text-base text-slate-900">앙증맞은 유아 애교 "멍당그은~?" 10종</h3>
+              <p class="text-[10px] text-slate-400">4번 스타일 기반의 귀여운 10가지 바리에이션</p>
+            </div>
+          </div>
+          <button onclick="closeVoiceSelectorModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div id="voice-options-list" class="space-y-2"></div>
+
+        <div class="pt-2">
+          <button onclick="confirmVoiceSelection()" class="w-full py-3 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-xs shadow-md transition-all active:scale-98">
+            선택한 목소리로 설정하기 ✨
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Kakao AlimTalk -->
+    <div id="modal-kakao-alimtalk" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3">
+      <div class="w-full max-w-sm bg-[#2b2c2e] rounded-3xl p-4 space-y-3 border border-slate-700 animate-slide-up text-left shadow-2xl overflow-y-auto max-h-[92vh]">
+        <div class="flex justify-between items-center text-white/90 border-b border-white/10 pb-2.5 px-1">
+          <div class="flex items-center gap-2">
+            <button onclick="closeKakaoAlimtalkModal()" class="p-1 hover:bg-white/10 rounded-full">
+              <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            </button>
+            <div class="w-7 h-7 rounded-full bg-orange-500 flex items-center justify-center text-xs font-black text-white shadow">
+              멍
+            </div>
+            <div>
+              <div class="flex items-center gap-1">
+                <span class="font-bold text-xs">멍당근</span>
+                <i data-lucide="badge-check" class="w-3.5 h-3.5 text-blue-400"></i>
+              </div>
+              <span class="text-[9px] text-white/50">1588-9292</span>
+            </div>
+          </div>
+          <button onclick="closeKakaoAlimtalkModal()" class="p-1 text-white/60 hover:text-white">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200">
+          <div class="bg-[#fee500] px-4 py-2 flex items-center justify-between">
+            <span class="text-[11px] font-black text-slate-900 tracking-tight">알림톡 도착</span>
+            <span class="text-[9px] font-black bg-black/10 px-1.5 py-0.2 rounded-full text-slate-800">kakao</span>
+          </div>
+
+          <div class="p-4 bg-gradient-to-b from-amber-50/60 to-white flex items-center justify-between border-b border-slate-100">
+            <div>
+              <h3 class="text-base font-black text-slate-900 leading-tight">
+                펫시터가<br>집으로 와요!
+              </h3>
+              <span class="text-[10px] text-orange-600 font-bold mt-1 inline-block">🐶 안심 1:1 방문 돌봄</span>
+            </div>
+            <div class="relative w-20 h-20 shrink-0 flex items-center justify-center">
+              <div class="relative text-4xl animate-bounce">
+                🏠👩‍⚕️
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 space-y-3 text-xs text-slate-700 leading-relaxed">
+            <p class="font-bold text-slate-900">
+              [멍당근] <span id="alimtalk-user-name" class="text-orange-600 font-black">보호자</span> 고객님, 멍당근 가족이 되신 것을 환영합니다🥕
+            </p>
+            <p class="text-[11px] text-slate-600">
+              반려동물 <span id="alimtalk-pet-name" class="font-bold text-slate-900">초코</span>에게는 검증된 펫시터님의 따뜻한 돌봄을, 보호자님께는 안심할 수 있는 일상을 선물하세요!
+            </p>
+            <div class="pt-1 space-y-2">
+              <button onclick="handleKakaoChannelAdd()" class="w-full py-2.5 rounded-xl bg-[#fee500] hover:bg-[#ebd300] text-[#191919] font-black text-xs flex items-center justify-center gap-1.5 shadow-sm">
+                <span>Ch+ 채널 추가</span>
+              </button>
+              <button onclick="closeKakaoAlimtalkModal()" class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs">
+                멍당근 앱 바로가기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Market Write -->
+    <div id="modal-market-write" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-6 space-y-4 border border-slate-100 animate-slide-up text-left shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🥕</span>
+            <div>
+              <h3 class="font-black text-base text-slate-900">펫용품 나눔/판매 등록</h3>
+              <p class="text-[10px] text-slate-400">사진 올리고 동네 이웃에게 3초 만에 알림</p>
+            </div>
+          </div>
+          <button onclick="closeMarketWriteModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">제목</label>
+            <input type="text" id="market-input-title" placeholder="예: 3.5kg 소형견 겨울 기모 패딩 나눔해요!" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">거래 유형</label>
+            <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+              <button type="button" onclick="selectMarketTradeMode('free', this)" class="market-trade-btn py-2.5 rounded-xl border bg-orange-500 text-white active">🎁 무료 나눔 (0원)</button>
+              <button type="button" onclick="selectMarketTradeMode('sale', this)" class="market-trade-btn py-2.5 rounded-xl border bg-slate-50 text-slate-700">💰 중고 판매</button>
+            </div>
+          </div>
+          <div id="market-price-box" class="hidden">
+            <label class="font-bold text-slate-700 block mb-1">판매 희망 가격 (원)</label>
+            <input type="number" id="market-input-price" placeholder="예: 15000" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">카테고리</label>
+            <select id="market-input-cat" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+              <option value="cloth">👕 의류 / 하네스</option>
+              <option value="food">🍗 사료 / 간식</option>
+              <option value="gear">🚗 용품 / 가전</option>
+            </select>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">설명</label>
+            <textarea id="market-input-desc" rows="2" placeholder="아이 체중(예: 3.4kg)이나 문고리 비대면 나눔 장소를 적어주세요." class="w-full p-2.5 rounded-xl border bg-slate-50 outline-none"></textarea>
+          </div>
+        </div>
+
+        <button onclick="submitMarketPost()" class="w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-2xl text-xs shadow-lg">
+          동네 이웃에게 나눔/판매 등록하기 ✨
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal: Market Detail -->
+    <div id="modal-market-detail" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-0 sm:p-4">
+      <div class="w-full max-w-md bg-white h-full sm:h-[85vh] sm:rounded-3xl flex flex-col border border-slate-200 animate-slide-up overflow-hidden text-left shadow-2xl">
+        <div class="relative h-60 bg-slate-200 shrink-0">
+          <img id="detail-market-img" src="" class="w-full h-full object-cover">
+          <button onclick="closeMarketDetailModal()" class="absolute top-3 right-3 p-2 rounded-full bg-black/50 text-white hover:bg-black/70">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+          <div class="absolute bottom-3 left-3 flex gap-1.5">
+            <span id="detail-market-type-badge" class="bg-orange-500 text-white font-black text-xs px-2.5 py-0.5 rounded-full shadow">🎁 무료 나눔</span>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h4 id="detail-seller-name" class="font-black text-xs text-slate-900">역삼 래미안 뽀삐맘</h4>
+              <p class="text-[10px] text-slate-400">서울 강남구 역삼1동 • 250m</p>
+            </div>
+            <span class="badge-manner-temp text-xs font-black px-2 py-0.5 rounded-full bg-orange-50 text-orange-600">99.2℃ 🔥</span>
+          </div>
+
+          <div class="space-y-1">
+            <h3 id="detail-market-title" class="font-black text-base text-slate-900">3.5kg 소형견 겨울 기모 패딩 나눔해요 🐾</h3>
+            <p id="detail-market-price" class="text-xl font-black text-orange-600">0원 (무료나눔)</p>
+          </div>
+
+          <p id="detail-market-desc" class="text-slate-600 text-xs bg-slate-50 p-3 rounded-2xl border border-slate-100">
+            작년에 사서 2번 입히고 깨끗하게 보관 중입니다. 문고리 비대면 나눔 가능합니다.
+          </p>
+
+          <button onclick="startMarketChat()" class="w-full py-3.5 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-2xl text-xs flex items-center justify-center gap-1.5 shadow-md">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+            <span>1:1 멍채팅으로 나눔/거래 신청하기</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Owner Request Write -->
+    <div id="modal-owner-request-write" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-6 space-y-4 border border-slate-100 animate-slide-up text-left shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🐕📋</span>
+            <div>
+              <h3 class="font-black text-base text-slate-900">맞춤 돌봄 의뢰서 작성</h3>
+              <p class="text-[10px] text-slate-400">우리 아이 성향과 필수 케어 조건을 등록하세요</p>
+            </div>
+          </div>
+          <button onclick="closeOwnerRequestWriteModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">희망 돌봄 일정</label>
+            <input type="text" id="req-input-schedule" placeholder="예: 9/20(일) 13시~18시" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">희망 예산 (원)</label>
+            <input type="number" id="req-input-budget" placeholder="예: 45000" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+          </div>
+        </div>
+
+        <div class="space-y-1.5 text-xs">
+          <label class="font-bold text-slate-700 block">필수 요청 사항</label>
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" onclick="toggleRequestTag(this, '단독 산책 2회')" class="req-tag-btn active p-2 rounded-xl border text-[11px] font-bold text-left flex items-center gap-1.5 bg-blue-50 border-blue-300 text-blue-700">
+              <span>🐾</span> <span>단독 산책 2회</span>
+            </button>
+            <button type="button" onclick="toggleRequestTag(this, '정시 투약/안약')" class="req-tag-btn active p-2 rounded-xl border text-[11px] font-bold text-left flex items-center gap-1.5 bg-blue-50 border-blue-300 text-blue-700">
+              <span>💊</span> <span>정시 투약/안약</span>
+            </button>
+            <button type="button" onclick="toggleRequestTag(this, '30분 포토리포트')" class="req-tag-btn active p-2 rounded-xl border text-[11px] font-bold text-left flex items-center gap-1.5 bg-blue-50 border-blue-300 text-blue-700">
+              <span>📸</span> <span>30분 포토리포트</span>
+            </button>
+            <button type="button" onclick="toggleRequestTag(this, '실외 배변 필수')" class="req-tag-btn p-2 rounded-xl border text-[11px] font-bold text-left flex items-center gap-1.5 bg-slate-50 border-slate-200 text-slate-700">
+              <span>🌳</span> <span>실외 배변 필수</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-1 text-xs">
+          <label class="font-bold text-slate-700 block">당부 사항</label>
+          <textarea id="req-input-desc" rows="3" placeholder="예: 낯선 사람에게 처음 5분간 짖을 수 있으나 냄새 맡게 해주시면 애교부립니다. 투약 꼭 부탁드려요!" class="w-full p-2.5 rounded-xl border bg-slate-50 outline-none text-xs"></textarea>
+        </div>
+
+        <button onclick="submitOwnerRequest()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl text-xs shadow-lg">
+          동네 전문 펫시터들에게 의뢰서 전송하기 ✨
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal: Sitter Profile Write -->
+    <div id="modal-sitter-profile-write" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-6 space-y-4 border border-slate-100 animate-slide-up text-left shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🏠✨</span>
+            <div>
+              <h3 class="font-black text-base text-slate-900">펫시터 프로필 & 케어 선언</h3>
+              <p class="text-[10px] text-slate-400">자신의 전문 이력과 돌봄 환경을 등록하세요</p>
+            </div>
+          </div>
+          <button onclick="closeSitterProfileWriteModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">펫시터 활동명</label>
+            <input type="text" id="sitter-write-name" placeholder="예: 이지은 펫시터" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">보유 자격 / 이력</label>
+            <input type="text" id="sitter-write-certs" placeholder="예: 반려견 훈련사 2급 • 반려생활 10년" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">1박 요금 (원)</label>
+              <input type="number" id="sitter-write-price" placeholder="예: 65000" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">활동 반경</label>
+              <select id="sitter-write-radius" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+                <option value="1">반경 1km</option>
+                <option value="3" selected>반경 3km</option>
+                <option value="5">반경 5km</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">케어 선언문</label>
+            <textarea id="sitter-write-appeal" rows="3" placeholder="예: LIVE GPS 산책과 30분 포토톡으로 안심 소통합니다." class="w-full p-2.5 rounded-xl border bg-slate-50 outline-none text-xs"></textarea>
+          </div>
+        </div>
+
+        <button onclick="submitSitterProfile()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl text-xs shadow-lg">
+          펫시터 프로필 등록 & 돌봄 시작하기 ✨
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal: Sitter Proposal Write -->
+    <div id="modal-sitter-proposal-write" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-6 space-y-4 border border-slate-100 animate-slide-up text-left shadow-2xl overflow-y-auto max-h-[90vh]">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">💌✨</span>
+            <h3 class="font-black text-base text-slate-900">맞춤 돌봄 제안서 전송</h3>
+          </div>
+          <button onclick="closeSitterProposalModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div id="proposal-target-request-box" class="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-1"></div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">제안 돌봄 금액 (원)</label>
+            <input type="number" id="proposal-input-price" placeholder="예: 45000" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+          </div>
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">맞춤 케어 약속 메시지</label>
+            <textarea id="proposal-input-message" rows="3" placeholder="예: 요청하신 투약 케어와 1:1 산책 2회 완벽 진행 가능합니다!" class="w-full p-2.5 rounded-xl border bg-slate-50 outline-none"></textarea>
+          </div>
+        </div>
+
+        <button onclick="submitSitterProposal()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl text-xs shadow-lg">
+          견주님께 맞춤 제안서 보내기 🚀
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal: Care Contract (법적 면책 및 표준 안전 조항 추가) -->
+    <div id="modal-care-contract" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-3">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-5 space-y-3.5 border border-slate-100 animate-slide-up text-left shadow-2xl overflow-y-auto max-h-[92vh]">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">📜🛡️</span>
+            <div>
+              <h3 class="font-black text-sm text-slate-900">디지털 안심 돌봄 계약서</h3>
+              <p class="text-[10px] text-slate-400">멍당근 에어커버 최대 500만원 병원비 보증 (표준 약관)</p>
+            </div>
+          </div>
+          <button onclick="closeCareContractModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 text-xs space-y-2 font-medium text-slate-700">
+          <div class="flex justify-between items-center border-b border-slate-200/60 pb-1">
+            <span class="font-bold text-slate-500">돌봄 대상견</span>
+            <span id="contract-pet-info" class="font-black text-slate-900">초코 (말티즈 • 3.4kg)</span>
+          </div>
+          <div class="flex justify-between items-center border-b border-slate-200/60 pb-1">
+            <span class="font-bold text-slate-500">담당 펫시터</span>
+            <span id="contract-sitter-name" class="font-black text-blue-600">김은지 펫시터</span>
+          </div>
+          <div class="flex justify-between items-center border-b border-slate-200/60 pb-1">
+            <span class="font-bold text-slate-500">돌봄 일정</span>
+            <span id="contract-schedule" class="font-black text-slate-900">2026-09-20 (13:00 ~ 18:00)</span>
+          </div>
+          <div class="flex justify-between items-center border-b border-slate-200/60 pb-1">
+            <span class="font-bold text-slate-500">돌봄 요금</span>
+            <span id="contract-price" class="font-black text-orange-600 text-sm">45,000원</span>
+          </div>
+          <p class="text-[9px] text-slate-400 leading-tight pt-1">
+            * 본 계약은 보호자와 펫시터 당사자 간의 상호 신뢰 하에 체결되며, 멍당근은 안전한 중개 지원 및 표준 에어커버 보증 규정을 제공합니다.
+          </p>
+        </div>
+
+        <div class="p-3 bg-blue-50/80 rounded-2xl border border-blue-100 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-black text-blue-900">보호자 & 펫시터 상호 전자서명</span>
+            <p class="text-[10px] text-blue-600">체결 시 카카오 알림톡으로 전송</p>
+          </div>
+          <span class="text-xs font-black bg-blue-600 text-white px-2.5 py-1 rounded-xl">서명완료 ✍️</span>
+        </div>
+
+        <button onclick="confirmCareContractExecution()" class="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 text-white font-black rounded-2xl text-xs shadow-lg">
+          🤝 돌봄 계약 체결 및 카카오 알림톡 발송
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal: Compatibility & MBTI -->
+    <div id="modal-compatibility" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-6 space-y-4 border border-slate-100 animate-slide-up text-left shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+          <span class="text-xs font-black text-rose-600">💖 AI 멍냥 케미 분석</span>
+          <button onclick="closeCompatibilityModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex items-center justify-center gap-3 py-2">
+            <div class="text-center">
+              <div class="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-3xl border-2 border-blue-200 shadow-sm">🐕</div>
+              <span class="text-xs font-bold mt-1 block">우리 초코</span>
+            </div>
+            <div class="text-2xl font-black text-rose-500 animate-bounce">❤️</div>
+            <div class="text-center">
+              <select id="compat-partner-select" onchange="calcCompatibility()" class="w-24 text-xs p-1.5 rounded-xl bg-slate-50 border border-slate-200 font-bold">
+                <option value="poodle">토이푸들 뽀삐</option>
+                <option value="retriever">리트리버 몽이</option>
+                <option value="cat_luna">고양이 루나</option>
+                <option value="corgi">웰시코기 둥이</option>
+              </select>
+              <span class="text-xs font-bold mt-1 block">친구 아이</span>
+            </div>
+          </div>
+
+          <div id="compat-result-box" class="p-4 bg-rose-50 rounded-2xl border border-rose-100 text-center space-y-1.5">
+            <div class="text-2xl font-black text-rose-600">케미 지수 96% 💕</div>
+            <p class="text-xs font-bold text-slate-800">"환상의 산책 메이트! 서로의 에너지를 채워줘요."</p>
+            <p class="text-[11px] text-slate-500">놀이 궁합: ⭐⭐⭐⭐⭐ | 소통 케미: ⭐⭐⭐⭐</p>
+          </div>
+
+          <button onclick="shareCompatResult()" class="w-full py-3 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-sm">
+            <span>카카오톡으로 이 궁합 결과 공유하기 💬</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Pet Profile Change -->
+    <div id="modal-pet-profile" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-6 space-y-4 border border-slate-100 animate-slide-up text-left shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+          <h3 class="font-black text-sm text-slate-900">🐶 대표 반려동물 정보</h3>
+          <button onclick="closePetProfileModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div class="space-y-2 text-xs">
+          <div>
+            <label class="font-bold text-slate-700 block mb-1">이름</label>
+            <input type="text" id="input-pet-name" value="초코" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">견종/묘종</label>
+              <input type="text" id="input-pet-breed" value="말티즈" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">체중 (kg)</label>
+              <input type="text" id="input-pet-weight" value="3.4kg" class="w-full p-2.5 rounded-xl border bg-slate-50 font-bold outline-none">
+            </div>
+          </div>
+        </div>
+        <button onclick="savePetProfile()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl text-xs shadow-md">
+          저장하기 ✨
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal: Auth -->
+    <div id="modal-auth" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="w-full max-w-sm bg-white rounded-3xl p-6 space-y-4 border border-slate-100 animate-slide-up text-left shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+          <h3 class="font-black text-sm text-slate-900">로그인 / 1초 회원가입</h3>
+          <button onclick="closeAuthModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div class="space-y-2 pt-1">
+          <button onclick="loginWithKakao()" class="w-full py-3 px-4 rounded-2xl bg-[#FEE500] text-[#191919] font-black text-xs flex items-center justify-center gap-2 shadow-sm">
+            <span>카카오로 1초 시작하기</span>
+          </button>
+          <button onclick="loginWithGoogle()" class="w-full py-3 px-4 rounded-2xl bg-white border border-slate-300 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 shadow-sm">
+            <span>Google 계정으로 시작하기</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Live Walk GPS -->
+    <div id="modal-live-walk-gps" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-0 sm:p-4">
+      <div class="w-full max-w-md bg-white h-full sm:h-[90vh] sm:rounded-3xl flex flex-col border border-slate-200 animate-slide-up overflow-hidden text-left shadow-2xl">
+        <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+          <h3 class="font-black text-sm text-slate-900">실시간 산책 LIVE GPS 관제</h3>
+          <button onclick="closeLiveWalkGpsModal()" class="p-1 rounded-full hover:bg-slate-100 text-slate-400">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div class="p-4 text-xs space-y-2">
+          <div class="p-3 bg-blue-50 rounded-2xl text-blue-700 font-bold">
+            📍 산책 진행 28분째 • 이동 거리 1.4km • 배변 1회 완료 💩
+          </div>
+          <p class="text-slate-500">실시간 보호자 관제 중입니다.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Custom Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

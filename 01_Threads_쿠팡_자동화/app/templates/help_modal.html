@@ -1,0 +1,1234 @@
+<!-- System Help & User Guide Modal Component -->
+<div id="helpGuideModal" class="fixed inset-0 z-[9999] hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
+    
+    <!-- Modal Header -->
+    <div class="px-6 py-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white flex items-center justify-between border-b border-slate-800 shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-brand-500/20 border border-brand-400/30 flex items-center justify-center text-brand-400 text-lg shadow-inner">
+          <i class="fa-solid fa-book-open-reader"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            Threads x 쿠팡 자동화 마스터 가이드 & 상세 도움말
+            <span class="text-[10px] bg-brand-500/30 text-brand-300 px-2 py-0.5 rounded-full border border-brand-400/40 font-semibold">v2.0 종합판</span>
+          </h3>
+          <p class="text-xs text-slate-400">작동 원리, 단계별 사용법, 공식 API 가이드, 바이럴 꿀팁 및 로드맵 총정리</p>
+        </div>
+      </div>
+      <button onclick="closeHelpGuideModal()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/10 transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Modal Tabs Navigation -->
+    <div class="flex border-b border-slate-200 bg-slate-50 px-6 gap-2 text-xs font-semibold overflow-x-auto shrink-0">
+            <button onclick="switchHelpTab('tab-system-manual')" id="btn-tab-system-manual" class="help-tab-btn py-3 px-3.5 border-b-2 border-brand-600 text-brand-600 flex items-center gap-2 transition font-bold">
+        <i class="fa-solid fa-book-bookmark text-indigo-600"></i> v2.0 공식 마스터 설명서 & 아키텍처
+      </button>
+      <button onclick="switchHelpTab('tab-overview')" id="btn-tab-overview" class="help-tab-btn py-3 px-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+        <i class="fa-solid fa-diagram-project"></i> 전체 작동 원리
+      </button>
+      <button onclick="switchHelpTab('tab-accounts')" id="btn-tab-accounts" class="help-tab-btn py-3 px-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+        <i class="fa-brands fa-threads text-brand-600"></i> 다중 계정 포트폴리오 (실시간 연동)
+      </button>
+      <button onclick="switchHelpTab('tab-howtouse')" id="btn-tab-howtouse" class="help-tab-btn py-3 px-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+        <i class="fa-solid fa-list-check"></i> 100% 활용 가이드
+      </button>
+      <button onclick="switchHelpTab('tab-api')" id="btn-tab-api" class="help-tab-btn py-3 px-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+        <i class="fa-solid fa-key"></i> 공식 API & 연동 주소
+      </button>
+      <button onclick="switchHelpTab('tab-tips')" id="btn-tab-tips" class="help-tab-btn py-3 px-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+        <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> 수익 극대화 꿀팁
+      </button>
+      <button onclick="switchHelpTab('tab-roadmap')" id="btn-tab-roadmap" class="help-tab-btn py-3 px-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition">
+        <i class="fa-solid fa-rocket text-indigo-500"></i> 향후 발전 로드맵
+      </button>
+    </div>
+
+    <!-- Modal Scrollable Content -->
+    <div class="p-6 overflow-y-auto space-y-6 text-slate-700 text-xs leading-relaxed flex-1">
+
+            <!-- TAB 0: SYSTEM MASTER MANUAL & ARCHITECTURE v2.0 -->
+      <div id="tab-system-manual" class="help-tab-content space-y-6">
+
+        <!-- Top Title Banner -->
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 rounded-2xl p-5 text-white shadow-lg border border-slate-800">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="bg-indigo-500/30 text-indigo-300 border border-indigo-400/40 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">Antigravity Official Guide</span>
+                <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-bold px-2 py-0.5 rounded-full">Version 2.0 종합판</span>
+              </div>
+              <h3 class="text-xl font-black text-white mt-1.5 flex items-center gap-2">
+                <i class="fa-solid fa-layer-group text-indigo-400"></i>
+                Threads × 쿠팡·쇼핑커넥트 무인 자동화 마케팅 시스템 v2.0
+              </h3>
+              <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                상품 탐색부터 콘텐츠 기획, Gemini AI 검수, 가변 Jitter 예약, 실조회수 성과 수집, AI 자가학습, 계정 양성화까지 완벽 통합된 소셜 커머스 운영 플랫폼
+              </p>
+            </div>
+          </div>
+
+          <!-- Tech Stack Badges -->
+          <div class="mt-4 pt-4 border-t border-slate-800 flex flex-wrap items-center gap-2 text-[11px]">
+            <span class="bg-slate-800/80 px-2.5 py-1 rounded-lg text-slate-300 font-mono"><i class="fa-brands fa-python text-amber-400 mr-1"></i>FastAPI</span>
+            <span class="bg-slate-800/80 px-2.5 py-1 rounded-lg text-slate-300 font-mono"><i class="fa-solid fa-database text-blue-400 mr-1"></i>SQLite & SQLAlchemy</span>
+            <span class="bg-slate-800/80 px-2.5 py-1 rounded-lg text-slate-300 font-mono"><i class="fa-solid fa-gears text-emerald-400 mr-1"></i>Daemon Worker</span>
+            <span class="bg-slate-800/80 px-2.5 py-1 rounded-lg text-slate-300 font-mono"><i class="fa-solid fa-brain text-purple-400 mr-1"></i>Google Gemini AI</span>
+            <span class="bg-slate-800/80 px-2.5 py-1 rounded-lg text-slate-300 font-mono"><i class="fa-brands fa-threads text-pink-400 mr-1"></i>Threads Official API</span>
+            <span class="bg-slate-800/80 px-2.5 py-1 rounded-lg text-slate-300 font-mono"><i class="fa-solid fa-cart-shopping text-rose-400 mr-1"></i>쿠팡 파트너스</span>
+            <span class="bg-slate-800/80 px-2.5 py-1 rounded-lg text-slate-300 font-mono"><i class="fa-solid fa-bag-shopping text-green-400 mr-1"></i>네이버 쇼핑커넥트</span>
+          </div>
+        </div>
+
+        <!-- Quick Jump Navigation Bar -->
+        <div class="bg-slate-100 rounded-xl p-3 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-600 border border-slate-200">
+          <span class="text-slate-400 mr-1"><i class="fa-solid fa-compass"></i> 빠른 이동:</span>
+          <a href="#sec-architecture" class="bg-white hover:bg-brand-50 hover:text-brand-700 px-2.5 py-1 rounded-lg border border-slate-200 transition">전체 아키텍처</a>
+          <a href="#sec-data-flow" class="bg-white hover:bg-brand-50 hover:text-brand-700 px-2.5 py-1 rounded-lg border border-slate-200 transition">데이터 흐름도</a>
+          <a href="#sec-safety" class="bg-white hover:bg-brand-50 hover:text-brand-700 px-2.5 py-1 rounded-lg border border-slate-200 transition">Safety Engine (안전 가드)</a>
+          <a href="#sec-warmup" class="bg-white hover:bg-brand-50 hover:text-brand-700 px-2.5 py-1 rounded-lg border border-slate-200 transition">양성화 심사 (옵션 1)</a>
+          <a href="#sec-menus" class="bg-white hover:bg-brand-50 hover:text-brand-700 px-2.5 py-1 rounded-lg border border-slate-200 transition">8대 메뉴 상세 매뉴얼</a>
+          <a href="#sec-faq" class="bg-white hover:bg-brand-50 hover:text-brand-700 px-2.5 py-1 rounded-lg border border-slate-200 transition">장애 대응 & FAQ</a>
+        </div>
+
+        <!-- SECTION 1: 전체 시스템 아키텍처 (Mermaid) -->
+        <div id="sec-architecture" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">01</span>
+              <h4 class="font-bold text-slate-800 text-sm">전체 시스템 아키텍처 다이어그램 (Architecture Diagram)</h4>
+            </div>
+            <span class="text-[11px] text-slate-400 font-mono">Mermaid Interactive Vector Diagram</span>
+          </div>
+
+          <p class="text-slate-600 text-xs">
+            본 시스템은 <strong>Frontend UI</strong>, <strong>FastAPI Backend</strong>, <strong>Background Worker</strong>, <strong>SQLite 영속성 계층</strong>, <strong>외부 API 연동군</strong> 등 5대 레이어로 분리된 고성능 모듈러 아키텍처로 설계되었습니다.
+          </p>
+
+          <!-- Visual High-Resolution Architecture & Warmup Infographic Card -->
+          <div class="relative group rounded-2xl overflow-hidden border border-slate-200 shadow-md bg-slate-900 transition hover:shadow-xl my-4">
+            <div class="absolute top-3 right-3 z-10 flex gap-2">
+              <a href="/static/images/manual/system_architecture_and_warmup_v2.jpg" target="_blank" class="bg-slate-900/80 hover:bg-slate-900 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg backdrop-blur-sm border border-slate-700/80 flex items-center gap-1.5 transition shadow">
+                <i class="fa-solid fa-up-right-and-down-left-from-center"></i> 고화질 원본 보기
+              </a>
+            </div>
+            <img src="/static/images/manual/system_architecture_and_warmup_v2.jpg" alt="Threads x 쿠팡/쇼핑커넥트 시스템 v2.0 전체 아키텍처 및 양성화 라이프사이클" class="w-full h-auto object-contain cursor-pointer transition transform duration-200 group-hover:scale-[1.005]" onclick="window.open('/static/images/manual/system_architecture_and_warmup_v2.jpg', '_blank')" />
+            <div class="p-3 bg-slate-900 text-slate-300 text-[11px] flex flex-wrap items-center justify-between border-t border-slate-800 gap-2">
+              <span class="flex items-center gap-2 font-medium">
+                <i class="fa-solid fa-image text-indigo-400"></i>
+                <span>[공식 인포그래픽] 전체 시스템 아키텍처 & [옵션 1: 하이브리드 결합형] 양성화 라이프사이클</span>
+              </span>
+              <span class="text-slate-400 text-[10px] bg-slate-800 px-2 py-0.5 rounded">클릭 시 새 창에서 고화질 원본 확대</span>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto shadow-inner border border-slate-800">
+            <div class="mermaid text-center">
+flowchart TD
+    U["사용자 / 관리자"]
+
+    subgraph FE["Frontend UI (Jinja2 + Tailwind + Alpine.js)"]
+        DASH["대시보드 /"]
+        PROD["상품관리 /products"]
+        IDEA["아이디어 /ideas"]
+        CONT["콘텐츠제작 /content"]
+        CAL["캘린더 /calendar"]
+        ANA["성과분석 /analytics"]
+        PICK["PICK큐레이션 /pick-manage"]
+        WARM["양성화진단 /warmup"]
+        SET["설정 /settings"]
+        UI["Web Interface Layer"]
+    end
+
+    U --> UI
+    UI --> DASH & PROD & IDEA & CONT & CAL & ANA & PICK & WARM & SET
+
+    subgraph BE["FastAPI Backend Service"]
+        ROUTERS["API Routers (1~9)"]
+        SERVICE["Service Layer"]
+        AI["AI Orchestrator (Gemini)"]
+        SAFE["Safety Engine"]
+        WENGINE["Warmup Scoring Engine"]
+    end
+
+    DASH & PROD & IDEA & CONT & CAL & ANA & PICK & WARM & SET --> ROUTERS
+    ROUTERS --> SERVICE
+    SERVICE --> AI & SAFE & WENGINE
+
+    subgraph DB["Persistence Layer (SQLite + SQLAlchemy)"]
+        SQLA["SQLAlchemy ORM"]
+        SQLITE[("SQLite Database<br/>Accounts / Products / Contents / Outbounds")]
+    end
+
+    SERVICE --> SQLA
+    SQLA --> SQLITE
+
+    subgraph WORKER["Background Daemon Worker"]
+        SCH["Scheduler"]
+        JITTER["Jitter Controller (±5~15분)"]
+        GUARD["Cooldown Guard (7일 방어)"]
+        PUB["Publishing Worker"]
+        COL["Analytics Collector"]
+        WWORK["Warmup Outbound Worker"]
+        RETRY["Retry / Recovery Queue"]
+    end
+
+    SQLITE --> SCH
+    SCH --> JITTER --> GUARD --> PUB
+    SCH --> WWORK & COL
+    PUB --> RETRY --> PUB
+
+    subgraph EXT["External Services & APIs"]
+        THREADS["Threads Official API"]
+        GEMINI["Google Gemini AI"]
+        COUPANG["쿠팡 파트너스 API"]
+        NAVER["네이버 쇼핑커넥트"]
+    end
+
+    PROD <--> COUPANG & NAVER
+    AI <--> GEMINI
+    PUB --> THREADS
+    WWORK --> THREADS
+    THREADS --> COL
+    SAFE --> JITTER & GUARD
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 2: 핵심 데이터 흐름 -->
+        <div id="sec-data-flow" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+          <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <span class="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">02</span>
+            <h4 class="font-bold text-slate-800 text-sm">엔드투엔드 핵심 데이터 파이프라인 (Data Flow Pipeline)</h4>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-center text-[11px]">
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="font-bold text-brand-600">1. 상품 수집</div>
+              <div class="text-[10px] text-slate-500 mt-1">쿠팡/쇼핑커넥트</div>
+            </div>
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="font-bold text-blue-600">2. 6단계 여정</div>
+              <div class="text-[10px] text-slate-500 mt-1">문제인식~구매결정</div>
+            </div>
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="font-bold text-indigo-600">3. AI 카피라이팅</div>
+              <div class="text-[10px] text-slate-500 mt-1">10대 앵글 & Gemini</div>
+            </div>
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="font-bold text-purple-600">4. 품질 검수</div>
+              <div class="text-[10px] text-slate-500 mt-1">Anti-Cliche & E-E-A-T</div>
+            </div>
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="font-bold text-amber-600">5. Jitter 예약</div>
+              <div class="text-[10px] text-slate-500 mt-1">±5~15분 가변 분산</div>
+            </div>
+            <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="font-bold text-emerald-600">6. 성과 피드백</div>
+              <div class="text-[10px] text-slate-500 mt-1">자가학습 AI 재투입</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: Safety Engine 4대 안전장치 -->
+        <div id="sec-safety" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+          <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">03</span>
+            <h4 class="font-bold text-slate-800 text-sm">Safety Engine (알고리즘 봇 탐지 및 계정 보호 4대 안전장치)</h4>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+              <div class="flex items-center gap-2 text-emerald-700 font-bold text-xs">
+                <i class="fa-solid fa-shuffle text-sm"></i>
+                <span>1. 가변 Jitter Delay (±5~15분 시간 분산)</span>
+              </div>
+              <p class="text-[11px] text-slate-600 mt-2 leading-relaxed">
+                정각(예: 14:00)에 기계적으로 발행하지 않고, 13:51, 14:08, 14:12 등 자연스러운 인간의 행동처럼 발행 시각을 분산시켜 메타 봇 감지 알고리즘을 완벽 우회합니다.
+              </p>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+              <div class="flex items-center gap-2 text-blue-700 font-bold text-xs">
+                <i class="fa-solid fa-shield-halved text-sm"></i>
+                <span>2. 7일 Cooldown Guard (동일 계정 스팸 방어)</span>
+              </div>
+              <p class="text-[11px] text-slate-600 mt-2 leading-relaxed">
+                타 계정 선댓글(스하리) 웜업 시 최근 7일 이내에 이미 방문하여 소통한 작성자나 게시물에는 중복 상호작용하지 않고 안전하게 건너뜁니다.
+              </p>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+              <div class="flex items-center gap-2 text-purple-700 font-bold text-xs">
+                <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                <span>3. Anti-Cliche Engine (AI 상투어구 자동 박멸)</span>
+              </div>
+              <p class="text-[11px] text-slate-600 mt-2 leading-relaxed">
+                "정말 대박이에요!", "역대급 인생템" 같은 뻔한 AI 상투어구와 쇼핑커넥트 포스팅 시 금지되는 '내돈내산' 오해 소지 단어를 즉시 감지하여 자동 재작성(<code>REWRITE_REQUIRED</code>)합니다.
+              </p>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50">
+              <div class="flex items-center gap-2 text-amber-700 font-bold text-xs">
+                <i class="fa-solid fa-certificate text-sm"></i>
+                <span>4. E-E-A-T & 공정위 필수 문구 가드레일</span>
+              </div>
+              <p class="text-[11px] text-slate-600 mt-2 leading-relaxed">
+                경험(Experience), 전문성(Expertise), 권위성(Authoritativeness), 신뢰성(Trust)을 채점하며, 쿠팡(첫 댓글 안내)과 쇼핑커넥트(본문 최상단 필수 문구) 규정을 100% 준수합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 4: 계정 양성화 (옵션 1: 하이브리드) 심사 기준 -->
+        <div id="sec-warmup" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-pink-600 text-white flex items-center justify-center font-bold text-xs">04</span>
+              <h4 class="font-bold text-slate-800 text-sm">계정 양성화(Warmup) 라이프사이클 & [옵션 1: 하이브리드] 심사 기준</h4>
+            </div>
+            <span class="text-[10px] bg-pink-50 text-pink-700 border border-pink-200 px-2.5 py-0.5 rounded-full font-bold">100점 만점 + Hard Gate</span>
+          </div>
+
+          <div class="bg-slate-900 rounded-xl p-4 overflow-x-auto shadow-inner border border-slate-800">
+            <div class="mermaid text-center">
+flowchart TD
+    A["신규 계정 등록"] --> B["Warmup 모드 진입 (WARMING_UP)"]
+    B --> C1["① 선댓글 소통 (40점)"]
+    B --> C2["② 분산 활동일수 (20점)"]
+    B --> C3["③ 피드 실조회수 (20점)"]
+    B --> C4["④ 무링크 공감글 (20점)"]
+
+    C1 & C2 & C3 & C4 --> SCORE["하이브리드 점수 합산 (100점)"]
+    SCORE --> GATE{"Hard Gate 검증<br/>댓글≥15 & 글≥2 & 일수≥2일"}
+
+    GATE -- "미달 (FAIL)" --> EXTEND["자동 연장 (질문형 공감글 투입)"]
+    EXTEND --> B
+
+    GATE -- "통과 (PASS)" --> PASS{"총점 ≥ 70.0점?"}
+    PASS -- "미달 (NO)" --> EXTEND
+    PASS -- "통과 (YES)" --> GRAD["양성화 수료 완료 (GRADUATED)"]
+
+    GRAD --> MODE["4:1 Hybrid 수익화 모드 전환"]
+    MODE --> M1["공감·정보글 4건"] & M2["수익화글 1건"]
+            </div>
+          </div>
+
+          <!-- 4대 기둥 배점표 -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                  <th class="p-2.5">평가 요소 (4대 기둥)</th>
+                  <th class="p-2.5 text-center">배점 비중</th>
+                  <th class="p-2.5 text-center">졸업 목표 기준치</th>
+                  <th class="p-2.5 text-center">필수 관문 (Hard Gate)</th>
+                  <th class="p-2.5">점수 계산 산출 공식</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-600">
+                <tr>
+                  <td class="p-2.5 font-bold text-slate-900">① 능동적 선댓글 소통 (스하리)</td>
+                  <td class="p-2.5 text-center font-bold text-pink-600">40점</td>
+                  <td class="p-2.5 text-center">25건 이상</td>
+                  <td class="p-2.5 text-center font-bold text-rose-600">최소 15건 필수</td>
+                  <td class="p-2.5 font-mono">min(댓글수 / 25, 1.0) × 40.0</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-bold text-slate-900">② 안전 분산 활동일수 (Streak)</td>
+                  <td class="p-2.5 text-center font-bold text-indigo-600">20점</td>
+                  <td class="p-2.5 text-center">3일 이상</td>
+                  <td class="p-2.5 text-center font-bold text-rose-600">최소 2일 필수</td>
+                  <td class="p-2.5 font-mono">min(활동일수 / 3, 1.0) × 20.0</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-bold text-slate-900">③ 피드 실조회수 및 프로필 유입</td>
+                  <td class="p-2.5 text-center font-bold text-blue-600">20점</td>
+                  <td class="p-2.5 text-center">200회 이상</td>
+                  <td class="p-2.5 text-center text-slate-400">-</td>
+                  <td class="p-2.5 font-mono">min(실조회수 / 200, 1.0) × 20.0</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-bold text-slate-900">④ 순수 무링크 공감글 발행</td>
+                  <td class="p-2.5 text-center font-bold text-emerald-600">20점</td>
+                  <td class="p-2.5 text-center">3건 이상</td>
+                  <td class="p-2.5 text-center font-bold text-rose-600">최소 2건 필수</td>
+                  <td class="p-2.5 font-mono">min(공감글수 / 3, 1.0) × 20.0</td>
+                </tr>
+                <tr class="bg-indigo-50/50 font-bold">
+                  <td class="p-2.5 text-indigo-950">합계 및 졸업 요건</td>
+                  <td class="p-2.5 text-center text-indigo-700">100점</td>
+                  <td class="p-2.5 text-center text-indigo-700">70.0점 이상</td>
+                  <td class="p-2.5 text-center text-rose-700">Hard Gate 동시 통과</td>
+                  <td class="p-2.5 text-indigo-800">수료 시 4:1 혼합 발행 모드로 자동 승격</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- SECTION 5: 8대 메뉴 상세 매뉴얼 -->
+        <div id="sec-menus" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+          <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <span class="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">05</span>
+            <h4 class="font-bold text-slate-800 text-sm">8대 핵심 메뉴 상세 사용 설명서 (Menu Manual)</h4>
+          </div>
+
+          <div class="space-y-4">
+            <!-- 01 Dashboard -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between">
+                <h5 class="font-bold text-slate-900 text-xs flex items-center gap-2">
+                  <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-[10px] font-mono">01</span>
+                  대시보드 (Dashboard) <code class="text-slate-400 text-[11px]">/</code>
+                </h5>
+                <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">통합 관제 센터</span>
+              </div>
+              <p class="text-slate-600 text-[11px] mt-2">
+                <strong>화면 목적:</strong> 전체 계정 현황, 오늘 발행 예약/완료/실패 카운트, Worker 가동 상태, 누적 도달/반응/유입 KPI를 한눈에 모니터링합니다.
+              </p>
+              <div class="mt-2 text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg">
+                <strong>실전 팁:</strong> 접속 시 제일 먼저 상단 <code>Worker Status</code>가 초록색인지 확인하세요. 실패 건(Failed)이 0건이면 시스템이 100% 자율 순항 중입니다.
+              </div>
+            </div>
+
+            <!-- 02 Products -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between">
+                <h5 class="font-bold text-slate-900 text-xs flex items-center gap-2">
+                  <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-[10px] font-mono">02</span>
+                  상품 관리 (Products) <code class="text-slate-400 text-[11px]">/products</code>
+                </h5>
+                <span class="text-[10px] bg-brand-50 text-brand-700 font-bold px-2 py-0.5 rounded">쇼핑커넥트 6단계 탑재</span>
+              </div>
+              <p class="text-slate-600 text-[11px] mt-2">
+                <strong>화면 목적:</strong> 쿠팡 파트너스 및 네이버 쇼핑커넥트 상품을 등록하고 6대 지표 채점 및 6단계 구매여정 카피라이팅을 생성합니다.
+              </p>
+              <div class="mt-2 text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-lg space-y-1">
+                <div><strong>쇼핑커넥트 6단계 구매여정:</strong> 1) 문제인식 2) 관심형성 3) 정보탐색 4) 대안비교 5) 구매판단 6) 구매행동</div>
+                <div><strong>자동 가드:</strong> 본문 최상단 공정위 필수 문구 자동 삽입 및 '내돈내산' 오해 소지 단어 자동 필터링, Suno BGM & 숏폼 대본 생성</div>
+              </div>
+            </div>
+
+            <!-- 03 Ideas -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between">
+                <h5 class="font-bold text-slate-900 text-xs flex items-center gap-2">
+                  <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-[10px] font-mono">03</span>
+                  아이디어 관리 (Ideas) <code class="text-slate-400 text-[11px]">/ideas</code>
+                </h5>
+                <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">10대 심리 앵글</span>
+              </div>
+              <p class="text-slate-600 text-[11px] mt-2">
+                <strong>화면 목적:</strong> 단순 상품 광고가 아닌 호기심과 논쟁, 공감을 유발하는 10대 심리적 앵글(경험형, 반전/폭로, Q&A 등)의 후킹 소재를 발굴합니다.
+              </p>
+            </div>
+
+            <!-- 04 Content -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between">
+                <h5 class="font-bold text-slate-900 text-xs flex items-center gap-2">
+                  <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-[10px] font-mono">04</span>
+                  콘텐츠 제작/검수 (Content) <code class="text-slate-400 text-[11px]">/content</code>
+                </h5>
+                <span class="text-[10px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded">AI 품질 가드레일</span>
+              </div>
+              <p class="text-slate-600 text-[11px] mt-2">
+                <strong>화면 목적:</strong> Threads 맞춤형 가독성 본문과 링크 첫 댓글을 생성하고, Anti-Cliche 및 E-E-A-T 검수를 통과한 글만 발행 예약합니다.
+              </p>
+            </div>
+
+            <!-- 05 Calendar -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between">
+                <h5 class="font-bold text-slate-900 text-xs flex items-center gap-2">
+                  <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-[10px] font-mono">05</span>
+                  콘텐츠 캘린더 (Calendar) <code class="text-slate-400 text-[11px]">/calendar</code>
+                </h5>
+                <span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded">±5~15분 가변 Jitter</span>
+              </div>
+              <p class="text-slate-600 text-[11px] mt-2">
+                <strong>화면 목적:</strong> 계정별 발행 일정과 4:1(공감글 4 : 수익글 1) 슬롯을 시각적으로 확인하며, 드래그앤드롭으로 일정을 유연하게 조율합니다.
+              </p>
+            </div>
+
+            <!-- 06 Analytics -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between">
+                <h5 class="font-bold text-slate-900 text-xs flex items-center gap-2">
+                  <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-[10px] font-mono">06</span>
+                  성과 & AI 학습 (Analytics) <code class="text-slate-400 text-[11px]">/analytics</code>
+                </h5>
+                <span class="text-[10px] bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded">자가 학습 루프</span>
+              </div>
+              <p class="text-slate-600 text-[11px] mt-2">
+                <strong>화면 목적:</strong> 노출수, 좋아요, 댓글 반응을 수집하고 상위 10% 바이럴 후킹 패턴을 AI 프롬프트에 실시간 반영하여 지속 개선합니다.
+              </p>
+            </div>
+
+            <!-- 07 Pick -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between">
+                <h5 class="font-bold text-slate-900 text-xs flex items-center gap-2">
+                  <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-[10px] font-mono">07</span>
+                  PICK 큐레이션 (Pick Manage) <code class="text-slate-400 text-[11px]">/pick-manage</code>
+                </h5>
+                <span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-2 py-0.5 rounded">링크트리형 랜딩</span>
+              </div>
+              <p class="text-slate-600 text-[11px] mt-2">
+                <strong>화면 목적:</strong> 전환율 높은 핵심 전략 상품을 선별하여 프로필 바이오에 연결할 모바일 최적화 큐레이션 페이지(<code>/pick/{cluster}</code>)를 자동 생성합니다.
+              </p>
+            </div>
+
+            <!-- 08 Warmup -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between">
+                <h5 class="font-bold text-slate-900 text-xs flex items-center gap-2">
+                  <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-[10px] font-mono">08</span>
+                  양성화 진단 센터 (Warmup) <code class="text-slate-400 text-[11px]">/warmup</code>
+                </h5>
+                <span class="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded">스하리 웜업 로그</span>
+              </div>
+              <p class="text-slate-600 text-[11px] mt-2">
+                <strong>화면 목적:</strong> 신규 계정의 하이브리드 점수(40/20/20/20) 및 Hard Gate 상태를 진단하고, 타 계정 선댓글 방문 일시와 댓글 로그를 투명하게 열람합니다.
+              </p>
+            </div>
+
+            <!-- SYS Settings -->
+            <div class="border border-slate-200 rounded-xl p-4">
+              <div class="flex items-center justify-between">
+                <h5 class="font-bold text-slate-900 text-xs flex items-center gap-2">
+                  <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-[10px] font-mono">SYS</span>
+                  시스템 & 다중 계정 설정 (Settings) <code class="text-slate-400 text-[11px]">/settings</code>
+                </h5>
+                <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded">다중 계정 토큰 관리</span>
+              </div>
+              <p class="text-slate-600 text-[11px] mt-2">
+                <strong>화면 목적:</strong> Threads 계정별 토큰 유효성 검사, Gemini API 연동, 백그라운드 워커 주기, 안전 지터 딜레이 범위 및 쿨다운 일수를 설정합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 6: 장애 대응 가이드 & FAQ -->
+        <div id="sec-faq" class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+          <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+            <span class="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center font-bold text-xs">06</span>
+            <h4 class="font-bold text-slate-800 text-sm">장애 대응 가이드 (Troubleshooting) & FAQ (10문 10답)</h4>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
+            <div class="border border-rose-100 bg-rose-50/50 p-3 rounded-xl">
+              <div class="font-bold text-rose-800"><i class="fa-solid fa-triangle-exclamation mr-1"></i>예약 시간이 지났는데 미발행?</div>
+              <p class="text-slate-600 mt-1">
+                ±5~15분 가변 Jitter가 적용되어 14:00 예약이라도 14:08분에 발행될 수 있습니다. 대시보드의 Worker Status가 ON인지 먼저 확인하세요.
+              </p>
+            </div>
+
+            <div class="border border-rose-100 bg-rose-50/50 p-3 rounded-xl">
+              <div class="font-bold text-rose-800"><i class="fa-solid fa-triangle-exclamation mr-1"></i>70점인데 왜 졸업이 안 되나요?</div>
+              <p class="text-slate-600 mt-1">
+                Hard Gate(선댓글 15건 이상, 공감글 2건 이상, 활동일수 2일 이상) 조건을 동시에 만족해야 합니다. 카드의 남은 필수 항목을 확인하세요.
+              </p>
+            </div>
+
+            <div class="border border-rose-100 bg-rose-50/50 p-3 rounded-xl">
+              <div class="font-bold text-rose-800"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Threads 포스팅 실패(Failed)?</div>
+              <p class="text-slate-600 mt-1">
+                Threads API 토큰 만료 여부를 <code>/settings</code>에서 확인하고, 첨부 이미지 URL이나 공정위 문구 형식을 점검하세요.
+              </p>
+            </div>
+          </div>
+
+          <!-- FAQ Accordion / Quick List -->
+          <div class="mt-4 space-y-2 text-xs">
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="font-bold text-slate-800">Q. 운영자가 매일 꼭 해야 하는 3분 루틴은 무엇인가요?</div>
+              <div class="text-slate-600 mt-1 text-[11px]">
+                아침 9시: 대시보드에서 Worker Online 및 오늘 예약 확인 → 낮 12시: 웜업 센터에서 신규 계정 점수 확인 → 저녁 6시: 성과 분석에서 당일 반응 지표 확인.
+              </div>
+            </div>
+
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <div class="font-bold text-slate-800">Q. 졸업 후 바로 상품 링크 글만 올려도 되나요?</div>
+              <div class="text-slate-600 mt-1 text-[11px]">
+                절대 권장하지 않습니다! 계정 수명과 팔로워 신뢰도를 위해 시스템이 강제하는 <strong>4:1 비율(순수 공감글 4 : 수익글 1)</strong>을 유지해야 영구적인 수익 파이프라인이 완성됩니다.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 1: OVERVIEW -->
+      <div id="tab-overview" class="help-tab-content hidden space-y-5">
+        <div class="bg-indigo-50/60 border border-indigo-100 rounded-xl p-4 flex items-start gap-3.5">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0 mt-0.5 text-sm font-bold">
+            <i class="fa-solid fa-gears"></i>
+          </div>
+          <div>
+            <h4 class="text-sm font-bold text-indigo-950">엔드투엔드(End-to-End) 5단계 전자동 파이프라인 구조</h4>
+            <p class="text-slate-600 mt-1">
+              본 프로그램은 단순 글쓰기가 아니라, <strong>상품 발굴부터 알고리즘 맞춤형 Threads 바이럴 글 작성, 공정위 규정 준수 첫 댓글 등록, 무인 백그라운드 스케줄링, 게시 후 성과 피드백 자가학습</strong>까지 유기적으로 이어지는 완성형 마케팅 오토메이션 엔진입니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <div class="border border-slate-200 rounded-xl p-3.5 bg-white shadow-sm flex flex-col justify-between">
+            <div>
+              <span class="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded">PHASE 1</span>
+              <h5 class="font-bold text-slate-800 mt-2">상품 탐색 및 등록</h5>
+              <p class="text-[11px] text-slate-500 mt-1">쿠팡 키워드 검색 또는 단축 링크 수동 등록을 통해 가격, 별점, 리뷰, 이미지 실시간 수집</p>
+            </div>
+            <div class="text-right mt-3 text-slate-300"><i class="fa-solid fa-magnifying-glass text-xl"></i></div>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl p-3.5 bg-white shadow-sm flex flex-col justify-between">
+            <div>
+              <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">PHASE 2</span>
+              <h5 class="font-bold text-slate-800 mt-2">6대 지표 채점 & DNA</h5>
+              <p class="text-[11px] text-slate-500 mt-1">가격대/마진, 리뷰수, 전환력, 바이럴성 등 정밀 채점(100점 만점) 후 타깃 페르소나 및 핵심 소구점 DNA 추출</p>
+            </div>
+            <div class="text-right mt-3 text-slate-300"><i class="fa-solid fa-dna text-xl"></i></div>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl p-3.5 bg-white shadow-sm flex flex-col justify-between">
+            <div>
+              <span class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded">PHASE 3</span>
+              <h5 class="font-bold text-slate-800 mt-2">10대 각도 & 본문/댓글</h5>
+              <p class="text-[11px] text-slate-500 mt-1">경험기반, 반전/폭로, Q&A 등 10대 심리적 각도로 바이럴 훅을 잡고 Threads 최적화 본문과 링크 댓글 생성</p>
+            </div>
+            <div class="text-right mt-3 text-slate-300"><i class="fa-solid fa-pen-fancy text-xl"></i></div>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl p-3.5 bg-white shadow-sm flex flex-col justify-between">
+            <div>
+              <span class="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">PHASE 4</span>
+              <h5 class="font-bold text-slate-800 mt-2">AI 품질검수 & 예약</h5>
+              <p class="text-[11px] text-slate-500 mt-1">가독성, 금칙어, 공정위 문구 누락, 중복 포스팅 여부를 AI가 2중 검증 후 황금 시간대 캘린더 배치</p>
+            </div>
+            <div class="text-right mt-3 text-slate-300"><i class="fa-solid fa-shield-halved text-xl"></i></div>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl p-3.5 bg-white shadow-sm flex flex-col justify-between">
+            <div>
+              <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">PHASE 5</span>
+              <h5 class="font-bold text-slate-800 mt-2">무인 발행 & 자가학습</h5>
+              <p class="text-[11px] text-slate-500 mt-1">워커 데몬이 백그라운드에서 만기 포스트를 자동 발행하고, 성과(조회수, 클릭수)를 분석해 프롬프트 진화</p>
+            </div>
+            <div class="text-right mt-3 text-slate-300"><i class="fa-solid fa-chart-line text-xl"></i></div>
+          </div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <h5 class="font-bold text-slate-800 mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-microchip text-brand-600"></i> 백그라운드 무인 스케줄러 데몬 (Worker) 작동 방식
+          </h5>
+          <ul class="space-y-1.5 text-slate-600 list-disc list-inside">
+            <li>프로그램 구동 시 백그라운드 비동기 태스크(Worker Loop)가 <strong>60초 주기</strong>로 작동합니다.</li>
+            <li>현재 시간 기준 예약 만료된 콘텐츠가 감지되면 Meta 공식 Graph API를 통해 <strong>본문 1단계 게시 ➔ 2초 후 첫 번째 댓글(파트너스 링크+공정위 문구) 체인 등록</strong>을 자동 완수합니다.</li>
+            <li><strong>10분 주기</strong>로 발행된 글들의 최신 성과(조회수, 반응률, 전환)를 수집하여 자가 학습 리포트를 누적합니다.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- TAB: ACCOUNTS (Threads 7대 다중 계정 포트폴리오 & 실시간 연동) -->
+      <div id="tab-accounts" class="help-tab-content hidden space-y-5">
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 shadow-sm space-y-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-lg text-white font-bold shrink-0">
+                <i class="fa-brands fa-threads"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                  <span>Threads 다중 계정 3대 클러스터 포트폴리오</span>
+                  <span class="bg-emerald-500/20 text-emerald-300 text-[10px] px-2 py-0.5 rounded-full border border-emerald-400/30 font-bold">실시간 DB 동기화</span>
+                </h4>
+                <p class="text-[11px] text-slate-300 mt-0.5">
+                  하나의 상품도 계정별 특화 분야와 고유 페르소나에 맞춰 다각도로 분산 발행하여 제휴 수익을 극대화합니다.
+                </p>
+              </div>
+            </div>
+            <a href="/settings" class="bg-white/15 hover:bg-white/25 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 self-start sm:self-auto shrink-0">
+              <i class="fa-solid fa-gear"></i> 계정 추가/수정 바로가기
+            </a>
+          </div>
+        </div>
+
+        <!-- 3-Cluster Strategy Quick Guide -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <div class="p-3.5 rounded-xl border border-blue-200/80 bg-blue-50/60 space-y-1">
+            <div class="font-bold text-blue-900 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span> 1. 버티컬 전문형 (카테고리 집중)
+            </div>
+            <p class="text-[11px] text-slate-600">IT, 리빙, 뷰티 등 한 분야만 집중 공략하여 알고리즘 추천 점수와 전문성을 극대화합니다.</p>
+          </div>
+          <div class="p-3.5 rounded-xl border border-purple-200/80 bg-purple-50/60 space-y-1">
+            <div class="font-bold text-purple-900 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-purple-500"></span> 2. 타깃 페르소나형 (화자 공감)
+            </div>
+            <p class="text-[11px] text-slate-600">30대 직장인, 여행러 등 살아있는 화자의 진솔한 일상 고민과 감성 리뷰로 신뢰를 얻습니다.</p>
+          </div>
+          <div class="p-3.5 rounded-xl border border-amber-200/80 bg-amber-50/60 space-y-1">
+            <div class="font-bold text-amber-900 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span> 3. 트렌드/이슈형 (바이럴/가성비)
+            </div>
+            <p class="text-[11px] text-slate-600">품절 대란템, 귀여운 꿀템, 가성비 비교 등 즉각적인 반응과 폭발적인 클릭을 유도합니다.</p>
+          </div>
+        </div>
+
+        <!-- Master Account Table -->
+        <div class="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-xs">
+          <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+            <h5 class="font-bold text-slate-800 text-xs flex items-center gap-2">
+              <i class="fa-solid fa-table-list text-brand-600"></i>
+              <span>운영 계정 상세 포지셔닝 명세표</span>
+            </h5>
+            <span class="text-[11px] text-slate-400">
+              * [설정] 메뉴에서 새 계정을 추가하면 이 표에도 실시간으로 자동 추가됩니다.
+            </span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead class="bg-slate-100/70 text-slate-700 font-bold text-[11px] border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3.5">계정 핸들</th>
+                  <th class="py-2.5 px-3.5">배정 클러스터</th>
+                  <th class="py-2.5 px-3.5">계정 컨셉 및 주력 카테고리</th>
+                  <th class="py-2.5 px-3.5">배정된 말투 (Tone)</th>
+                  <th class="py-2.5 px-3.5 text-center">운영 모드</th>
+                </tr>
+              </thead>
+              <tbody id="help-accounts-table-body" class="divide-y divide-slate-100 text-xs">
+                <!-- Row 1 -->
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3 px-3.5 font-mono font-bold text-slate-900">@kth.101rep</td>
+                  <td class="py-3 px-3.5"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-200 text-[10px]">🏢 버티컬</span></td>
+                  <td class="py-3 px-3.5 font-semibold text-slate-800">IT / 테크 / 디지털 기기 / 맥북 액세서리</td>
+                  <td class="py-3 px-3.5 text-slate-600">팩트 중심 전문 분석</td>
+                  <td class="py-3 px-3.5 text-center"><span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-200">정상 가동</span></td>
+                </tr>
+                <!-- Row 2 -->
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3 px-3.5 font-mono font-bold text-slate-900">@lookatmeai</td>
+                  <td class="py-3 px-3.5"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-200 text-[10px]">🏢 버티컬</span></td>
+                  <td class="py-3 px-3.5 font-semibold text-slate-800">뷰티 / 패션 / 자기관리 / AI 트렌드</td>
+                  <td class="py-3 px-3.5 text-slate-600">감각적인 2030 트렌드 세터</td>
+                  <td class="py-3 px-3.5 text-center"><span class="bg-amber-50 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-200">예열 모드 (3~5일)</span></td>
+                </tr>
+                <!-- Row 3 -->
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3 px-3.5 font-mono font-bold text-slate-900">@yr170425</td>
+                  <td class="py-3 px-3.5"><span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-200 text-[10px]">🏢 버티컬</span></td>
+                  <td class="py-3 px-3.5 font-semibold text-slate-800">살림로그 / 리빙 / 주방용품 / 수납정리</td>
+                  <td class="py-3 px-3.5 text-slate-600">친근하고 진솔한 살림 꿀팁</td>
+                  <td class="py-3 px-3.5 text-center"><span class="bg-amber-50 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-200">예열 모드 (3~5일)</span></td>
+                </tr>
+                <!-- Row 4 -->
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3 px-3.5 font-mono font-bold text-slate-900">@taechi.tube</td>
+                  <td class="py-3 px-3.5"><span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold border border-purple-200 text-[10px]">🎭 페르소나</span></td>
+                  <td class="py-3 px-3.5 font-semibold text-slate-800">여행 / 여가 / 감성 소품 / 라이프스타일</td>
+                  <td class="py-3 px-3.5 text-slate-600">진솔한 일상 공감 어조</td>
+                  <td class="py-3 px-3.5 text-center"><span class="bg-amber-50 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-200">예열 모드 (3~5일)</span></td>
+                </tr>
+                <!-- Row 5 -->
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3 px-3.5 font-mono font-bold text-slate-900">@ktaehoon80</td>
+                  <td class="py-3 px-3.5"><span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold border border-purple-200 text-[10px]">🎭 페르소나</span></td>
+                  <td class="py-3 px-3.5 font-semibold text-slate-800">30대 직장인 생존템 / 피로회복 / 건강</td>
+                  <td class="py-3 px-3.5 text-slate-600">현실 직장인 찐공감 어조</td>
+                  <td class="py-3 px-3.5 text-center"><span class="bg-amber-50 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-200">예열 모드 (3~5일)</span></td>
+                </tr>
+                <!-- Row 6 -->
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3 px-3.5 font-mono font-bold text-slate-900">@toontoooon</td>
+                  <td class="py-3 px-3.5"><span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold border border-amber-200 text-[10px]">🔥 트렌드</span></td>
+                  <td class="py-3 px-3.5 font-semibold text-slate-800">툰툰이 꿀템 / 캐릭터 / 데스크테리어</td>
+                  <td class="py-3 px-3.5 text-slate-600">호들갑 바이럴 찐후기 어조</td>
+                  <td class="py-3 px-3.5 text-center"><span class="bg-amber-50 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-200">예열 모드 (3~5일)</span></td>
+                </tr>
+                <!-- Row 7 -->
+                <tr class="hover:bg-slate-50/80 transition">
+                  <td class="py-3 px-3.5 font-mono font-bold text-slate-900">@101rep80</td>
+                  <td class="py-3 px-3.5"><span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold border border-amber-200 text-[10px]">🔥 트렌드</span></td>
+                  <td class="py-3 px-3.5 font-semibold text-slate-800">호구탈출 가성비 비교 / 품절대란 핫딜</td>
+                  <td class="py-3 px-3.5 text-slate-600">똑순이 가성비 비교 어조</td>
+                  <td class="py-3 px-3.5 text-center"><span class="bg-amber-50 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-200">예열 모드 (3~5일)</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 5-Day Warmup & Auto-Reply Architecture Card -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-4 space-y-2">
+            <div class="font-bold text-emerald-900 text-xs flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs">
+                <i class="fa-solid fa-seedling"></i>
+              </span>
+              <span>1. 5일 양성화 작업 (100% 순수 공감 오가닉 빌드업)</span>
+            </div>
+            <p class="text-[11px] text-emerald-800 leading-relaxed">
+              신규 연동 계정은 첫 5일 동안 제휴/쿠팡 링크를 일절 넣지 않고, 각 계정의 페르소나(직장인 현실 공감, 살림 꿀팁, 데스크테리어, 뷰티 루틴 등)에 맞춘 <strong>순수 일상 공감 글</strong>만 발행합니다. 이를 통해 메타 AI 알고리즘으로부터 높은 신뢰 점수(Trust Score)를 부여받아 섀도우밴을 원천 차단하고 추천 피드 진입 기반을 다집니다.
+            </p>
+          </div>
+
+          <div class="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-2xl p-4 space-y-2">
+            <div class="font-bold text-indigo-900 text-xs flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-xs">
+                <i class="fa-solid fa-comments"></i>
+              </span>
+              <span>2. AI 야무진 자동 대댓글 엔진 (2분 주기 실시간 소통)</span>
+            </div>
+            <p class="text-[11px] text-indigo-800 leading-relaxed">
+              독자나 팔로워가 우리 글에 댓글을 남기면, 백그라운드 워커가 <strong>2분마다 감지하여 각 계정의 고유 말투(어조)</strong>로 자연스럽고 위트 있는 대댓글을 사람처럼 즉각 작성해 답글을 달아줍니다. Threads 알고리즘은 댓글 소통량이 많을수록 바이럴 트래픽을 기하급수적으로 밀어주므로 계정 성장에 강력한 효과를 냅니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+          <i class="fa-solid fa-shield-halved text-amber-600 text-base mt-0.5"></i>
+          <div class="space-y-1">
+            <h6 class="font-bold text-amber-950 text-xs">다중 계정 운영 시 핵심 안전 수칙 (알고리즘 밴 방지)</h6>
+            <p class="text-[11px] text-amber-800 leading-relaxed">
+              신규 계정은 3~5일간 <strong>예열 모드(순수 공감/정보 글 위주, 본문 링크 배제)</strong>로 시작하여 알고리즘 신뢰도를 먼저 확보합니다. 시스템의 <strong>[⚡ 전 계정 골든타임 자동분산]</strong> 기능을 활용하여 계정 간 발행 시차(2~4시간)를 두면 메타 서버의 동일 IP 연속 발행 감지를 완벽하게 회피할 수 있습니다.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: HOW TO USE -->
+      <div id="tab-howtouse" class="help-tab-content hidden space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Way 1 -->
+          <div class="border border-slate-200 rounded-xl p-4 bg-white shadow-sm">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-xs">1</span>
+              <h4 class="font-bold text-sm text-slate-900">⚡ 원클릭 오토파일럿 (가장 추천!)</h4>
+            </div>
+            <p class="text-slate-600 mb-3">키워드만 넣으면 5단계를 한 번에 처리하여 캘린더 예약까지 완료합니다.</p>
+            <ol class="space-y-2 text-slate-600 list-decimal list-inside bg-slate-50 p-3 rounded-lg">
+              <li>대시보드 상단의 <strong>[⚡ 원클릭 오토파일럿]</strong> 버튼 클릭</li>
+              <li>공략할 상품 키워드(예: <code class="bg-white px-1 py-0.5 border rounded">로봇청소기</code>, <code class="bg-white px-1 py-0.5 border rounded">수분크림</code>, <code class="bg-white px-1 py-0.5 border rounded">버티컬 마우스</code>) 입력</li>
+              <li>예약 시간 간격(예: 3시간 후) 지정 후 <strong>[원클릭 파이프라인 실행]</strong> 클릭</li>
+              <li>시스템이 자동으로 상품 탐색 ➔ 채점 ➔ DNA ➔ 최적 본문 ➔ 댓글 ➔ 검수 ➔ 캘린더 등록까지 즉시 완수!</li>
+            </ol>
+          </div>
+
+          <!-- Way 2 -->
+          <div class="border border-slate-200 rounded-xl p-4 bg-white shadow-sm">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">2</span>
+              <h4 class="font-bold text-sm text-slate-900">📦 대량 벌크 오토파일럿 (주간/월간 무인 운영)</h4>
+            </div>
+            <p class="text-slate-600 mb-3">여러 개의 키워드를 줄바꿈으로 넣어 며칠 치 캘린더를 한 번에 채웁니다.</p>
+            <ol class="space-y-2 text-slate-600 list-decimal list-inside bg-slate-50 p-3 rounded-lg">
+              <li>대시보드의 <strong>[📦 대량 벌크 오토파일럿]</strong> 클릭</li>
+              <li>텍스트창에 키워드를 한 줄에 하나씩 입력 (예: 10개 상품)</li>
+              <li>발행 간격(예: 4시간마다 1개씩) 선택 후 실행</li>
+              <li>캘린더 화면에 시간순으로 자동 분산 배치되어 무인 릴레이 발행 가동!</li>
+            </ol>
+          </div>
+
+          <!-- Way 3 -->
+          <div class="border border-slate-200 rounded-xl p-4 bg-white shadow-sm">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">3</span>
+              <h4 class="font-bold text-sm text-slate-900">🎯 상품 수동 등록 & 정밀 커스텀 제작</h4>
+            </div>
+            <p class="text-slate-600 mb-3">특정 대박 상품의 쿠팡 링크를 직접 지정하여 10대 각도를 모두 비교해 보고 싶을 때 사용합니다.</p>
+            <ol class="space-y-2 text-slate-600 list-decimal list-inside bg-slate-50 p-3 rounded-lg">
+              <li>[상품 관리] ➔ [새 상품 등록]에서 상품명과 파트너스 간편 링크 입력</li>
+              <li>상품 상세 페이지에서 <strong>[상품 점수화] ➔ [DNA 생성] ➔ [10대 각도 생성]</strong> 클릭</li>
+              <li>마음에 드는 각도(예: '의외의 활용법' 또는 '호구 탈출 비교')를 골라 본문 및 댓글 생성</li>
+              <li>필요 시 텍스트를 인라인 편집한 뒤 즉시 발행 또는 캘린더 예약!</li>
+            </ol>
+          </div>
+
+          <!-- Way 4 -->
+          <div class="border border-slate-200 rounded-xl p-4 bg-white shadow-sm">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-xs">4</span>
+              <h4 class="font-bold text-sm text-slate-900">⚖️ A/B 테스트 분기 발행</h4>
+            </div>
+            <p class="text-slate-600 mb-3">어떤 말투와 각도가 더 잘 터지는지 검증하는 고급 마케팅 기능입니다.</p>
+            <ol class="space-y-2 text-slate-600 list-decimal list-inside bg-slate-50 p-3 rounded-lg">
+              <li>동일 상품에 대해 공감형(A안)과 정보형/비교형(B안) 포스트를 동시 생성</li>
+              <li>시차를 두고 발행하여 Threads 반응률 및 클릭률 추적</li>
+              <li>시스템이 승자(Winner)를 자동 판정하여 다음번 콘텐츠 작성 알고리즘에 반영!</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: API & SERVICES -->
+      <div id="tab-api" class="help-tab-content hidden space-y-4">
+        <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase">
+              <tr>
+                <th class="p-3.5">서비스 / 플랫폼</th>
+                <th class="p-3.5">필요 키 / 권한</th>
+                <th class="p-3.5">공식 발급처 사이트 주소</th>
+                <th class="p-3.5">현재 연동 상태</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-xs">
+              <tr>
+                <td class="p-3.5 font-bold text-slate-900 flex items-center gap-2">
+                  <i class="fa-brands fa-threads text-lg"></i> Meta Threads Graph API
+                </td>
+                <td class="p-3.5 text-slate-600">
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">User Access Token</code><br>
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Threads User ID</code>
+                </td>
+                <td class="p-3.5">
+                  <a href="https://developers.facebook.com/apps/" target="_blank" class="text-brand-600 font-bold hover:underline inline-flex items-center gap-1">
+                    developers.facebook.com <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                  </a>
+                  <p class="text-[11px] text-slate-500 mt-1">앱 생성 ➔ 이용사례 Threads API 추가 ➔ 테스터 등록/수락 ➔ 토큰 생성기</p>
+                </td>
+                <td class="p-3.5">
+                  <span class="inline-flex items-center gap-1 text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-md text-[11px]">
+                    <i class="fa-solid fa-circle-check"></i> 연동 완료 (@kth.101rep)
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-slate-900 flex items-center gap-2">
+                  <i class="fa-solid fa-cart-shopping text-rose-500 text-lg"></i> 쿠팡 파트너스 Open API
+                </td>
+                <td class="p-3.5 text-slate-600">
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Access Key</code><br>
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Secret Key</code>
+                </td>
+                <td class="p-3.5">
+                  <a href="https://partners.coupang.com/#affiliate/ws/tools/open-api" target="_blank" class="text-brand-600 font-bold hover:underline inline-flex items-center gap-1">
+                    partners.coupang.com <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                  </a>
+                  <p class="text-[11px] text-slate-500 mt-1">쿠팡 파트너스 ➔ 추가 기능 ➔ 파트너스 API ➔ 키 발급</p>
+                </td>
+                <td class="p-3.5">
+                  <span class="inline-flex items-center gap-1 text-amber-600 font-semibold bg-amber-50 px-2 py-1 rounded-md text-[11px]">
+                    <i class="fa-solid fa-clock"></i> 심사 대기중 (간편링크 모드 즉시 가동)
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-slate-900 flex items-center gap-2">
+                  <i class="fa-solid fa-brain text-purple-600 text-lg"></i> Google Gemini / OpenAI API
+                </td>
+                <td class="p-3.5 text-slate-600">
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">AI_API_KEY</code>
+                </td>
+                <td class="p-3.5">
+                  <div class="flex items-center gap-3">
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-brand-600 font-bold hover:underline inline-flex items-center gap-1">
+                      Google AI Studio <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                    <a href="https://platform.openai.com/api-keys" target="_blank" class="text-brand-600 font-bold hover:underline inline-flex items-center gap-1">
+                      OpenAI Platform <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-1">Gemini 1.5 Flash(무료 쿼터 제공) 또는 GPT-4o-mini 지원</p>
+                </td>
+                <td class="p-3.5">
+                  <span class="inline-flex items-center gap-1 text-blue-600 font-semibold bg-blue-50 px-2 py-1 rounded-md text-[11px]">
+                    <i class="fa-solid fa-robot"></i> 스마트 템플릿 & 실시간 AI 스위칭 준비됨
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="p-3.5 font-bold text-slate-900 flex items-center gap-2">
+                  <i class="fa-brands fa-discord text-indigo-500 text-lg"></i> Webhook 알림 (Discord / Slack)
+                </td>
+                <td class="p-3.5 text-slate-600">
+                  <code class="bg-slate-100 px-1.5 py-0.5 rounded text-[11px]">Webhook URL</code>
+                </td>
+                <td class="p-3.5">
+                  <p class="text-[11px] text-slate-600">디스코드 채널 설정 ➔ 연동 ➔ 웹후크 만들기 ➔ URL 복사</p>
+                </td>
+                <td class="p-3.5">
+                  <span class="inline-flex items-center gap-1 text-slate-600 bg-slate-100 px-2 py-1 rounded-md text-[11px]">
+                    선택 사항 (.env에 기입 시 즉시 작동)
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 4: TIPS -->
+      <div id="tab-tips" class="help-tab-content hidden space-y-5">
+
+        <!-- 4 Core Rules Master Banner -->
+        <div class="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 border border-indigo-900/50 rounded-2xl p-5 text-white shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-indigo-800/40 pb-3">
+            <div class="flex items-center gap-2.5">
+              <span class="w-8 h-8 rounded-xl bg-amber-500 text-black flex items-center justify-center font-black text-sm shadow-md">
+                <i class="fa-solid fa-crown"></i>
+              </span>
+              <div>
+                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                  Threads 알고리즘 4대 불변의 법칙 (영상 4종 실전 분석 총정리)
+                  <span class="text-[10px] bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full font-semibold">계정 수명 & 수익 보장</span>
+                </h4>
+                <p class="text-[11px] text-slate-300 mt-0.5">팔로워 0명으로 시작해도 섀도밴 없이 월 300만 원 이상 만드는 핵심 메커니즘</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-[11px]">
+            <!-- Rule 1 -->
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1.5 backdrop-blur-sm">
+              <div class="font-bold text-amber-300 flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-[10px] text-amber-300 font-bold">1</span>
+                <span>팔로워 무관 '키워드 관심사(버티컬)' 직격 도달</span>
+              </div>
+              <p class="text-slate-300 leading-relaxed">
+                스레드는 팔로워 수가 0이어도 첫 줄의 핵심 키워드를 감지하여 해당 카테고리에 반응해온 유저들의 추천 피드(For You)로 직접 꽂아줍니다. 따라서 계정별로 버티컬 주제를 일관되게 유지하는 것이 핵심입니다.
+              </p>
+            </div>
+
+            <!-- Rule 2 -->
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1.5 backdrop-blur-sm">
+              <div class="font-bold text-rose-300 flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-[10px] text-rose-300 font-bold">2</span>
+                <span>인위적 행위(품앗이·스알이·맞팔봇) 절대 금지</span>
+              </div>
+              <p class="text-slate-300 leading-relaxed">
+                '스알이', 맞팔 품앗이 같은 인위적 인터랙션은 Meta의 어뷰징 AI에 즉시 탐지되어 섀도밴(노출 0) 및 영구 정지의 1순위 원인이 됩니다. 본문의 <strong>댓글 핑퐁 유도("필요한 분 댓글 주시면 정보 남겨드릴게요")</strong>로 자연스러운 반응을 이끌어내야 합니다.
+              </p>
+            </div>
+
+            <!-- Rule 3 -->
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1.5 backdrop-blur-sm">
+              <div class="font-bold text-indigo-300 flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-[10px] text-indigo-300 font-bold">3</span>
+                <span>본문 링크 페널티 완벽 우회 (시간차 댓글 & 스마트 브릿지)</span>
+              </div>
+              <p class="text-slate-300 leading-relaxed">
+                본문에 외부 링크 삽입 시 도달률이 90% 급감합니다. 본 엔진은 <strong>1~3분(120초) 시간차 첫 댓글 자동 등록(공정위 문구 탑재)</strong> 및 <strong>프로필 바이오(인포크링크/리틀리) 유도</strong>의 2대 우회 전략을 기본 탑재하여 도달률을 100% 보존합니다.
+              </p>
+            </div>
+
+            <!-- Rule 4 -->
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-1.5 backdrop-blur-sm">
+              <div class="font-bold text-emerald-300 flex items-center gap-2">
+                <span class="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-[10px] text-emerald-300 font-bold">4</span>
+                <span>3~5일 계정 예열(Warm-up) & 4:1 골든 믹스</span>
+              </div>
+              <p class="text-slate-300 leading-relaxed">
+                신규 계정은 3~5일간 링크 없는 순수 정보/일상 글(오가닉 빌드업)로 신뢰 점수를 먼저 적립해야 합니다. 이후에도 <strong>4개의 정보글 당 1개의 머니포스트(4:1 황금 비율)</strong>를 유지하고, 1기기 1계정 원칙을 지켜 계정 수명을 영구 보장합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-gradient-to-br from-amber-50/80 to-amber-100/30 border border-amber-200 rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold mb-3">
+              <i class="fa-solid fa-shield-cat"></i>
+            </div>
+            <h5 class="font-bold text-slate-900 text-sm mb-1.5">계정 정지(Shadowban) 방지 법칙</h5>
+            <ul class="space-y-1.5 text-[11px] text-slate-700">
+              <li><strong>본문에 링크 절대 금지:</strong> Threads 알고리즘은 본문에 외부 링크가 있으면 도달률을 90% 이상 깎습니다. 본 프로그램처럼 <strong>댓글에 링크를 다는 방식</strong>이 핵심입니다.</li>
+              <li><strong>하루 3~5회 분산 발행:</strong> 한 번에 몰아 올리지 말고 3~4시간 간격으로 캘린더 예약을 분산하세요.</li>
+              <li><strong>공정위 문구 필수:</strong> 첫 댓글에 <em>"이 포스팅은 쿠팡 파트너스 활동의 일환으로..."</em> 문구를 누락하면 제재 대상이 됩니다 (시스템 자동 삽입 기능 탑재).</li>
+            </ul>
+          </div>
+
+          <div class="bg-gradient-to-br from-purple-50/80 to-purple-100/30 border border-purple-200 rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold mb-3">
+              <i class="fa-solid fa-fire-flame-curved"></i>
+            </div>
+            <h5 class="font-bold text-slate-900 text-sm mb-1.5">스레드 알고리즘 맞춤 훅(Hook) 공식</h5>
+            <ul class="space-y-1.5 text-[11px] text-slate-700">
+              <li><strong>첫 줄 1.5초 승부:</strong> 첫 줄에서 "광고 냄새"가 나면 즉시 스크롤을 내립니다. "이거 왜 이제 샀지", "솔직히 돈 낭비인 줄 알았는데" 같은 <strong>진솔한 독백형 어조</strong>가 10배 잘 터집니다.</li>
+              <li><strong>줄바꿈과 호흡:</strong> 모바일 환경에 최적화되도록 문장을 2~3줄 단위로 끊어 가독성을 높였습니다.</li>
+              <li><strong>댓글 유도 멘트:</strong> 본문 끝에 "혹시 써보신 분 계신가요?" 같은 질문형 클로징을 두어 체류 시간과 댓글 참여도를 극대화합니다.</li>
+            </ul>
+          </div>
+
+          <div class="bg-gradient-to-br from-emerald-50/80 to-emerald-100/30 border border-emerald-200 rounded-xl p-4">
+            <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold mb-3">
+              <i class="fa-solid fa-sack-dollar"></i>
+            </div>
+            <h5 class="font-bold text-slate-900 text-sm mb-1.5">고수익 상품 카테고리 선정 팁</h5>
+            <ul class="space-y-1.5 text-[11px] text-slate-700">
+              <li><strong>충동구매형 (1만~3만 원대):</strong> 삶의 질 상승 다이소/리빙템, 수면 안대, 페이스타월 등 진입장벽이 낮아 전환율이 5% 이상 나옵니다.</li>
+              <li><strong>고단가형 (10만~30만 원대):</strong> 로봇청소기, 무선 이어폰, 스마트워치 스트랩 등 3% 수수료만으로 건당 수천~수만 원 수익 발생.</li>
+              <li><strong>단종/품절 임박 트렌드:</strong> SNS 화제성 높은 뷰티 아이템(수분진정 크림, 모공패드 등)을 발굴하세요.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: ROADMAP -->
+      <div id="tab-roadmap" class="help-tab-content hidden space-y-4">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4">
+          <h5 class="font-bold text-slate-900 text-sm mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-compass-drafting text-brand-600"></i> 시스템 고도화 및 앞으로의 발전 방향 (Future Roadmap)
+          </h5>
+          <p class="text-slate-600 text-xs mb-4">
+            현재 구축된 시스템을 기반으로 앞으로 더욱 강력한 수익 자동화 머신으로 확장할 수 있는 권장 업그레이드 방향입니다.
+          </p>
+
+          <div class="space-y-3">
+            <div class="flex items-start gap-3 p-3 bg-white rounded-lg border border-slate-200">
+              <span class="w-5 h-5 rounded bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</span>
+              <div>
+                <strong class="text-slate-900">이미지 & 카드뉴스 자동 렌더링 파이프라인</strong>
+                <p class="text-[11px] text-slate-500 mt-0.5">상품 이미지 위에 핵심 문구(바이트 텍스트)를 자동으로 합성하여 Threads 캐러셀(슬라이드) 포스트로 발행해 클릭률 200% 상승</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 bg-white rounded-lg border border-slate-200">
+              <span class="w-5 h-5 rounded bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</span>
+              <div>
+                <strong class="text-slate-900">네이버 블로그 / 티스토리 원소스 멀티유즈(OSMU) 확장</strong>
+                <p class="text-[11px] text-slate-500 mt-0.5">Threads용 짧은 글 외에도 동일 상품의 심층 리뷰 글을 자동 생성하여 네이버/워드프레스 블로그에 동시 배포하여 SEO 검색 유입 확대</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 bg-white rounded-lg border border-slate-200">
+              <span class="w-5 h-5 rounded bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</span>
+              <div>
+                <strong class="text-slate-900">실시간 댓글 AI 자동 대댓글(Reply Bot) 엔진</strong>
+                <p class="text-[11px] text-slate-500 mt-0.5">유저들이 Threads 포스트에 "어디서 사요?", "내구성 어떤가요?" 같은 댓글을 달면 AI가 실시간으로 친절하게 대댓글을 달아주며 구매 전환 링크 안내</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 bg-white rounded-lg border border-slate-200">
+              <span class="w-5 h-5 rounded bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">4</span>
+              <div>
+                <strong class="text-slate-900">클라우드 24시간 무인 서버(Docker / VPS) 패키징</strong>
+                <p class="text-[11px] text-slate-500 mt-0.5">내 개인 PC를 켜두지 않아도 저렴한 리눅스 서버(Cloudways / AWS / Oracle Free Tier)에 Docker 1줄 명령어로 올려 365일 24시간 무인 자동 포스팅 유지</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs shrink-0">
+      <div class="text-slate-500 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span>시스템 접속 주소: <strong>http://localhost:8080</strong></span>
+      </div>
+      <button onclick="closeHelpGuideModal()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-semibold transition">
+        닫기
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  async function loadHelpAccountsTable() {
+    try {
+      const res = await fetch('/api/scheduler/timelines');
+      const data = await res.json();
+      const tbody = document.getElementById('help-accounts-table-body');
+      if (tbody && Array.isArray(data) && data.length > 0) {
+        tbody.innerHTML = data.map(acc => {
+          let clusterBadge = '<span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-200 text-[10px]">🏢 버티컬</span>';
+          if (acc.cluster_type === 'PERSONA') {
+            clusterBadge = '<span class="bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold border border-purple-200 text-[10px]">🎭 페르소나</span>';
+          } else if (acc.cluster_type === 'TREND') {
+            clusterBadge = '<span class="bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold border border-amber-200 text-[10px]">🔥 트렌드</span>';
+          }
+
+          const warmupBadge = acc.warmup_status === 'WARMING_UP'
+            ? '<span class="bg-amber-50 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold border border-amber-200">예열 모드 (3~5일)</span>'
+            : '<span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold border border-emerald-200">정상 가동</span>';
+
+          const categoryText = acc.category ? `<span class="text-slate-500 font-normal"> / ${acc.category}</span>` : '';
+
+          return `
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="py-3 px-3.5 font-mono font-bold text-slate-900">@${acc.username}</td>
+              <td class="py-3 px-3.5">${clusterBadge}</td>
+              <td class="py-3 px-3.5 font-semibold text-slate-800">${acc.display_name}${categoryText}</td>
+              <td class="py-3 px-3.5 text-slate-600">${acc.tone || '친근한 일상 어조'}</td>
+              <td class="py-3 px-3.5 text-center">${warmupBadge}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+    } catch (err) {
+      console.warn('Failed to dynamically load help accounts table:', err);
+    }
+  }
+
+  function openHelpGuideModal() {
+    const m = document.getElementById('helpGuideModal');
+    if (m) {
+      m.classList.remove('hidden');
+      loadHelpAccountsTable();
+      if (window.mermaid) {
+        setTimeout(() => {
+          try {
+            mermaid.run({ nodes: m.querySelectorAll('.mermaid') });
+          } catch(e) {}
+        }, 100);
+      }
+    }
+  }
+
+  function closeHelpGuideModal() {
+    const m = document.getElementById('helpGuideModal');
+    if (m) {
+      m.classList.add('hidden');
+    }
+  }
+
+    function switchHelpTab(tabId) {
+    document.querySelectorAll('.help-tab-content').forEach(el => el.classList.add('hidden'));
+    const active = document.getElementById(tabId);
+    if (active) active.classList.remove('hidden');
+
+    document.querySelectorAll('.help-tab-btn').forEach(btn => {
+      btn.classList.remove('border-brand-600', 'text-brand-600', 'font-bold');
+      btn.classList.add('border-transparent', 'text-slate-500');
+    });
+
+    const currentBtn = document.getElementById('btn-' + tabId);
+    if (currentBtn) {
+      currentBtn.classList.remove('border-transparent', 'text-slate-500');
+      currentBtn.classList.add('border-brand-600', 'text-brand-600', 'font-bold');
+    }
+
+    if (window.mermaid && active) {
+      setTimeout(() => {
+        try {
+          mermaid.run({ nodes: active.querySelectorAll('.mermaid') });
+        } catch (e) {
+          console.warn('Mermaid rendering notice:', e);
+        }
+      }, 50);
+    }
+  }
+
+  // Expose globally
+  window.openHelpGuideModal = openHelpGuideModal;
+  window.closeHelpGuideModal = closeHelpGuideModal;
+  window.switchHelpTab = switchHelpTab;
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeHelpGuideModal();
+  });
+  document.addEventListener('click', (e) => {
+    const m = document.getElementById('helpGuideModal');
+    if (m && e.target === m) closeHelpGuideModal();
+  });
+</script>

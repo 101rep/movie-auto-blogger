@@ -1,0 +1,15 @@
+{
+  "name": "펫케어 메이트 - 전문 펫시터 매칭 & 돌봄 관리",
+  "short_name": "펫케어메이트",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

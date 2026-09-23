@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block title %}상품 관리{% endblock %}
+{% block header_title %}상품 관리 및 쿠팡 탐색{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-8">
+
+  <!-- Section 1: Coupang External Search (Mock / Real) -->
+  <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-5">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-magnifying-glass text-brand-600"></i>
+          <span>쿠팡 파트너스 추천 상품 탐색</span>
+          <span class="text-xs bg-brand-50 text-brand-700 px-2 py-0.5 rounded-full">Mock Provider (12개 엄선 꿀템)</span>
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">원하는 키워드나 카테고리를 검색하여 시스템에 등록할 상품을 수집하세요.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="openManualProductModal()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+          <i class="fa-solid fa-link"></i> <span>내 파트너스 링크 직접 등록</span>
+        </button>
+        <button onclick="loadExternalProducts()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2 border border-slate-200">
+          <i class="fa-solid fa-rotate"></i> 추천 상품 새로고침
+        </button>
+      </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div class="relative">
+        <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+        <input type="text" id="ext-query" placeholder="상품명 또는 키워드 검색..." class="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl pl-9 pr-3 py-2.5 focus:outline-none focus:border-brand-500 focus:bg-white transition" onkeypress="if(event.key==='Enter') loadExternalProducts()">
+      </div>
+
+      <div>
+        <select id="ext-category" class="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 focus:bg-white transition" onchange="loadExternalProducts()">
+          <option value="전체">모든 카테고리</option>
+          <option value="주방용품">주방용품</option>
+          <option value="리빙/생활">리빙/생활</option>
+          <option value="뷰티">뷰티</option>
+          <option value="뷰티/가전">뷰티/가전</option>
+          <option value="생활가전">생활가전</option>
+          <option value="디지털/가전">디지털/가전</option>
+        </select>
+      </div>
+
+      <div>
+        <button onclick="loadExternalProducts()" class="w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium py-2.5 rounded-xl transition">
+          필터 적용 검색
+        </button>
+      </div>
+    </div>
+
+    <!-- External Products Result Container -->
+    <div id="ext-products-container" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-2">
+      <!-- Loaded dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- Section 2: Saved Products in Database -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
+    <div class="p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i class="fa-solid fa-database text-brand-600"></i>
+          <span>시스템 등록 상품 목록</span>
+          <span class="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-semibold">{{ products|length }}개 등록됨</span>
+        </h3>
+        <p class="text-xs text-slate-500 mt-0.5">등록된 상품을 선택하여 AI 평가, DNA 생성, 10대 각도 아이디어 및 Threads 본문을 생성할 수 있습니다.</p>
+      </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-600">
+        <thead class="bg-slate-50 text-slate-500 font-semibold border-y border-slate-100 uppercase tracking-wider">
+          <tr>
+            <th class="py-3 px-6">상품 정보</th>
+            <th class="py-3 px-4">카테고리</th>
+            <th class="py-3 px-4">가격 / 배송</th>
+            <th class="py-3 px-4">평점 / 리뷰</th>
+            <th class="py-3 px-4">관리 및 작업</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for prod in products %}
+          <tr class="hover:bg-slate-50/70 transition">
+            <td class="py-4 px-6 flex items-center gap-3">
+              <img src="{{ prod.image_url }}" alt="" class="w-12 h-12 rounded-lg object-cover bg-slate-100 border border-slate-200 shrink-0">
+              <div class="min-w-0 max-w-xs">
+                <a href="/products/{{ prod.id }}" class="font-bold text-slate-900 hover:text-brand-600 transition truncate block">{{ prod.name }}</a>
+                <span class="text-[11px] text-slate-400">ID: {{ prod.external_id }}</span>
+              </div>
+            </td>
+            <td class="py-4 px-4">
+              <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded font-medium text-[11px]">{{ prod.category }}</span>
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-bold text-slate-900">{{ "{:,}".format(prod.price) }}원</div>
+              <div class="text-[11px] text-blue-600 font-medium">{{ prod.shipping_type }}</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="text-amber-500 font-bold"><i class="fa-solid fa-star"></i> {{ prod.rating }}</div>
+              <div class="text-[11px] text-slate-400">리뷰 {{ "{:,}".format(prod.review_count) }}개</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="flex items-center gap-2">
+                <a href="/products/{{ prod.id }}" class="bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> AI 파이프라인
+                </a>
+                <button onclick="deleteProduct({{ prod.id }})" class="text-slate-400 hover:text-rose-600 px-2 py-1.5 transition" title="삭제">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-400 text-xs">
+              시스템에 등록된 상품이 없습니다. 상단에서 추천 상품을 탐색하고 등록해보세요!
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let externalProductsCache = [];
+
+  async function loadExternalProducts() {
+    const container = document.getElementById('ext-products-container');
+    const query = document.getElementById('ext-query').value.trim();
+    const category = document.getElementById('ext-category').value;
+
+    container.innerHTML = `
+      <div class="col-span-full py-8 text-center text-slate-400">
+        <i class="fa-solid fa-spinner fa-spin text-xl text-brand-600 mb-2"></i>
+        <p class="text-xs">쿠팡 상품을 탐색하는 중입니다...</p>
+      </div>
+    `;
+
+    try {
+      let url = `/api/products/search?limit=8`;
+      if (query) url += `&query=${encodeURIComponent(query)}`;
+      if (category && category !== '전체') url += `&category=${encodeURIComponent(category)}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+      externalProductsCache = data;
+
+      if (!data || data.length === 0) {
+        container.innerHTML = `<div class="col-span-full py-8 text-center text-slate-400 text-xs">검색 조건에 맞는 상품이 없습니다.</div>`;
+        return;
+      }
+
+      container.innerHTML = data.map((p, idx) => `
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col justify-between hover:shadow-md transition">
+          <div>
+            <div class="relative w-full h-36 rounded-lg overflow-hidden mb-2 bg-white">
+              <img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover">
+              <span class="absolute top-2 left-2 bg-slate-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur">
+                ${p.category}
+              </span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-xs line-clamp-2 mb-1" title="${p.name}">${p.name}</h4>
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-extrabold text-slate-900">${p.price.toLocaleString()}원</span>
+              <span class="text-blue-600 font-bold text-[11px]">${p.shipping_type}</span>
+            </div>
+            <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+              <span class="text-amber-500 font-bold"><i class="fa-solid fa-star"></i> ${p.rating}</span>
+              <span>(${p.review_count.toLocaleString()})</span>
+            </div>
+          </div>
+          <button onclick="saveExternalProduct(${idx})" class="mt-3 w-full bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold py-2 rounded-lg transition shadow-sm flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> 시스템에 저장
+          </button>
+        </div>
+      `).join('');
+
+    } catch (e) {
+      container.innerHTML = `<div class="col-span-full py-6 text-center text-rose-500 text-xs">탐색 오류: ${e.message}</div>`;
+    }
+  }
+
+  async function saveExternalProduct(idx) {
+    const prod = externalProductsCache[idx];
+    if (!prod) return;
+
+    try {
+      const res = await fetch('/api/products/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          external_id: prod.external_id,
+          name: prod.name,
+          url: prod.url,
+          image_url: prod.image_url,
+          category: prod.category,
+          price: prod.price,
+          original_price: prod.original_price,
+          rating: prod.rating,
+          review_count: prod.review_count,
+          shipping_type: prod.shipping_type,
+          description: prod.description,
+          source: prod.source
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast(data.message || '상품이 저장되었습니다!', 'success');
+        setTimeout(() => location.reload(), 800);
+      } else {
+        showToast(data.detail || '저장에 실패했습니다.', 'error');
+      }
+    } catch (e) {
+      showToast('오류 발생: ' + e.message, 'error');
+    }
+  }
+
+  async function deleteProduct(productId) {
+    if (!confirm('정말 이 상품을 삭제하시겠습니까? 연결된 점수, DNA, 아이디어도 함께 삭제됩니다.')) return;
+    try {
+      const res = await fetch(`/api/products/${productId}`, { method: 'DELETE' });
+      if (res.ok) {
+        showToast('상품이 삭제되었습니다.', 'success');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast('삭제 실패', 'error');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    }
+  }
+
+  // Manual Product Modal Handlers
+  function openManualProductModal() {
+    document.getElementById('manualProductModal').classList.remove('hidden');
+  }
+
+  function closeManualProductModal() {
+    document.getElementById('manualProductModal').classList.add('hidden');
+  }
+
+  async function submitManualProduct(e) {
+    e.preventDefault();
+    const name = document.getElementById('manual-name').value.trim();
+    const url = document.getElementById('manual-url').value.trim();
+    const category = document.getElementById('manual-category').value;
+    const categoryImages = {
+      '디지털/가전': 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600&q=80', // TV/전자
+      '주방용품': 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&q=80',
+      '뷰티': 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=600&q=80',
+      '리빙/생활': 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?w=600&q=80',
+      '생활가전': 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=600&q=80',
+      '패션/잡화': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80'
+    };
+
+    let imageUrl = document.getElementById('manual-image').value.trim();
+    if (!imageUrl) {
+      if (name.includes('티비') || name.includes('TV') || name.includes('모니터')) {
+        imageUrl = 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600&q=80'; // TV 이미지
+      } else {
+        imageUrl = categoryImages[category] || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80';
+      }
+    }
+    const description = document.getElementById('manual-desc').value.trim() || `${name} 쿠팡 추천 실사용 꿀템`;
+
+    if (!name || !url) {
+      showToast('상품명과 파트너스 링크는 필수입니다.', 'error');
+      return;
+    }
+
+    const extId = 'manual_' + Date.now();
+
+    try {
+      const res = await fetch('/api/products/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          external_id: extId,
+          name: name,
+          url: url,
+          image_url: imageUrl,
+          category: category,
+          price: price,
+          original_price: Math.round(price * 1.25),
+          rating: 4.8,
+          review_count: 520,
+          shipping_type: '로켓배송',
+          description: description,
+          source: 'coupang_manual'
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast('내 파트너스 상품이 성공적으로 등록되었습니다!', 'success');
+        closeManualProductModal();
+        setTimeout(() => {
+          if (data.product_id) {
+            location.href = `/products/${data.product_id}`;
+          } else {
+            location.reload();
+          }
+        }, 700);
+      } else {
+        showToast(data.detail || '등록 실패', 'error');
+      }
+    } catch (err) {
+      showToast('오류 발생: ' + err.message, 'error');
+    }
+  }
+
+  // Load external products on page init
+  document.addEventListener('DOMContentLoaded', () => {
+    loadExternalProducts();
+  });
+</script>
+
+<!-- Manual Product Registration Modal -->
+<div id="manualProductModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+    <div class="px-6 py-4 bg-gradient-to-r from-emerald-700 to-teal-800 text-white flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <i class="fa-solid fa-link text-emerald-300 text-base"></i>
+        <h4 class="font-bold text-sm">내 쿠팡 파트너스 링크로 상품 직접 등록</h4>
+      </div>
+      <button onclick="closeManualProductModal()" class="text-slate-300 hover:text-white transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <form onsubmit="submitManualProduct(event)" class="p-6 space-y-4 text-xs">
+      <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-emerald-800 flex items-start gap-2">
+        <i class="fa-solid fa-circle-info mt-0.5 text-emerald-600"></i>
+        <span>쿠팡 파트너스에서 생성한 <strong>내 고유 간편 링크</strong>를 넣으시면, AI가 본문 작성 후 <strong>댓글에 이 링크를 정확히 삽입</strong>하여 실제 수익이 내 계좌로 집계됩니다!</span>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">쿠팡 파트너스 단축 링크 <span class="text-rose-500">*</span></label>
+        <input type="url" id="manual-url" placeholder="https://link.coupang.com/a/XXXXX" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-500 focus:bg-white transition text-xs font-mono">
+        <p class="text-[11px] text-slate-400 mt-1">쿠팡 파트너스 [링크 생성 > 간편 링크 만들기]에서 복사한 링크</p>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">상품명 <span class="text-rose-500">*</span></label>
+        <input type="text" id="manual-name" placeholder="예: 스탠리 퀜처 H2.0 플로우스테이트 텀블러 887ml" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-500 focus:bg-white transition text-xs font-medium">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">카테고리</label>
+          <select id="manual-category" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:bg-white transition text-xs">
+            <option value="리빙/생활">리빙/생활</option>
+            <option value="주방용품">주방용품</option>
+            <option value="뷰티">뷰티</option>
+            <option value="디지털/가전">디지털/가전</option>
+            <option value="생활가전">생활가전</option>
+            <option value="패션/잡화">패션/잡화</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">가격 (원)</label>
+          <input type="number" id="manual-price" placeholder="29900" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-500 focus:bg-white transition text-xs">
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">상품 대표 이미지 URL (선택)</label>
+        <input type="url" id="manual-image" placeholder="쿠팡 상품 이미지 주소 (비워둘 시 기본 이미지 자동 적용)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-500 focus:bg-white transition text-xs">
+      </div>
+
+      <div>
+        <label class="block font-semibold text-slate-700 mb-1">상품 한줄 특징 / 추천 이유 (선택)</label>
+        <input type="text" id="manual-desc" placeholder="예: 매일 아침 출근길 필수템, 보온력 끝판왕" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-emerald-500 focus:bg-white transition text-xs">
+      </div>
+
+      <div class="pt-2 flex justify-end gap-2">
+        <button type="button" onclick="closeManualProductModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-medium transition">
+          취소
+        </button>
+        <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow transition flex items-center gap-1.5">
+          <i class="fa-solid fa-check"></i> <span>상품 등록 및 AI 분석 시작</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

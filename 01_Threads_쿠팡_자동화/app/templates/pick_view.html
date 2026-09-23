@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>{{ profile.title or account.username }} | PICK 큐레이션</title>
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              500: '#0284c7',
+              600: '#0369a1',
+              900: '#0c4a6e',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .hide-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .card-hover-effect {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover-effect:active {
+      transform: scale(0.98);
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+      50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.7); }
+    }
+    .pinned-glow {
+      animation: pulse-glow 2.5s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 flex justify-center selection:bg-sky-500 selection:text-white">
+
+  <!-- Mobile Container (Max 480px) -->
+  <div class="w-full max-w-[480px] min-h-screen bg-white/95 backdrop-blur-md shadow-2xl flex flex-col border-x border-slate-200/80">
+    
+    <!-- Top Sticky Bar -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-4 py-3 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-6 h-6 rounded-lg bg-black text-white flex items-center justify-center text-xs font-black tracking-tighter">
+          P
+        </span>
+        <span class="font-extrabold text-sm tracking-tight text-slate-900">PICK</span>
+        <span class="text-[10px] bg-slate-100 text-slate-500 font-semibold px-1.5 py-0.5 rounded">HUB</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="openShareModal()" title="공유하기" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs transition">
+          <i class="fa-solid fa-arrow-up-from-bracket"></i>
+        </button>
+        <button onclick="scrollToLeadForm()" title="특가 알림" class="w-8 h-8 rounded-full bg-sky-50 hover:bg-sky-100 text-sky-600 flex items-center justify-center text-xs transition">
+          <i class="fa-regular fa-bell"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- In-App Browser Smart Guide Tip -->
+    <div id="inapp-tip" class="bg-indigo-950 text-white px-3 py-1.5 text-[11px] flex items-center justify-between font-medium">
+      <div class="flex items-center gap-1.5 truncate pr-2">
+        <span class="text-amber-300">💡 TIP:</span>
+        <span class="truncate">우측 상단 [···] ➔ '다른 브라우저로 열기' 시 쇼핑몰 앱으로 1초 결제</span>
+      </div>
+      <button onclick="document.getElementById('inapp-tip').style.display='none'" class="text-slate-400 hover:text-white shrink-0">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 px-4 py-5 space-y-5">
+
+      <!-- Profile Header -->
+      <div class="text-center space-y-3">
+        <!-- Avatar with Glowing Ring -->
+        <div class="relative inline-block">
+          <div class="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-slate-900 via-sky-800 to-indigo-600 p-[3px] shadow-lg">
+            <div class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+              <span class="text-2xl font-black text-slate-800">
+                {{ account.display_name[0] if account.display_name else account.username[0].upper() }}
+              </span>
+            </div>
+          </div>
+          <!-- Verified Check Badge -->
+          <div class="absolute bottom-0 right-0 w-6 h-6 bg-sky-500 text-white rounded-full flex items-center justify-center text-xs border-2 border-white shadow">
+            <i class="fa-solid fa-check"></i>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-center gap-1.5">
+            <h1 class="font-black text-xl text-slate-900 tracking-tight">
+              {{ profile.title or (account.display_name or account.username) }}
+            </h1>
+          </div>
+          <p class="text-xs font-semibold text-slate-400 mt-0.5">
+            @{{ account.username.lstrip('@') }} · <span class="text-sky-600 font-bold">{{ account.category or '라이프 큐레이션' }}</span>
+          </p>
+        </div>
+
+        <!-- Bio Description -->
+        <p class="text-xs text-slate-600 leading-relaxed max-w-xs mx-auto font-medium px-2">
+          {{ profile.bio or '실사용자가 직접 내돈내산으로 검증한 4대 쇼핑몰 실시간 최저가 꿀템 좌표입니다.' }}
+        </p>
+
+        <!-- Social Media Pills -->
+        <div class="flex items-center justify-center gap-2 pt-1">
+          <a href="https://www.threads.net/@{{ account.username.lstrip('@') }}" target="_blank" class="px-3 py-1 rounded-full bg-slate-900 text-white text-[11px] font-bold flex items-center gap-1.5 shadow-sm hover:opacity-90 transition">
+            <i class="fa-brands fa-threads"></i> Threads
+          </a>
+          <span class="text-[11px] bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded-full border border-emerald-200/60 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            실시간 검증 ({{ total_items }}개)
+          </span>
+        </div>
+      </div>
+
+      <!-- Live FOMO Countdown Timer Banner -->
+      <div class="bg-gradient-to-r from-rose-600 via-orange-600 to-amber-600 text-white rounded-2xl p-3.5 shadow-md flex items-center justify-between">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 text-sm">
+            <i class="fa-solid fa-fire text-amber-200 animate-bounce"></i>
+          </div>
+          <div class="text-xs leading-tight min-w-0">
+            <p class="font-extrabold text-amber-200">오늘 자정 특가 마감 임박!</p>
+            <p class="text-[11px] text-white/90 truncate">5대 커머스 (토스 10% 단독 공구 포함) 실시간 할인율 적용 중</p>
+          </div>
+        </div>
+        <!-- Digital Clock -->
+        <div class="bg-black/40 backdrop-blur-md px-2.5 py-1.5 rounded-xl text-center shrink-0 border border-white/20 font-mono text-xs font-bold text-amber-300 tracking-wider">
+          <span id="countdown-timer">05:14:28</span>
+        </div>
+      </div>
+
+      <!-- Top Notice Banner -->
+      {% if profile.notice_text %}
+      <div class="bg-slate-900 text-white rounded-2xl p-3 shadow-sm flex items-center gap-2.5 text-xs">
+        <div class="w-6 h-6 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center shrink-0 text-[11px]">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <p class="text-slate-200 text-[11px] font-medium leading-snug flex-1">{{ profile.notice_text }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Littlely-Style CPC Ad Block (광고 블럭) -->
+      {% if profile.enable_ads %}
+      <div class="bg-gradient-to-br from-amber-50/80 to-orange-50/80 border border-amber-200/70 rounded-2xl p-3.5 shadow-sm relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] font-bold bg-amber-200/80 text-amber-800 px-2 py-0.5 rounded-full">
+            스폰서 추천 AD
+          </span>
+          <span class="text-[10px] text-slate-400">Sponsored</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center text-xl shrink-0">
+            <i class="fa-solid fa-gift"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold text-slate-800 truncate">오늘만 진행하는 카드사 최대 15% 즉시할인</p>
+            <p class="text-[11px] text-slate-500 mt-0.5 truncate">쿠팡 와우회원 전용 로켓직구 & 특가 혜택 보기</p>
+          </div>
+          <a href="https://link.coupang.com" target="_blank" class="px-2.5 py-1.5 bg-slate-900 text-white text-[11px] font-bold rounded-lg shrink-0 hover:bg-black transition">
+            혜택 확인
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Category Filter Pills -->
+      <div class="flex items-center gap-1.5 overflow-x-auto hide-scrollbar pb-1 pt-1">
+        <button onclick="filterPlatform('ALL')" class="platform-filter-btn px-3 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shrink-0 transition" data-platform="ALL">
+          전체 보기 ({{ total_items }})
+        </button>
+        <button onclick="filterPlatform('TOSS')" class="platform-filter-btn px-3 py-1.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/60 shrink-0 transition" data-platform="TOSS">
+          <span class="text-blue-600 font-black">⚡</span> 토스 (10%)
+        </button>
+        <button onclick="filterPlatform('COUPANG')" class="platform-filter-btn px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition" data-platform="COUPANG">
+          <span class="text-rose-500 font-black">C</span> 쿠팡
+        </button>
+        <button onclick="filterPlatform('OLIVE_YOUNG')" class="platform-filter-btn px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition" data-platform="OLIVE_YOUNG">
+          <span class="text-emerald-600 font-black">OY</span> 올리브영
+        </button>
+        <button onclick="filterPlatform('OHOUSE')" class="platform-filter-btn px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition" data-platform="OHOUSE">
+          <span class="text-sky-500 font-black">O</span> 오늘의집
+        </button>
+        <button onclick="filterPlatform('ALIEXPRESS')" class="platform-filter-btn px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 shrink-0 transition" data-platform="ALIEXPRESS">
+          <span class="text-orange-500 font-black">A</span> 알리
+        </button>
+      </div>
+
+      <!-- Instant Item Number & Keyword Search Bar -->
+      <div class="space-y-1.5 pt-1">
+        <div class="relative flex items-center">
+          <span class="absolute left-3.5 text-slate-400 text-sm">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+          <input 
+            type="text" 
+            id="pick-search-input" 
+            oninput="handleSearch(this.value)"
+            placeholder="🔍 상품 번호(예: 101) 또는 상품명/초성(ㅂㅋ) 검색..." 
+            class="w-full pl-10 pr-10 py-2.5 bg-slate-100/90 focus:bg-white border border-transparent focus:border-sky-500 rounded-2xl text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 transition shadow-inner"
+          >
+          <button 
+            id="clear-search-btn" 
+            type="button"
+            onclick="clearSearch()" 
+            class="absolute right-3 text-slate-400 hover:text-slate-600 hidden text-xs w-5 h-5 rounded-full bg-slate-200/70 items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <!-- Search Results Count Info -->
+        <div id="search-info-bar" class="hidden flex items-center justify-between text-[11px] text-slate-500 px-1">
+          <span>검색 결과: <strong id="search-count" class="text-sky-600 font-bold">0</strong>개</span>
+          <button type="button" onclick="clearSearch()" class="text-slate-400 hover:text-slate-600 font-medium underline">초기화</button>
+        </div>
+      </div>
+
+      <!-- Empty State for Search -->
+      <div id="no-search-results" class="hidden text-center py-10 space-y-3 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+        <div class="w-12 h-12 mx-auto rounded-full bg-slate-200/70 text-slate-400 flex items-center justify-center text-xl">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <div class="space-y-1">
+          <p class="text-xs font-bold text-slate-700">일치하는 상품이 없습니다</p>
+          <p class="text-[11px] text-slate-400">상품 번호나 검색어를 다시 확인해 주세요.</p>
+        </div>
+        <button type="button" onclick="clearSearch()" class="px-3 py-1.5 bg-slate-900 text-white rounded-xl text-[11px] font-bold">
+          전체 상품 보기
+        </button>
+      </div>
+
+      <!-- Curated Item Cards List -->
+      <div class="space-y-4" id="items-container">
+        {% for item in items %}
+        <div class="item-card card-hover-effect bg-white border {% if item.is_pinned %}border-amber-400 ring-2 ring-amber-400/30 pinned-glow{% else %}border-slate-200/80{% endif %} rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition duration-200" 
+             id="item-{{ item.item_code or item.id }}" 
+             data-item-code="{{ (item.item_code or (100 + loop.index))|string|lower }}" 
+             data-platform="{{ item.affiliate_platform }}"
+             data-title="{{ item.title|lower }}"
+             data-subtitle="{{ (item.subtitle or '')|lower }}"
+             data-comment="{{ (item.curator_comment or '')|lower }}">
+          
+          <!-- Product Image & Badges -->
+          <div class="relative w-full h-44 bg-slate-100 overflow-hidden">
+            {% if item.image_url %}
+            <img src="{{ item.image_url }}" alt="{{ item.title }}" referrerpolicy="no-referrer" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=600&auto=format&fit=crop';" class="w-full h-full object-cover">
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center text-slate-300">
+              <i class="fa-solid fa-bag-shopping text-4xl"></i>
+            </div>
+            {% endif %}
+
+            <!-- Top Left Floating Badges -->
+            <div class="absolute top-2.5 left-2.5 flex flex-col gap-1.5 items-start">
+              <!-- Item Code Badge (e.g. NO. 101) -->
+              <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-slate-950/90 text-amber-300 backdrop-blur-md shadow-md border border-amber-400/40 tracking-tight flex items-center gap-1">
+                <span class="text-[10px] text-slate-400 font-normal">NO.</span> {{ item.item_code or (100 + loop.index) }}
+              </span>
+              {% if item.is_pinned %}
+              <span class="px-2.5 py-1 rounded-lg text-[10px] font-black bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-md flex items-center gap-1">
+                <i class="fa-solid fa-star text-[9px]"></i> 쓰레드 화제의 꿀템!
+              </span>
+              {% endif %}
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-black/75 backdrop-blur-md text-white shadow">
+                {{ item.badge_text or '🔥 베스트' }}
+              </span>
+            </div>
+
+            <!-- Platform Badge on Top Right -->
+            <div class="absolute top-2.5 right-2.5">
+              {% if item.affiliate_platform == 'COUPANG' %}
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-black bg-rose-500 text-white shadow">
+                쿠팡 로켓
+              </span>
+              {% elif item.affiliate_platform == 'TOSS' %}
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-black bg-[#0064FF] text-white shadow flex items-center gap-1">
+                <span class="text-amber-300">⚡</span> 토스 10%
+              </span>
+              {% elif item.affiliate_platform == 'OLIVE_YOUNG' %}
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-black bg-emerald-600 text-white shadow">
+                올리브영
+              </span>
+              {% elif item.affiliate_platform == 'OHOUSE' %}
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-black bg-sky-500 text-white shadow">
+                오늘의집
+              </span>
+              {% else %}
+              <span class="px-2.5 py-1 rounded-lg text-[11px] font-black bg-orange-500 text-white shadow">
+                알리익스프레스
+              </span>
+              {% endif %}
+            </div>
+
+            <!-- Bottom Image Overlay: Social Proof & Stock Left -->
+            <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[10px] font-bold">
+              <span class="bg-black/60 backdrop-blur-md text-white px-2 py-0.5 rounded-md flex items-center gap-1">
+                <i class="fa-solid fa-eye text-sky-400 text-[9px]"></i>
+                오늘 {{ ((item.id * 37) % 150) + 48 }}명이 확인 중
+              </span>
+              {% if item.discount_rate and item.discount_rate >= 30 %}
+              <span class="bg-rose-600 text-white px-2 py-0.5 rounded-md flex items-center gap-1 shadow">
+                ⚡ 잔여 {{ ((item.id * 3) % 7) + 2 }}개
+              </span>
+              {% endif %}
+            </div>
+
+          </div>
+
+          <!-- Card Content Body -->
+          <div class="p-4 space-y-3">
+            <div>
+              <h2 class="font-bold text-sm text-slate-900 leading-snug line-clamp-2">
+                {{ item.title }}
+              </h2>
+              {% if item.subtitle %}
+              <p class="text-xs text-slate-500 mt-1 line-clamp-1 font-medium">
+                {{ item.subtitle }}
+              </p>
+              {% endif %}
+            </div>
+
+            <!-- Curator's Real Life Comment -->
+            {% if item.curator_comment %}
+            <div class="bg-slate-50 border-l-2 border-slate-900 p-2.5 rounded-r-xl">
+              <p class="text-[11px] text-slate-700 font-medium leading-relaxed">
+                <i class="fa-solid fa-quote-left text-slate-400 mr-1 text-[9px]"></i>
+                {{ item.curator_comment }}
+              </p>
+            </div>
+            {% endif %}
+
+            <!-- Price & Action Button Row -->
+            <div class="pt-1 flex items-center justify-between">
+              <div>
+                {% if item.original_price and item.original_price > item.sale_price %}
+                <div class="flex items-center gap-1.5">
+                  <span class="text-xs text-slate-400 line-through">
+                    {{ "{:,}".format(item.original_price) }}원
+                  </span>
+                  {% if item.discount_rate %}
+                  <span class="text-xs font-black text-rose-500">
+                    {{ item.discount_rate }}%↓
+                  </span>
+                  {% endif %}
+                </div>
+                {% endif %}
+                <div class="text-base font-black text-slate-900">
+                  {{ "{:,}".format(item.sale_price) }}<span class="text-xs font-normal">원</span>
+                </div>
+              </div>
+
+              <!-- Action Direct Redirect Button with App-first handling -->
+              <button onclick="handleSmartClick({{ item.id }}, '{{ item.affiliate_platform }}')" class="px-4 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition">
+                <span>최저가 좌표</span>
+                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Inpock-Style CRM Lead Collection Card (알림 신청) -->
+      <div id="lead-section" class="bg-gradient-to-br from-sky-50 to-indigo-50 border border-sky-200/80 rounded-2xl p-4 shadow-sm space-y-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-sky-500 text-white flex items-center justify-center text-sm shadow">
+            <i class="fa-regular fa-bell"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-xs text-slate-900">특가 & 품절대란 핫딜 실시간 알림</h3>
+            <p class="text-[11px] text-slate-500">가격 오류나 초특가 뜰 때 카톡/문자로 제일 먼저 받아보세요</p>
+          </div>
+        </div>
+
+        <form id="lead-form" onsubmit="submitLead(event)" class="space-y-2 pt-1">
+          <input type="hidden" name="account_id" value="{{ account.id }}">
+          <div class="flex gap-2">
+            <select name="contact_type" class="bg-white border border-slate-200 rounded-xl px-2 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-sky-500">
+              <option value="KAKAO">카카오톡</option>
+              <option value="PHONE">문자</option>
+              <option value="EMAIL">이메일</option>
+            </select>
+            <input type="text" name="contact_value" required placeholder="카톡 ID 또는 연락처/이메일 입력" class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500">
+          </div>
+          <button type="submit" class="w-full py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl text-xs shadow-sm transition active:scale-98">
+            🔔 핫딜 알림 무료 구독하기
+          </button>
+        </form>
+        <p id="lead-msg" class="hidden text-center text-xs font-bold text-sky-700 pt-1"></p>
+      </div>
+
+    </main>
+
+    <!-- Footer & FTC Disclaimer -->
+    <footer class="px-4 py-6 bg-slate-50 border-t border-slate-200/60 text-center space-y-2 text-slate-400">
+      <p class="text-[10px] leading-relaxed text-slate-500">
+        공정거래위원회 지침에 따라 본 페이지의 추천 링크를 통한 구매 발생 시, 쿠팡 파트너스 및 각 제휴 플랫폼으로부터 일정액의 수수료를 제공받을 수 있습니다.
+      </p>
+      <div class="pt-2 flex items-center justify-center gap-1 text-[11px] text-slate-400 font-semibold">
+        <span>Powered by</span>
+        <span class="font-black text-slate-700">PICK Hub</span>
+        <span>© 2026</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Share Modal -->
+  <div id="share-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xs w-full p-5 space-y-4 text-center shadow-2xl">
+      <div class="w-12 h-12 rounded-full bg-sky-100 text-sky-600 mx-auto flex items-center justify-center text-xl">
+        <i class="fa-solid fa-share-nodes"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-base text-slate-900">링크 공유하기</h3>
+        <p class="text-xs text-slate-500 mt-1">현재 큐레이션 페이지 링크를 복사하여 쓰레드 프로필이나 친구에게 전달하세요.</p>
+      </div>
+      <div class="bg-slate-100 p-2 rounded-xl flex items-center justify-between text-xs font-mono text-slate-600">
+        <span id="current-url" class="truncate pr-2"></span>
+        <button onclick="copyCurrentUrl()" class="px-2.5 py-1 bg-slate-900 text-white font-sans font-bold text-xs rounded-lg shrink-0">
+          복사
+        </button>
+      </div>
+      <button onclick="closeShareModal()" class="w-full py-2 text-xs font-bold text-slate-500 hover:text-slate-700">
+        닫기
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Live FOMO countdown timer to midnight
+    function updateCountdown() {
+      const now = new Date();
+      const midnight = new Date();
+      midnight.setHours(24, 0, 0, 0);
+      const diff = midnight - now;
+
+      if (diff > 0) {
+        const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+        const minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+        const seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+        const el = document.getElementById('countdown-timer');
+        if (el) el.innerText = `${hours}:${minutes}:${seconds}`;
+      }
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Filter by platform
+    function filterPlatform(platform) {
+      document.querySelectorAll('.platform-filter-btn').forEach(btn => {
+        if (btn.getAttribute('data-platform') === platform) {
+          btn.classList.remove('bg-slate-100', 'text-slate-600');
+          btn.classList.add('bg-slate-900', 'text-white');
+        } else {
+          btn.classList.remove('bg-slate-900', 'text-white');
+          btn.classList.add('bg-slate-100', 'text-slate-600');
+        }
+      });
+
+      const cards = document.querySelectorAll('.item-card');
+      cards.forEach(card => {
+        if (platform === 'ALL' || card.getAttribute('data-platform') === platform) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // Smart Deep Link Click Handler
+    function handleSmartClick(itemId, platform) {
+      const card = document.querySelector(`.item-card button[onclick*="handleSmartClick('${itemId}'"]`)?.closest('.item-card');
+      if (card) {
+        const code = card.getAttribute('data-item-code') || '';
+        const title = card.getAttribute('data-title') || '';
+        recordRecentProduct(code, title, itemId);
+      }
+      window.open(`/pick/click/${itemId}`, '_blank');
+    }
+
+    // Scroll to lead form
+    function scrollToLeadForm() {
+      const el = document.getElementById('lead-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Share modal
+    function openShareModal() {
+      document.getElementById('current-url').innerText = window.location.href;
+      const modal = document.getElementById('share-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeShareModal() {
+      const modal = document.getElementById('share-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function copyCurrentUrl() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert("큐레이션 픽(PICK) 주소가 복사되었습니다! 쓰레드 프로필에 걸어두세요.");
+        closeShareModal();
+      });
+    }
+
+    // Lead Submission
+    async function submitLead(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const msg = document.getElementById('lead-msg');
+
+      try {
+        const res = await fetch('/pick/lead', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        msg.innerText = "🎉 " + data.message;
+        msg.classList.remove('hidden');
+        form.reset();
+      } catch (err) {
+        alert("알림 신청 중 오류가 발생했습니다.");
+      }
+    }
+
+    // Hangul Choseong (초성) Decomposer
+    const HANGUL_CHOSUNG = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
+    function getChoseong(str) {
+      if (!str) return '';
+      let res = '';
+      for (let i = 0; i < str.length; i++) {
+        const code = str.charCodeAt(i);
+        if (code >= 0xAC00 && code <= 0xD7A3) {
+          const chIndex = Math.floor((code - 0xAC00) / 588);
+          res += HANGUL_CHOSUNG[chIndex];
+        } else {
+          res += str.charAt(i);
+        }
+      }
+      return res.toLowerCase();
+    }
+    function isPureChoseong(q) {
+      return /^[ㄱ-ㅎ\s]+$/.test(q);
+    }
+
+    // Instant Search by Item Number, Keyword, or Korean Choseong (ㅂㅋ -> 벨킨)
+    function handleSearch(query) {
+      const q = query.trim().toLowerCase();
+      const clearBtn = document.getElementById('clear-search-btn');
+      const infoBar = document.getElementById('search-info-bar');
+      const countEl = document.getElementById('search-count');
+      const emptyState = document.getElementById('no-search-results');
+      const cards = document.querySelectorAll('.item-card');
+
+      if (!q) {
+        if (clearBtn) clearBtn.style.display = 'none';
+        if (infoBar) infoBar.classList.add('hidden');
+        if (emptyState) emptyState.classList.add('hidden');
+        cards.forEach(card => card.style.display = 'block');
+        return;
+      }
+
+      if (clearBtn) clearBtn.style.display = 'flex';
+      if (infoBar) infoBar.classList.remove('hidden');
+
+      const numMatch = q.replace(/[^0-9]/g, '');
+      const isChoseong = isPureChoseong(q);
+
+      let matchedCount = 0;
+      cards.forEach(card => {
+        const itemCode = (card.getAttribute('data-item-code') || '').toLowerCase();
+        const title = (card.getAttribute('data-title') || '').toLowerCase();
+        const subtitle = (card.getAttribute('data-subtitle') || '').toLowerCase();
+        const comment = (card.getAttribute('data-comment') || '').toLowerCase();
+
+        const isCodeMatch = (numMatch && itemCode === numMatch) || itemCode.includes(q);
+        const isTextMatch = title.includes(q) || subtitle.includes(q) || comment.includes(q);
+        
+        let isChoseongMatch = false;
+        if (isChoseong) {
+          const titleCho = getChoseong(title);
+          const subCho = getChoseong(subtitle);
+          const comCho = getChoseong(comment);
+          isChoseongMatch = titleCho.includes(q) || subCho.includes(q) || comCho.includes(q);
+        }
+
+        if (isCodeMatch || isTextMatch || isChoseongMatch) {
+          card.style.display = 'block';
+          matchedCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      if (countEl) countEl.innerText = matchedCount;
+      if (emptyState) {
+        if (matchedCount === 0) {
+          emptyState.classList.remove('hidden');
+        } else {
+          emptyState.classList.add('hidden');
+        }
+      }
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('pick-search-input');
+      if (input) input.value = '';
+      handleSearch('');
+    }
+
+    // Recent Product Floating Bar Management
+    let currentRecentItemId = null;
+    function recordRecentProduct(code, title, itemId) {
+      if (!title) return;
+      const data = { code: code || 'PICK', title: title, itemId: itemId, timestamp: Date.now() };
+      try {
+        localStorage.setItem('pick_recent_item', JSON.stringify(data));
+      } catch (e) {}
+      renderRecentBar(data);
+    }
+
+    function renderRecentBar(data) {
+      const bar = document.getElementById('recent-product-bar');
+      const noEl = document.getElementById('recent-no');
+      const titleEl = document.getElementById('recent-title');
+      if (!bar || !data) return;
+
+      currentRecentItemId = data.itemId;
+      if (noEl) noEl.innerText = data.code;
+      if (titleEl) titleEl.innerText = data.title;
+      bar.classList.remove('hidden');
+    }
+
+    function openRecentProduct() {
+      if (currentRecentItemId) {
+        window.open(`/pick/click/${currentRecentItemId}`, '_blank');
+      } else {
+        const input = document.getElementById('pick-search-input');
+        if (input) {
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          input.focus();
+        }
+      }
+    }
+
+    function closeRecentBar() {
+      const bar = document.getElementById('recent-product-bar');
+      if (bar) bar.classList.add('hidden');
+    }
+
+    // Direct Deep-linking / URL Parameter Handling (?p=101 or ?item=101 or ?q=...)
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check stored recent item
+      try {
+        const stored = localStorage.getItem('pick_recent_item');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Date.now() - parsed.timestamp < 24 * 3600 * 1000) {
+            renderRecentBar(parsed);
+          }
+        }
+      } catch (e) {}
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetCode = urlParams.get('p') || urlParams.get('item') || urlParams.get('q');
+
+      if (targetCode) {
+        const input = document.getElementById('pick-search-input');
+        if (input) {
+          input.value = targetCode;
+          handleSearch(targetCode);
+        }
+
+        const numOnly = targetCode.replace(/[^0-9]/g, '');
+        const targetCard = document.querySelector(`.item-card[data-item-code="${numOnly || targetCode.toLowerCase()}"]`);
+        if (targetCard) {
+          const title = targetCard.getAttribute('data-title') || '';
+          const itemId = targetCard.getAttribute('data-item-id') || '';
+          recordRecentProduct(numOnly || targetCode, title, itemId);
+
+          setTimeout(() => {
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetCard.classList.add('ring-4', 'ring-amber-400', 'ring-offset-2', 'scale-[1.02]');
+            showToast(`🎯 쓰레드에서 보고 오신 [${numOnly || targetCode}번] 상품입니다!`);
+
+            setTimeout(() => {
+              targetCard.classList.remove('ring-4', 'ring-amber-400', 'ring-offset-2', 'scale-[1.02]');
+            }, 3500);
+          }, 400);
+        }
+      }
+    });
+
+    function showToast(msg) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-950/95 text-amber-300 font-bold text-xs px-4 py-2.5 rounded-2xl shadow-2xl border border-amber-400/40 flex items-center gap-2 transition-all';
+      toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <span>${msg}</span>`;
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s ease';
+        setTimeout(() => toast.remove(), 500);
+      }, 3000);
+    }
+  </script>
+
+  <!-- 방금 본 상품 플로팅 퀵바 -->
+  <div id="recent-product-bar" class="hidden fixed bottom-4 max-w-[440px] w-[92%] left-1/2 -translate-x-1/2 z-40 bg-slate-950/95 backdrop-blur-md text-white px-3.5 py-2.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center justify-between transition-all">
+    <div class="flex items-center gap-2.5 min-w-0 pr-2">
+      <span class="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center text-[11px] font-black shrink-0">
+        <span id="recent-no">101</span>
+      </span>
+      <div class="min-w-0">
+        <div class="text-[10px] text-amber-300 font-bold">방금 본 추천 상품</div>
+        <div id="recent-title" class="text-xs font-semibold text-slate-100 truncate">상품명</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-1.5 shrink-0">
+      <button id="recent-btn" onclick="openRecentProduct()" class="px-3 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 text-xs font-black rounded-xl shadow flex items-center gap-1">
+        <span>좌표</span> <i class="fa-solid fa-arrow-right text-[10px]"></i>
+      </button>
+      <button onclick="closeRecentBar()" class="w-6 h-6 rounded-full text-slate-400 hover:text-white flex items-center justify-center text-xs">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+</body>
+</html>

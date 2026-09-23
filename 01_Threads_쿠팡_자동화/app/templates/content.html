@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block title %}콘텐츠 제작 및 보관소{% endblock %}
+{% block header_title %}콘텐츠 검토 및 승인 보관소{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-6">
+
+  <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+      <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+        <i class="fa-solid fa-pen-nib text-brand-600"></i>
+        <span>제작된 Threads 콘텐츠 목록</span>
+        <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full font-bold">{{ contents|length }}개</span>
+      </h3>
+      <p class="text-xs text-slate-500 mt-1">초안(DRAFT) 검토 후 최종 승인(APPROVED) 상태로 전환하여 발행을 준비하세요.</p>
+    </div>
+  </div>
+
+  <!-- Multi-Account Cluster Filter Tabs -->
+  <div class="flex items-center gap-2 border-b border-slate-100 pb-2 text-xs font-semibold overflow-x-auto">
+    <span class="text-slate-400 mr-1 flex items-center gap-1"><i class="fa-solid fa-filter"></i> 계정 클러스터:</span>
+    <button onclick="window.ContentActions.filterCluster('ALL')" class="content-cluster-btn px-3 py-1.5 rounded-lg bg-slate-900 text-white font-bold text-xs transition" data-cluster="ALL">전체 ({{ contents|length }})</button>
+    <button onclick="window.ContentActions.filterCluster('VERTICAL')" class="content-cluster-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium text-xs transition" data-cluster="VERTICAL">버티컬 전문</button>
+    <button onclick="window.ContentActions.filterCluster('PERSONA')" class="content-cluster-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium text-xs transition" data-cluster="PERSONA">타깃 페르소나</button>
+    <button onclick="window.ContentActions.filterCluster('TREND')" class="content-cluster-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium text-xs transition" data-cluster="TREND">트렌드/이슈</button>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for c in contents %}
+    <div class="content-item-card bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4" data-cluster="{{ c.account.cluster_type if c.account else 'NONE' }}">
+      
+      <!-- Content Header with Multi-Account Badge -->
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 gap-2 flex-wrap">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-7 h-7 rounded-full {% if c.affiliate_platform == 'NAVER_SHOPPING' %}bg-emerald-600{% elif c.affiliate_platform == 'TOSS' %}bg-blue-600{% else %}bg-black{% endif %} text-white flex items-center justify-center text-xs shrink-0">
+            <i class="fa-solid {% if c.affiliate_platform == 'NAVER_SHOPPING' %}fa-bag-shopping{% elif c.affiliate_platform == 'TOSS' %}fa-coins{% else %}fa-brands fa-threads{% endif %}"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="font-bold text-xs text-slate-800 truncate">{{ c.title }}</span>
+              {% if c.affiliate_platform == 'NAVER_SHOPPING' %}
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">네이버 쇼핑커넥트</span>
+              {% elif c.affiliate_platform == 'TOSS' %}
+              <span class="text-[10px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.2 rounded">토스 공구</span>
+              {% endif %}
+              {% if c.hook_style == 'PURCHASING_JOURNEY' %}
+              <span class="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-1.5 py-0.2 rounded">6단계 설득</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-2 shrink-0">
+          {% if c.account %}
+          <div class="flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[11px] font-semibold
+            {% if c.account.cluster_type == 'VERTICAL' %}bg-indigo-50 border-indigo-200 text-indigo-700
+            {% elif c.account.cluster_type == 'PERSONA' %}bg-emerald-50 border-emerald-200 text-emerald-700
+            {% elif c.account.cluster_type == 'TREND' %}bg-amber-50 border-amber-200 text-amber-700
+            {% else %}bg-slate-50 border-slate-200 text-slate-700{% endif %}">
+            <i class="fa-solid {% if c.account.cluster_type == 'VERTICAL' %}fa-layer-group{% elif c.account.cluster_type == 'PERSONA' %}fa-user-astronaut{% elif c.account.cluster_type == 'TREND' %}fa-fire{% else %}fa-hashtag{% endif %}"></i>
+            <span>@{{ c.account.username }}</span>
+          </div>
+          {% else %}
+          <span class="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded">미지정 계정</span>
+          {% endif %}
+
+          <span id="badge-status-{{ c.id }}" class="text-[10px] font-bold px-2.5 py-1 rounded-full {% if c.status == 'APPROVED' %}bg-emerald-100 text-emerald-700{% elif c.status == 'REVIEW' %}bg-amber-100 text-amber-700{% else %}bg-slate-100 text-slate-600{% endif %}">
+            {{ c.status }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Account Reassign Selector -->
+      <div class="flex items-center justify-between bg-slate-50 px-3 py-1.5 rounded-xl text-[11px] text-slate-500">
+        <span><i class="fa-solid fa-arrows-split-up-and-left text-slate-400 mr-1"></i>발행 타깃 계정:</span>
+        <select onchange="window.ContentActions.assignAccount({{ c.id }}, this.value ? parseInt(this.value) : null)" class="bg-white border border-slate-200 rounded px-2 py-0.5 text-[11px] font-semibold text-slate-700 focus:outline-none">
+          <option value="">(계정 선택/변경)</option>
+          {% for acc in accounts %}
+          <option value="{{ acc.id }}" {% if c.account_id == acc.id %}selected{% endif %}>
+            [{{ '버티컬' if acc.cluster_type == 'VERTICAL' else ('페르소나' if acc.cluster_type == 'PERSONA' else '트렌드') }}] @{{ acc.username }} ({{ acc.display_name }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Threads Body Card (Mobile Format & In-line Edit) -->
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-[11px] font-bold text-slate-500">본문 내용</span>
+          <button onclick="toggleEditBody({{ c.id }})" class="text-[11px] text-brand-600 hover:text-brand-800 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-pen"></i> <span id="edit-btn-text-{{ c.id }}">수정</span>
+          </button>
+        </div>
+        <div id="body-view-{{ c.id }}" class="bg-slate-50 border border-slate-200 rounded-xl p-4 font-normal text-xs leading-relaxed text-slate-800 whitespace-pre-line shadow-inner max-h-64 overflow-y-auto">
+{{ c.body }}
+        </div>
+        <div id="body-edit-{{ c.id }}" class="hidden space-y-2 mt-1">
+          <textarea id="body-textarea-{{ c.id }}" rows="7" class="w-full bg-white border border-brand-300 rounded-xl p-3 text-xs leading-relaxed text-slate-900 focus:outline-none focus:border-brand-500 shadow-sm">{{ c.body }}</textarea>
+          <div class="flex justify-end gap-2">
+            <button onclick="toggleEditBody({{ c.id }})" class="bg-slate-200 text-slate-700 text-xs px-2.5 py-1 rounded-lg">취소</button>
+            <button onclick="saveBody({{ c.id }})" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1 rounded-lg shadow-sm">저장</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments List -->
+      <div class="space-y-2">
+        <span class="text-[11px] font-bold text-slate-500 block">연계 댓글 ({{ c.comments|length }}개)</span>
+        <div class="space-y-1.5">
+          {% for comm in c.comments %}
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-[11px] space-y-1">
+            <div class="flex items-center justify-between text-slate-400 font-semibold">
+              <span>댓글 {{ comm.sequence }}</span>
+              <span>{% if comm.link %}링크 연결됨{% else %}파트너스 링크 미연결{% endif %}</span>
+            </div>
+            <p class="text-slate-700 whitespace-pre-line">{{ comm.body }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Footer & Action -->
+      <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] text-slate-400">
+            품질 지수: <strong class="text-brand-600">{{ c.quality_score or 92 }}점</strong>
+          </span>
+          <button onclick="runAiReview({{ c.id }})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[11px] font-bold px-2.5 py-1 rounded-md border border-indigo-200 transition flex items-center gap-1">
+            <i class="fa-solid fa-shield-halved"></i> AI 품질/정책 검수
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          {% if c.status != 'APPROVED' %}
+          <button onclick="changeContentStatus({{ c.id }}, 'APPROVED')" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
+            <i class="fa-solid fa-check"></i> 최종 승인
+          </button>
+          {% else %}
+          <button onclick="openScheduleModal({{ c.id }}, '{{ c.title | escape }}')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
+            <i class="fa-regular fa-calendar-plus"></i> 예약 등록
+          </button>
+          <button onclick="publishNow({{ c.id }})" class="bg-slate-900 hover:bg-black text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1">
+            <i class="fa-solid fa-paper-plane"></i> 즉시 발행
+          </button>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+    {% else %}
+    <div class="col-span-full py-16 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-2xl bg-white">
+      <i class="fa-solid fa-pen-nib text-3xl text-slate-300 mb-2"></i>
+      <p>저장된 콘텐츠가 없습니다.<br>상품 상세 페이지에서 아이디어를 골라 첫 글을 생성해보세요.</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<!-- AI Review Modal -->
+<div id="review-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-slate-100">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+        <i class="fa-solid fa-shield-halved text-indigo-600"></i> AI 품질 & 정책 검수 보고서
+      </h3>
+      <button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 text-sm">&times;</button>
+    </div>
+    <div id="review-modal-body" class="text-xs space-y-3">
+      <div class="flex items-center justify-center py-6 text-slate-400">
+        <i class="fa-solid fa-spinner fa-spin mr-2"></i> AI 검수 엔진 가동 중...
+      </div>
+    </div>
+    <div class="flex justify-end pt-2">
+      <button onclick="closeReviewModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-1.5 rounded-lg text-xs">
+        닫기
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Schedule Modal -->
+<div id="schedule-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-xl border border-slate-100">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+      <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+        <i class="fa-regular fa-calendar-plus text-emerald-600"></i> Threads 예약 발행 설정
+      </h3>
+      <button onclick="closeScheduleModal()" class="text-slate-400 hover:text-slate-600 text-sm">&times;</button>
+    </div>
+    <form id="schedule-form" onsubmit="submitSchedule(event)" class="space-y-4 text-xs">
+      <input type="hidden" id="sched-content-id">
+      <div>
+        <label class="font-bold text-slate-700 block mb-1">발행 예정 일시</label>
+        <input type="datetime-local" id="sched-datetime" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" onclick="closeScheduleModal()" class="bg-slate-100 text-slate-700 font-semibold px-3 py-1.5 rounded-lg">
+          취소
+        </button>
+        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-4 py-1.5 rounded-lg shadow-sm transition">
+          예약 등록
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function changeContentStatus(contentId, status) {
+    try {
+      const res = await fetch(`/api/workflow/content/${contentId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      if (res.ok) {
+        showToast(`콘텐츠 상태가 [${status}]로 변경되었습니다!`, 'success');
+        setTimeout(() => location.reload(), 600);
+      } else {
+        showToast('상태 변경 실패', 'error');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    }
+  }
+
+  async function runAiReview(contentId) {
+    const modal = document.getElementById('review-modal');
+    const body = document.getElementById('review-modal-body');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    body.innerHTML = '<div class="py-6 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin text-lg mb-2"></i><p>AI 품질 및 공정위 정책 검수 중...</p></div>';
+
+    try {
+      const res = await fetch(`/api/review/${contentId}`);
+      if (!res.ok) throw new Error('검수 요청 실패');
+      const data = await res.json();
+      
+      const badgeClass = data.pass ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800';
+      const badgeText = data.pass ? '검수 통과 (PASS)' : '수정 필요 (FLAGGED)';
+      
+      let issuesHtml = '';
+      if (data.issues && data.issues.length > 0) {
+        issuesHtml = '<div class="space-y-1"><strong class="text-rose-600">지적 사항:</strong><ul class="list-disc list-inside text-slate-600 space-y-0.5">' +
+          data.issues.map(i => `<li>${i}</li>`).join('') + '</ul></div>';
+      } else {
+        issuesHtml = '<p class="text-emerald-600 font-semibold"><i class="fa-solid fa-circle-check"></i> 정책 위반 및 결함 없음</p>';
+      }
+
+      body.innerHTML = `
+        <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div>
+            <span class="text-slate-500 font-semibold">종합 판정:</span>
+            <span class="px-2 py-0.5 rounded-full font-bold text-xs ${badgeClass} ml-1">${badgeText}</span>
+          </div>
+          <div>
+            <span class="text-slate-500 font-semibold">품질 점수:</span>
+            <strong class="text-indigo-600 font-bold ml-1 text-sm">${data.quality_score}점</strong>
+          </div>
+        </div>
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+          <div class="flex justify-between text-slate-600">
+            <span>공정위 표기 검수:</span>
+            <strong class="${data.policy_passed ? 'text-emerald-600' : 'text-rose-600'}">${data.policy_passed ? '규정 준수' : '미준수'}</strong>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>텍스트 유사도(중복률):</span>
+            <strong class="text-slate-800">${(data.max_similarity * 100).toFixed(1)}%</strong>
+          </div>
+        </div>
+        <div class="bg-indigo-50/50 p-3 rounded-xl border border-indigo-100">
+          ${issuesHtml}
+        </div>
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <strong class="text-slate-700 block mb-1">AI 피드백:</strong>
+          <p class="text-slate-600 leading-relaxed">${data.feedback || '완벽한 형태의 콘텐츠입니다.'}</p>
+        </div>
+      `;
+    } catch (e) {
+      body.innerHTML = `<div class="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl">오류가 발생했습니다: ${e.message}</div>`;
+    }
+  }
+
+  function closeReviewModal() {
+    const modal = document.getElementById('review-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  function openScheduleModal(contentId, title) {
+    document.getElementById('sched-content-id').value = contentId;
+    // Default to 1 hour later
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    const localIso = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+    document.getElementById('sched-datetime').value = localIso;
+
+    const modal = document.getElementById('schedule-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+
+  function closeScheduleModal() {
+    const modal = document.getElementById('schedule-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  async function submitSchedule(e) {
+    e.preventDefault();
+    const contentId = parseInt(document.getElementById('sched-content-id').value);
+    const dt = document.getElementById('sched-datetime').value;
+
+    try {
+      const res = await fetch('/api/scheduler/schedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content_id: contentId,
+          scheduled_at: new Date(dt).toISOString()
+        })
+      });
+      if (res.ok) {
+        showToast('캘린더에 발행 일정이 예약되었습니다!', 'success');
+        closeScheduleModal();
+        setTimeout(() => location.href = '/calendar', 800);
+      } else {
+        const err = await res.json();
+        showToast('예약 실패: ' + (err.detail || '오류'), 'error');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    }
+  }
+
+  async function publishNow(contentId) {
+    if (!confirm('지금 즉시 Threads로 발행하시겠습니까?')) return;
+    try {
+      const res = await fetch(`/api/scheduler/publish-now/${contentId}`, { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        showToast(`성공적으로 발행되었습니다! (ID: ${data.remote_post_id})`, 'success');
+        setTimeout(() => location.href = '/calendar', 800);
+      } else {
+        const err = await res.json();
+        showToast('발행 실패: ' + (err.detail || '오류'), 'error');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    }
+  }
+
+  function toggleEditBody(contentId) {
+    const viewEl = document.getElementById(`body-view-${contentId}`);
+    const editEl = document.getElementById(`body-edit-${contentId}`);
+    const btnText = document.getElementById(`edit-btn-text-${contentId}`);
+    if (editEl.classList.contains('hidden')) {
+      editEl.classList.remove('hidden');
+      viewEl.classList.add('hidden');
+      if (btnText) btnText.innerText = '닫기';
+    } else {
+      editEl.classList.add('hidden');
+      viewEl.classList.remove('hidden');
+      if (btnText) btnText.innerText = '수정';
+    }
+  }
+
+  async function saveBody(contentId) {
+    const newBody = document.getElementById(`body-textarea-${contentId}`).value;
+    try {
+      const res = await fetch(`/api/workflow/content/${contentId}/body`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body: newBody })
+      });
+      if (res.ok) {
+        showToast('본문이 성공적으로 저장되었습니다!', 'success');
+        document.getElementById(`body-view-${contentId}`).innerText = newBody;
+        toggleEditBody(contentId);
+      } else {
+        const err = await res.json();
+        showToast('저장 실패: ' + (err.detail || '오류'), 'error');
+      }
+    } catch (e) {
+      showToast('오류: ' + e.message, 'error');
+    }
+  }
+</script>
+{% endblock %}

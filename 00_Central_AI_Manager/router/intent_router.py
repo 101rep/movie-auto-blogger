@@ -26,29 +26,31 @@ class IntentRouter:
         # TIER 1: Fast Direct Keyword / Command Matcher (Zero Cost & Fast Latency)
         # =====================================================================
         # ItemPick24 Shopping Link Queue Interceptor (Coupang, Today's House, Olive Young, Toss)
-        if any(domain in low for domain in ["coupang.com", "ohou.se", "ozip.me", "oliveyoung.co.kr", "toss.im", "toss.me", "tossshop", "toss.shopping", "toss.bz", "toss.link"]) or (
-            ("item." in low or "아이템" in low or "리뷰" in low or "토스" in low) and ("http://" in low or "https://" in low)
+        admin_guard_keywords = ["삭제", "중복", "취소", "확인", "테스트", "보고", "검증", "비활성화", "정지", "오류", "수정", "안티그래비티"]
+        is_admin_cmd = any(ak in clean_text for ak in admin_guard_keywords)
+        if not is_admin_cmd and (
+            any(domain in low for domain in ["coupang.com", "ohou.se", "ozip.me", "oliveyoung.co.kr", "toss.im", "toss.me", "tossshop", "toss.shopping", "toss.bz", "toss.link"]) or (
+                ("item." in low or "아이템" in low or "리뷰" in low or "토스" in low) and ("http://" in low or "https://" in low)
+            )
         ):
             from services.itempick_queue_service import itempick_queue_service
-            res = itempick_queue_service.add_to_queue(clean_text, str(user_id))
+            res = itempick_queue_service.add_and_publish_now(clean_text, str(user_id))
             if res.get("status") == "SUCCESS":
                 title_info = f"• <b>인식된 상품명:</b> <b>{res['title_hint']}</b>\n" if res.get('title_hint') else "• <b>상품명 인식:</b> <i>[자동 탐색 모드]</i>\n"
                 tip = ""
                 if not res.get('title_hint'):
                     tip = "\n💡 <b>Tip:</b> <i>'상품명 + 링크' 형태로 함께 보내주시면 가장 정확한 제품 정보와 고화질 썸네일로 발행됩니다!</i>"
                 msg = (
-                    f"📥 <b>[아이템픽24 포스팅 예약 접수 완료]</b>\n\n"
+                    f"🚀 <b>[아이템픽24 즉시 발행 시작]</b>\n\n"
                     f"• <b>대상 플랫폼:</b> {res['platform_name']}\n"
                     f"{title_info}"
                     f"• <b>작성 모드:</b> <b>{res['mode_name']}</b>\n"
-                    f"• <b>대기 순번:</b> <b>{res['position']}번째</b>\n"
-                    f"• <b>발행 예정 시각:</b> <b>{res['scheduled_at']}</b> ({res['wait_time_text']} 뒤)\n"
                     f"• <b>제휴 링크:</b> <code>{res['url'][:45]}...</code>\n{tip}\n\n"
-                    f"🎨 <i>E-E-A-T 구매 가이드 엔진과 16:9 정비율 고화질 썸네일로 완성되어 정해진 시간에 item.travelpick24.com 에 자동 발행됩니다.</i>"
+                    f"⏳ <i>E-E-A-T 구매 가이드 엔진과 16:9 정비율 고화질 썸네일로 지금 즉시 작성 중입니다.\n완료되면 발행 결과를 알려드립니다! 🎨</i>"
                 )
                 return msg, None
             else:
-                return f"❌ <b>[예약 접수 실패]</b>\n{res.get('message', '알 수 없는 오류')}", None
+                return f"❌ <b>[발행 실패]</b>\n{res.get('message', '알 수 없는 오류')}", None
 
         elif low in ("/queue", "대기열", "예약목록", "대기목록", "큐"):
             from services.itempick_queue_service import itempick_queue_service
@@ -66,7 +68,58 @@ class IntentRouter:
             return self._format_help_message(), None
 
         elif low in ("/status", "상태", "전체상태", "시스템상태", "전체 점검"):
-            return await ops_center.get_total_status_report(), None
+            ops_report = await ops_center.get_total_status_report()
+            try:
+                from telegram_bot.control_center import control_center
+                aaos_msg, _ = await control_center.handle_status()
+                return f"{ops_report}\n\n━━━━━━━━━━━━━━━━━━━━\n{aaos_msg}", None
+            except Exception:
+                return ops_report, None
+
+        elif low.startswith("/check_threads") or low.startswith("/checkthreads"):
+            from telegram_bot.control_center import control_center
+            parts = clean_text.split(maxsplit=1)
+            target_url = parts[1].strip() if len(parts) > 1 else None
+            msg, screenshot = await control_center.handle_check_threads(target_url)
+            return msg, None
+
+        elif low.startswith("/check_instagram") or low.startswith("/check_ig") or low.startswith("/checkinstagram"):
+            from telegram_bot.control_center import control_center
+            parts = clean_text.split(maxsplit=1)
+            target_url = parts[1].strip() if len(parts) > 1 else None
+            msg, screenshot = await control_center.handle_check_instagram(target_url)
+            return msg, None
+
+        elif low.startswith("/check_wordpress") or low.startswith("/check_wp") or low.startswith("/checkwordpress"):
+            from telegram_bot.control_center import control_center
+            parts = clean_text.split(maxsplit=1)
+            target_url = parts[1].strip() if len(parts) > 1 else None
+            msg, screenshot = await control_center.handle_check_wordpress(target_url)
+            return msg, None
+
+        elif low in ("/retry_failed", "실패재시도", "재시도실패", "/retryfailed"):
+            from telegram_bot.control_center import control_center
+            return await control_center.handle_retry_failed()
+
+        elif low in ("/log", "/logs", "로그", "실행로그", "검증로그", "/aaos_log"):
+            from telegram_bot.control_center import control_center
+            return await control_center.handle_log()
+
+        elif low in ("/sites", "/blogs", "전체블로그", "블로그목록", "블로그주소", "사이트목록", "전체사이트"):
+            from telegram_bot.control_center import control_center
+            return await control_center.handle_sites()
+
+        elif low in ("/threads_all", "/threads_list", "전체스레드", "전체쓰레드", "스레드목록", "쓰레드목록", "스레드계정", "쓰레드계정", "쓰레드주소", "스레드주소"):
+            from telegram_bot.control_center import control_center
+            return await control_center.handle_threads_all()
+
+        elif low in ("/audit_blogs", "/audit", "블로그검수", "자체검수", "블로그점검", "포스팅검수", "품질검수"):
+            from telegram_bot.control_center import control_center
+            return await control_center.handle_audit_blogs()
+
+        elif low in ("/heal_blogs", "/heal", "블로그복구", "자가복구", "블로그치료", "자동수정", "재수정"):
+            from telegram_bot.control_center import control_center
+            return await control_center.handle_heal_blogs()
 
         elif low in ("/server", "서버", "서버상태", "서버점검", "용량"):
             return await self._handle_fast_server(user_id), None
@@ -111,6 +164,12 @@ class IntentRouter:
         elif low in ("/report", "/briefing", "리포트", "일일리포트", "브리핑", "모닝브리핑", "보고"):
             return await self._handle_fast_report(user_id), None
 
+        elif low in ("/traffic", "/stats", "트래픽", "방문자", "방문자보고", "통계", "방문자수", "조회수", "순방문자"):
+            from monitor.daily_reporter import daily_reporter
+            report = await daily_reporter.generate_evening_traffic_report()
+            audit_logger.log(user_id, "fast_traffic_report", 1, "SUCCESS")
+            return report, None
+
         elif low in ("/backup", "백업", "db백업", "스냅샷"):
             return await self._handle_fast_backup(user_id), None
 
@@ -129,27 +188,178 @@ class IntentRouter:
         elif low in ("/code", "코드", "코드수정", "코드변경", "원격수정"):
             return (
                 "🛠️ <b>[원격 AI 코드 수정 안내]</b>\n\n"
-                "대표님, 변경하고 싶으신 소스 코드나 UI 문구를 채팅창에 편하게 말씀해 주시면 AI가 관련 파일을 찾아 즉시 수정합니다!\n\n"
+                "변경하고 싶으신 소스 코드나 UI 문구를 채팅창에 편하게 말씀해 주시면 AI가 관련 파일을 찾아 즉시 수정합니다!\n\n"
                 "📌 <b>요청 예시:</b>\n"
-                "• <i>\"02_Movie_Auto_Blogger/app/config.py 에서 DAILY_POST_COUNT를 3으로 수정해줘\"</i>\n"
-                "• <i>\"로그인 페이지 버튼 색상을 primary에서 dark로 바꿔줘\"</i>\n"
-                "• <i>\"방금 수정한 config.py 파일 백업본으로 롤백해줘\"</i>\n\n"
-                "🛡️ <b>안전 시스템:</b>\n"
-                "• 수정 직전 자동 백업 생성 (언제든 롤백 가능)\n"
-                "• 파이썬 문법 오류(SyntaxError) 자체 검증 후 적용",
+                "• <i>\"config.py 에서 DAILY_POST_COUNT를 3으로 수정해줘\"</i>\n"
+                "• <i>\"방금 수정한 파일 롤백해줘\"</i>\n\n"
+                "🛡️ <b>안전:</b> 수정 직전 자동 백업, Python 문법 검증 후 적용",
                 None
             )
 
+        # ── 신규 v2.0 명령어 & 인스타그램 카드뉴스 스튜디오 ─────────────────────
+
+        elif low.startswith("/card") or low.startswith("/카드뉴스") or low.startswith("/인스타") or (("카드뉴스" in low or "인스타" in low) and ("http" in low or len(clean_text) > 8)):
+            # Extract item title or URL
+            target_query = clean_text
+            for prefix in ["/card", "/카드뉴스", "/인스타", "카드뉴스", "인스타"]:
+                if target_query.lower().startswith(prefix):
+                    target_query = target_query[len(prefix):].strip()
+                    break
+
+            if not target_query:
+                return (
+                    "📸 <b>[AI 인스타그램 카드뉴스(캐러셀) 제작 스튜디오]</b>\n\n"
+                    "상품명이나 쇼핑몰(토스/쿠팡/올리브영) URL을 함께 보내주시면, "
+                    "<b>인스타그램 4:5 규격 5장 고전환 카드뉴스</b>와 <b>인스타 완성형 캡션</b>을 즉시 렌더링해 드립니다!\n\n"
+                    "📌 <b>사용 예시:</b>\n"
+                    "• <code>/card 뼈없는 한돈 양념갈비 300g 2팩</code>\n"
+                    "• <code>/card https://toss.im/...</code>\n"
+                    "• <code>/card https://www.coupang.com/...</code>",
+                    None
+                )
+
+            # Asynchronous card news generation
+            from services.cardnews_service import cardnews_service
+            from telegram_bot.bot import telegram_bot
+            
+            try:
+                # 1. Notify user
+                await telegram_bot.send_message(user_id, f"⏳ <b>[인스타그램 5장 카드뉴스 기획 & 렌더링 시작]</b>\n\n• <b>대상:</b> <code>{target_query[:40]}</code>\n• 4:5(1080x1350) 초고화질 스토리보드 제작 중...")
+                
+                # 2. Generate carousel
+                res = await cardnews_service.generate_carousel(target_query, target_platform="토스/쿠팡 쇼핑", price_info="온라인 특가")
+                
+                if res.get("status") == "SUCCESS":
+                    img_paths = res.get("image_paths", [])
+                    caption = res.get("caption", "")
+                    kw = res.get("trigger_keyword", "정보")
+                    
+                    # 3. Send photo album to Telegram
+                    await telegram_bot.send_media_group(user_id, img_paths, caption=f"📸 <b>[인스타 5장 캐러셀 완성]</b> {res['item_name']}")
+                    
+                    # 4. Return caption message with action button
+                    from services.instagram_publisher import instagram_publisher
+                    is_ig_ready, _ = instagram_publisher.is_configured()
+
+                    reply_markup = None
+                    if is_ig_ready:
+                        reply_markup = {
+                            "inline_keyboard": [[
+                                {"text": "🚀 인스타그램 즉시 자동발행 (Graph API)", "callback_data": f"/publish_ig:{res['item_name'][:30]}"}
+                            ]]
+                        }
+
+                    msg = (
+                        f"✨ <b>[인스타그램 5장 카드뉴스 생성 완료]</b>\n\n"
+                        f"• <b>인식 상품:</b> <b>{res['item_name']}</b>\n"
+                        f"• <b>댓글 트리거 키워드:</b> <code>{kw}</code>\n"
+                        f"• <b>이미지 규격:</b> 1080x1350 (4:5 인스타 최적 피드)\n\n"
+                        f"📋 <b>[인스타그램 게시용 본문 캡션]:</b>\n"
+                        f"<pre>{caption}</pre>\n\n"
+                        f"💡 <i>위 5장 사진을 인스타에 올리시거나, Meta Graph API 연동 시 아래 버튼으로 원클릭 자동 발행이 가능합니다!</i>"
+                    )
+                    return msg, reply_markup
+                else:
+                    return f"❌ <b>[카드뉴스 생성 실패]</b>\n{res.get('message', '알 수 없는 오류')}", None
+            except Exception as e:
+                return f"⚠️ <b>[카드뉴스 생성 중 오류 발생]</b>: {e}", None
+
+        elif low in ("/ig_status", "/인스타상태", "/인스타계정", "인스타연동"):
+            from services.instagram_publisher import instagram_publisher
+            res = await instagram_publisher.verify_account()
+            if res.get("status") == "SUCCESS":
+                return (
+                    f"📸 <b>[Meta Instagram Graph API 연동 상태: 정상]</b>\n\n"
+                    f"• <b>계정 ID:</b> <code>{res.get('account_id')}</code>\n"
+                    f"• <b>유저네임:</b> @{res.get('username')}\n"
+                    f"• <b>프로필 이름:</b> {res.get('name')}\n"
+                    f"• <b>팔로워:</b> {res.get('followers'):,}명\n\n"
+                    f"✅ <i>5장 캐러셀 원클릭 자동 발행 준비가 완료되었습니다!</i>",
+                    None
+                )
+            elif res.get("status") == "NOT_CONFIGURED":
+                return (
+                    f"ℹ️ <b>[Meta Instagram Graph API 설정 안내]</b>\n\n"
+                    f"인스타그램 비즈니스 계정 자동 발행을 위해 아래 2가지 환경변수 설정이 필요합니다:\n\n"
+                    f"1. <code>INSTAGRAM_ACCOUNT_ID</code> (인스타 비즈니스 계정 ID)\n"
+                    f"2. <code>INSTAGRAM_ACCESS_TOKEN</code> (Meta Graph API 장기 액세스 토큰)\n\n"
+                    f"토큰을 발급받아 알려주시면 서버에 즉시 등록해 드립니다! 🚀",
+                    None
+                )
+            else:
+                return f"⚠️ <b>[인스타그램 연동 확인 실패]</b>\n{res.get('message')}", None
+
+        elif low in ("/tasks", "작업목록", "작업현황", "백그라운드"):
+            from agent.task_queue import task_queue
+            return task_queue.format_status_report(str(user_id)), None
+
+        elif low in ("/cost", "/costs", "비용", "비용조회", "토큰비용"):
+            from agent.memory_db import agent_db
+            summary = agent_db.get_cost_summary(days=30)
+            lines = ["💰 <b>[AI 비용 사용 현황 (최근 30일)]</b>\n"]
+            for row in summary.get("by_provider", []):
+                lines.append(
+                    f"• <b>{row['provider']}</b> ({row['model']})\n"
+                    f"  입력 {row['ti']:,}토큰 + 출력 {row['to_']:,}토큰 = ${row['cost']:.6f} ({row['calls']}회)"
+                )
+            lines.append(f"\n<b>총 합계: ${summary['total_usd']:.6f}</b>")
+            return "\n".join(lines), None
+
+        elif low in ("/approvals", "승인목록", "승인대기", "대기승인"):
+            import time as _time
+            from agent.memory_db import agent_db
+            pending = agent_db.get_pending_approvals(str(user_id))
+            if not pending:
+                return "📋 <b>[승인 대기 목록]</b>\n\n현재 승인 대기 중인 작업이 없습니다.", None
+            lines = [f"📋 <b>[승인 대기 목록]</b> ({len(pending)}건)\n"]
+            markup_buttons = []
+            for p in pending:
+                remaining = max(0, int(p["expires_at"] - _time.time()))
+                lines.append(
+                    f"• <code>{p['description']}</code>\n"
+                    f"  작업: {p['action_name']} | 잔여: {remaining // 60}분 {remaining % 60}초"
+                )
+                if remaining > 0:
+                    markup_buttons.append([
+                        {"text": f"✅ {p['description'][:25]}", "callback_data": f"confirm:{p['token']}"},
+                        {"text": "❌ 취소", "callback_data": f"cancel:{p['token']}"}
+                    ])
+            markup = {"inline_keyboard": markup_buttons[:5]} if markup_buttons else None
+            return "\n".join(lines), markup
+
+        elif low.startswith("/cancel ") or (low.startswith("취소 ") and "task_" in low):
+            parts = clean_text.split(" ", 1)
+            task_id = parts[1].strip() if len(parts) > 1 else ""
+            if not task_id:
+                return "❌ 사용법: <code>/cancel task_id</code>", None
+            from agent.memory_db import agent_db
+            agent_db.update_task(task_id, "cancelled", error="사용자 취소")
+            return f"✅ 작업 <code>{task_id}</code> 취소 처리되었습니다.", None
+
+        elif low in ("/rollback", "롤백", "이전버전", "이전으로"):
+            from security.permission import permission_engine as pe
+            token, msg, markup = pe.create_confirmation_request(
+                user_id=user_id,
+                action_name="rollback_deployment",
+                params={},
+                description="마지막 배포 롤백 (운영 서버 이전 버전 복구)",
+                ttl_seconds=300
+            )
+            return msg, markup
+
         # =====================================================================
-        # TIER 2: Google Gemini AI Natural Language Processing with Tool Calling
+        # TIER 2: Multi-turn Gemini Agent (with conversation context memory)
         # =====================================================================
-        return await self._call_gemini_with_tools(clean_text, user_id)
+        return await self._call_gemini_agent(clean_text, user_id)
 
     def _format_help_message(self) -> str:
         return (
             "🤖 <b>[Gemini Central AI Manager 관제 콘솔]</b>\n\n"
             "사장님, 실시간으로 연동된 전체 시스템(서버, 블로그, Threads, 쇼츠, 웹툰)을 총괄 관제하고 있습니다.\n\n"
-            "📌 <b>빠른 버튼 명령:</b>\n"
+            "• <code>/sites</code>: 전체 8대 워드프레스 블로그 주소 및 현황 목록\n"
+            "• <code>/threads_all</code>: 전체 7대 Threads 계정 및 바이오 브릿지 링크\n"
+            "• <code>/audit_blogs</code>: 8대 블로그 사후 자체검수 (사진누락/동일제목/내용이상)\n"
+            "• <code>/heal_blogs</code>: 8대 블로그 원클릭 자가복구 (중복삭제/16:9 썸네일/E-E-A-T)\n"
             "• <code>/status</code>: 전체 5대 시스템 가동 현황 종합\n"
             "• <code>/server</code>: Cloudways 서버 자원(메모리/디스크/프로세스)\n"
             "• <code>/blog</code>: 8대 블로그 가동 상태 및 최근 예약 포스팅\n"
@@ -520,5 +730,19 @@ class IntentRouter:
 
             except Exception as e:
                 return f"⚠️ Gemini 관제 라우팅 중 오류 발생: {e}", None
+
+    async def _call_gemini_agent(self, prompt: str, user_id: str | int) -> Tuple[str, Optional[Dict[str, Any]]]:
+        """
+        v2.0 Multi-turn Agent — delegates to TelegramAgent.
+        Falls back to _call_gemini_with_tools on import error.
+        """
+        try:
+            from agent.telegram_agent import telegram_agent
+            return await telegram_agent.respond(str(user_id), prompt)
+        except ImportError:
+            # Graceful fallback to legacy single-turn
+            return await self._call_gemini_with_tools(prompt, user_id)
+        except Exception as e:
+            return f"⚠️ AI 에이전트 오류: {e}", None
 
 intent_router = IntentRouter()

@@ -29,8 +29,8 @@ QA Agent는 모든 코드 변경 사항에 대해 아래 8대 체크리스트를
 - 텔레그램 봇 토큰, Cloudways SSH 비밀번호, Gemini API 키 등 민감 자격증명이 소스 코드에 하드코딩되거나 로그/보고서에 평문 노출되지 않았는가?
 - 환경변수(`.env` 또는 `config.py`)를 통해 안전하게 주입받는가?
 
-### Rule 7. 애드센스 심사 독립 보호 (AdSense Isolation Guard)
-- 메인 루트 여행 블로그(`travelpick24.com`)의 애드센스 심사가 완료될 때까지 신규 하위도메인(예: `item.travelpick24.com`)으로의 직접 링크가 메인 메뉴나 헤더에 삽입되지 않도록 격리 유지되었는가?
+### Rule 7. 통합 사이트 연동 및 내비게이션 정합성 (Integrated Navigation & Cross-Linking)
+- travelpick24.com과 서브도메인 간 링크 격리가 해제됨에 따라, 상호 연결 시 유효한 URL로 정상 링크되며 404나 깨진 링크가 발생하지 않는지 검사합니다.
 
 ### Rule 8. 고품질 글쓰기 엔진 준수 (Universal Content Quality Engine)
 - 콘텐츠 생성 모듈의 경우 E-E-A-T, AI 상투어구 제거(Anti-Cliche), 피플퍼스트(People-First), 실전 팩트 검증 로직이 탑재되었는가?

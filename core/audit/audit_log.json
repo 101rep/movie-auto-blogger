@@ -1,0 +1,935 @@
+[
+  {
+    "action": "AUDIT",
+    "timestamp": "2026-09-24T04:36:10.177661+09:00",
+    "data": {
+      "timestamp": "2026-09-24T04:36:02.463910+09:00",
+      "duration_sec": 7.71,
+      "total_sites": 8,
+      "total_posts_checked": 34,
+      "total_defects_found": 16,
+      "sites": [
+        {
+          "site_name": "TravelPick24",
+          "url": "https://travelpick24.com",
+          "checked": 5,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "TrendSpot24",
+          "url": "https://trendspot24.com",
+          "checked": 5,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "ItemPick24",
+          "url": "https://item.travelpick24.com",
+          "checked": 5,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "EnterPick24",
+          "url": "https://enter.trendspot24.com",
+          "checked": 4,
+          "defect_count": 4,
+          "breakdown": {
+            "MISSING_MEDIA": 4
+          },
+          "defects": [
+            {
+              "post_id": 14,
+              "title": "칸·베니스 사로잡은 독립영화 거장의 신작 국내 개봉 확정&#8230; 스크린에 담긴 위로와 비하인드",
+              "url": "https://enter.trendspot24.com/entertainment-b45e6b/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 13,
+              "title": "화제의 예능, 새 시즌과 역대급 초호화 게스트 라인업으로 귀환&#8230; 방송가 시선 집중",
+              "url": "https://enter.trendspot24.com/entertainment-348925/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 11,
+              "title": "K-POP 대표 걸그룹 월드투어 성료 및 신보 선주문 200만 장 돌파 분석",
+              "url": "https://enter.trendspot24.com/entertainment-8fcec5/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 10,
+              "title": "글로벌 OTT 1위 등극 화제 드라마, 연출 포인트와 시청자 반응 총정리",
+              "url": "https://enter.trendspot24.com/entertainment-da2c2c/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick23",
+          "url": "https://welfare23.travelpick24.com",
+          "checked": 3,
+          "defect_count": 3,
+          "breakdown": {
+            "MISSING_MEDIA": 3
+          },
+          "defects": [
+            {
+              "post_id": 11,
+              "title": "신청 안 하면 매달 20만 원 손해! 청년 월세 특별지원(최대 240만 원) 필수 가이드",
+              "url": "https://welfare23.travelpick24.com/welfare-aba25e/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 9,
+              "title": "내 집 마련 청년 필독: 시세 70% 분양 뉴:홈 50만 호 청약 자격 총정리",
+              "url": "https://welfare23.travelpick24.com/welfare-3ba14f/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 8,
+              "title": "5년 붓고 5,000만 원 만들기: 청년도약계좌 정부 기여금 최대 수령 비결",
+              "url": "https://welfare23.travelpick24.com/welfare-73c2ea/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick24",
+          "url": "https://welfare24.travelpick24.com",
+          "checked": 5,
+          "defect_count": 5,
+          "breakdown": {
+            "MISSING_MEDIA": 5
+          },
+          "defects": [
+            {
+              "post_id": 14,
+              "title": "[공식 안내] 월 76만 원 받는 시니어 공익형 일자리 신청 자격과 접수처 총정리",
+              "url": "https://welfare24.travelpick24.com/welfare-fe45cc/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 13,
+              "title": "서류 없이 사업자번호로 3분 컷! 소상공인 전기요금 20만 원 특별지원 신청",
+              "url": "https://welfare24.travelpick24.com/welfare-cdf87e/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 12,
+              "title": "고금리 대출 이자 매달 절반으로 줄이는 비결: 소상공인 저금리 대환대출 안내",
+              "url": "https://welfare24.travelpick24.com/welfare-249b64/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 11,
+              "title": "폐업 위기 사장님을 위한 400만 원 재기 지원금: 희망리턴패키지 원스톱 신청",
+              "url": "https://welfare24.travelpick24.com/welfare-39f982/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 9,
+              "title": "만 65세 부모님 계시다면 필독: 매달 33만 원 나오는 기초연금 감액 피하는 법",
+              "url": "https://welfare24.travelpick24.com/welfare-edf436/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick25",
+          "url": "https://welfare25.travelpick24.com",
+          "checked": 2,
+          "defect_count": 2,
+          "breakdown": {
+            "MISSING_MEDIA": 2
+          },
+          "defects": [
+            {
+              "post_id": 9,
+              "title": "아직도 교통비 제값 다 내시나요? K-패스로 매달 최대 53% 환급받는 꿀팁",
+              "url": "https://welfare25.travelpick24.com/welfare-2d7af8/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 8,
+              "title": "0~1세 아이 있다면 월 100만 원 지급! 부모급여·아동수당 첫 달 신청 노하우",
+              "url": "https://welfare25.travelpick24.com/welfare-bcd154/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "NewsPick24",
+          "url": "https://news.trendspot24.com",
+          "checked": 5,
+          "defect_count": 2,
+          "breakdown": {
+            "MISSING_MEDIA": 2
+          },
+          "defects": [
+            {
+              "post_id": 33,
+              "title": "한국은행 기준금리 연속 동결, 가계부채 증가와 물가 불안 속 향후 금리 인하 시점은?",
+              "url": "https://news.trendspot24.com/news-179e97/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 32,
+              "title": "정부 26조 원 규모 반도체 종합 지원책 가동, 금융·세제 혜택 총력전",
+              "url": "https://news.trendspot24.com/news-f7ac51/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "action": "AUDIT",
+    "timestamp": "2026-09-24T04:40:31.039021+09:00",
+    "data": {
+      "timestamp": "2026-09-24T04:40:18.064943+09:00",
+      "duration_sec": 12.97,
+      "total_sites": 8,
+      "total_posts_checked": 52,
+      "total_defects_found": 16,
+      "sites": [
+        {
+          "site_name": "TravelPick24",
+          "url": "https://travelpick24.com",
+          "checked": 10,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "TrendSpot24",
+          "url": "https://trendspot24.com",
+          "checked": 10,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "ItemPick24",
+          "url": "https://item.travelpick24.com",
+          "checked": 10,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "EnterPick24",
+          "url": "https://enter.trendspot24.com",
+          "checked": 4,
+          "defect_count": 4,
+          "breakdown": {
+            "MISSING_MEDIA": 4
+          },
+          "defects": [
+            {
+              "post_id": 14,
+              "title": "칸·베니스 사로잡은 독립영화 거장의 신작 국내 개봉 확정&#8230; 스크린에 담긴 위로와 비하인드",
+              "url": "https://enter.trendspot24.com/entertainment-b45e6b/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 13,
+              "title": "화제의 예능, 새 시즌과 역대급 초호화 게스트 라인업으로 귀환&#8230; 방송가 시선 집중",
+              "url": "https://enter.trendspot24.com/entertainment-348925/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 11,
+              "title": "K-POP 대표 걸그룹 월드투어 성료 및 신보 선주문 200만 장 돌파 분석",
+              "url": "https://enter.trendspot24.com/entertainment-8fcec5/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 10,
+              "title": "글로벌 OTT 1위 등극 화제 드라마, 연출 포인트와 시청자 반응 총정리",
+              "url": "https://enter.trendspot24.com/entertainment-da2c2c/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick23",
+          "url": "https://welfare23.travelpick24.com",
+          "checked": 3,
+          "defect_count": 3,
+          "breakdown": {
+            "MISSING_MEDIA": 3
+          },
+          "defects": [
+            {
+              "post_id": 11,
+              "title": "신청 안 하면 매달 20만 원 손해! 청년 월세 특별지원(최대 240만 원) 필수 가이드",
+              "url": "https://welfare23.travelpick24.com/welfare-aba25e/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 9,
+              "title": "내 집 마련 청년 필독: 시세 70% 분양 뉴:홈 50만 호 청약 자격 총정리",
+              "url": "https://welfare23.travelpick24.com/welfare-3ba14f/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 8,
+              "title": "5년 붓고 5,000만 원 만들기: 청년도약계좌 정부 기여금 최대 수령 비결",
+              "url": "https://welfare23.travelpick24.com/welfare-73c2ea/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick24",
+          "url": "https://welfare24.travelpick24.com",
+          "checked": 6,
+          "defect_count": 6,
+          "breakdown": {
+            "MISSING_MEDIA": 6
+          },
+          "defects": [
+            {
+              "post_id": 14,
+              "title": "[공식 안내] 월 76만 원 받는 시니어 공익형 일자리 신청 자격과 접수처 총정리",
+              "url": "https://welfare24.travelpick24.com/welfare-fe45cc/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 13,
+              "title": "서류 없이 사업자번호로 3분 컷! 소상공인 전기요금 20만 원 특별지원 신청",
+              "url": "https://welfare24.travelpick24.com/welfare-cdf87e/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 12,
+              "title": "고금리 대출 이자 매달 절반으로 줄이는 비결: 소상공인 저금리 대환대출 안내",
+              "url": "https://welfare24.travelpick24.com/welfare-249b64/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 11,
+              "title": "폐업 위기 사장님을 위한 400만 원 재기 지원금: 희망리턴패키지 원스톱 신청",
+              "url": "https://welfare24.travelpick24.com/welfare-39f982/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 9,
+              "title": "만 65세 부모님 계시다면 필독: 매달 33만 원 나오는 기초연금 감액 피하는 법",
+              "url": "https://welfare24.travelpick24.com/welfare-edf436/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 8,
+              "title": "최대 330만 원 통장 입금! 근로장려금 신청 자격과 소득 기준 한눈에 보기",
+              "url": "https://welfare24.travelpick24.com/welfare-7594b7/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick25",
+          "url": "https://welfare25.travelpick24.com",
+          "checked": 2,
+          "defect_count": 1,
+          "breakdown": {
+            "MISSING_MEDIA": 1
+          },
+          "defects": [
+            {
+              "post_id": 8,
+              "title": "0~1세 아이 있다면 월 100만 원 지급! 부모급여·아동수당 첫 달 신청 노하우",
+              "url": "https://welfare25.travelpick24.com/welfare-bcd154/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "NewsPick24",
+          "url": "https://news.trendspot24.com",
+          "checked": 7,
+          "defect_count": 2,
+          "breakdown": {
+            "MISSING_MEDIA": 2
+          },
+          "defects": [
+            {
+              "post_id": 33,
+              "title": "한국은행 기준금리 연속 동결, 가계부채 증가와 물가 불안 속 향후 금리 인하 시점은?",
+              "url": "https://news.trendspot24.com/news-179e97/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 32,
+              "title": "정부 26조 원 규모 반도체 종합 지원책 가동, 금융·세제 혜택 총력전",
+              "url": "https://news.trendspot24.com/news-f7ac51/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "action": "AUDIT",
+    "timestamp": "2026-09-24T04:41:04.254847+09:00",
+    "data": {
+      "timestamp": "2026-09-24T04:40:56.389044+09:00",
+      "duration_sec": 7.86,
+      "total_sites": 8,
+      "total_posts_checked": 52,
+      "total_defects_found": 16,
+      "sites": [
+        {
+          "site_name": "TravelPick24",
+          "url": "https://travelpick24.com",
+          "checked": 10,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "TrendSpot24",
+          "url": "https://trendspot24.com",
+          "checked": 10,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "ItemPick24",
+          "url": "https://item.travelpick24.com",
+          "checked": 10,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "EnterPick24",
+          "url": "https://enter.trendspot24.com",
+          "checked": 4,
+          "defect_count": 4,
+          "breakdown": {
+            "MISSING_MEDIA": 4
+          },
+          "defects": [
+            {
+              "post_id": 14,
+              "title": "칸·베니스 사로잡은 독립영화 거장의 신작 국내 개봉 확정&#8230; 스크린에 담긴 위로와 비하인드",
+              "url": "https://enter.trendspot24.com/entertainment-b45e6b/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 13,
+              "title": "화제의 예능, 새 시즌과 역대급 초호화 게스트 라인업으로 귀환&#8230; 방송가 시선 집중",
+              "url": "https://enter.trendspot24.com/entertainment-348925/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 11,
+              "title": "K-POP 대표 걸그룹 월드투어 성료 및 신보 선주문 200만 장 돌파 분석",
+              "url": "https://enter.trendspot24.com/entertainment-8fcec5/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 10,
+              "title": "글로벌 OTT 1위 등극 화제 드라마, 연출 포인트와 시청자 반응 총정리",
+              "url": "https://enter.trendspot24.com/entertainment-da2c2c/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick23",
+          "url": "https://welfare23.travelpick24.com",
+          "checked": 3,
+          "defect_count": 3,
+          "breakdown": {
+            "MISSING_MEDIA": 3
+          },
+          "defects": [
+            {
+              "post_id": 11,
+              "title": "신청 안 하면 매달 20만 원 손해! 청년 월세 특별지원(최대 240만 원) 필수 가이드",
+              "url": "https://welfare23.travelpick24.com/welfare-aba25e/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 9,
+              "title": "내 집 마련 청년 필독: 시세 70% 분양 뉴:홈 50만 호 청약 자격 총정리",
+              "url": "https://welfare23.travelpick24.com/welfare-3ba14f/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 8,
+              "title": "5년 붓고 5,000만 원 만들기: 청년도약계좌 정부 기여금 최대 수령 비결",
+              "url": "https://welfare23.travelpick24.com/welfare-73c2ea/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick24",
+          "url": "https://welfare24.travelpick24.com",
+          "checked": 6,
+          "defect_count": 6,
+          "breakdown": {
+            "MISSING_MEDIA": 6
+          },
+          "defects": [
+            {
+              "post_id": 14,
+              "title": "[공식 안내] 월 76만 원 받는 시니어 공익형 일자리 신청 자격과 접수처 총정리",
+              "url": "https://welfare24.travelpick24.com/welfare-fe45cc/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 13,
+              "title": "서류 없이 사업자번호로 3분 컷! 소상공인 전기요금 20만 원 특별지원 신청",
+              "url": "https://welfare24.travelpick24.com/welfare-cdf87e/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 12,
+              "title": "고금리 대출 이자 매달 절반으로 줄이는 비결: 소상공인 저금리 대환대출 안내",
+              "url": "https://welfare24.travelpick24.com/welfare-249b64/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 11,
+              "title": "폐업 위기 사장님을 위한 400만 원 재기 지원금: 희망리턴패키지 원스톱 신청",
+              "url": "https://welfare24.travelpick24.com/welfare-39f982/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 9,
+              "title": "만 65세 부모님 계시다면 필독: 매달 33만 원 나오는 기초연금 감액 피하는 법",
+              "url": "https://welfare24.travelpick24.com/welfare-edf436/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 8,
+              "title": "최대 330만 원 통장 입금! 근로장려금 신청 자격과 소득 기준 한눈에 보기",
+              "url": "https://welfare24.travelpick24.com/welfare-7594b7/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick25",
+          "url": "https://welfare25.travelpick24.com",
+          "checked": 2,
+          "defect_count": 1,
+          "breakdown": {
+            "MISSING_MEDIA": 1
+          },
+          "defects": [
+            {
+              "post_id": 8,
+              "title": "0~1세 아이 있다면 월 100만 원 지급! 부모급여·아동수당 첫 달 신청 노하우",
+              "url": "https://welfare25.travelpick24.com/welfare-bcd154/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        },
+        {
+          "site_name": "NewsPick24",
+          "url": "https://news.trendspot24.com",
+          "checked": 7,
+          "defect_count": 2,
+          "breakdown": {
+            "MISSING_MEDIA": 2
+          },
+          "defects": [
+            {
+              "post_id": 33,
+              "title": "한국은행 기준금리 연속 동결, 가계부채 증가와 물가 불안 속 향후 금리 인하 시점은?",
+              "url": "https://news.trendspot24.com/news-179e97/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            },
+            {
+              "post_id": 32,
+              "title": "정부 26조 원 규모 반도체 종합 지원책 가동, 금융·세제 혜택 총력전",
+              "url": "https://news.trendspot24.com/news-f7ac51/",
+              "type": "MISSING_MEDIA",
+              "details": "대표 썸네일(featured_media) 및 본문 이미지 전무",
+              "severity": "HIGH"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "action": "HEAL",
+    "timestamp": "2026-09-24T04:41:53.605449+09:00",
+    "data": {
+      "timestamp": "2026-09-24T04:40:56.389044+09:00",
+      "total_defects_found": 16,
+      "total_duplicates_trashed": 0,
+      "total_thumbnails_generated": 16,
+      "total_contents_healed": 0,
+      "total_failed": 0,
+      "site_results": [
+        {
+          "site_name": "TravelPick24",
+          "duplicates_trashed": 0,
+          "thumbnails_generated": 0,
+          "contents_healed": 0,
+          "failed_heals": 0,
+          "actions": []
+        },
+        {
+          "site_name": "TrendSpot24",
+          "duplicates_trashed": 0,
+          "thumbnails_generated": 0,
+          "contents_healed": 0,
+          "failed_heals": 0,
+          "actions": []
+        },
+        {
+          "site_name": "ItemPick24",
+          "duplicates_trashed": 0,
+          "thumbnails_generated": 0,
+          "contents_healed": 0,
+          "failed_heals": 0,
+          "actions": []
+        },
+        {
+          "site_name": "EnterPick24",
+          "duplicates_trashed": 0,
+          "thumbnails_generated": 4,
+          "contents_healed": 0,
+          "failed_heals": 0,
+          "actions": [
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 14,
+              "media_id": 19,
+              "status": "SUCCESS",
+              "msg": "포스트 #14 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #19)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 13,
+              "media_id": 21,
+              "status": "SUCCESS",
+              "msg": "포스트 #13 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #21)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 11,
+              "media_id": 23,
+              "status": "SUCCESS",
+              "msg": "포스트 #11 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #23)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 10,
+              "media_id": 24,
+              "status": "SUCCESS",
+              "msg": "포스트 #10 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #24)"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick23",
+          "duplicates_trashed": 0,
+          "thumbnails_generated": 3,
+          "contents_healed": 0,
+          "failed_heals": 0,
+          "actions": [
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 11,
+              "media_id": 25,
+              "status": "SUCCESS",
+              "msg": "포스트 #11 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #25)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 9,
+              "media_id": 26,
+              "status": "SUCCESS",
+              "msg": "포스트 #9 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #26)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 8,
+              "media_id": 27,
+              "status": "SUCCESS",
+              "msg": "포스트 #8 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #27)"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick24",
+          "duplicates_trashed": 0,
+          "thumbnails_generated": 6,
+          "contents_healed": 0,
+          "failed_heals": 0,
+          "actions": [
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 14,
+              "media_id": 37,
+              "status": "SUCCESS",
+              "msg": "포스트 #14 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #37)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 13,
+              "media_id": 38,
+              "status": "SUCCESS",
+              "msg": "포스트 #13 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #38)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 12,
+              "media_id": 39,
+              "status": "SUCCESS",
+              "msg": "포스트 #12 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #39)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 11,
+              "media_id": 40,
+              "status": "SUCCESS",
+              "msg": "포스트 #11 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #40)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 9,
+              "media_id": 41,
+              "status": "SUCCESS",
+              "msg": "포스트 #9 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #41)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 8,
+              "media_id": 42,
+              "status": "SUCCESS",
+              "msg": "포스트 #8 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #42)"
+            }
+          ]
+        },
+        {
+          "site_name": "WelfarePick25",
+          "duplicates_trashed": 0,
+          "thumbnails_generated": 1,
+          "contents_healed": 0,
+          "failed_heals": 0,
+          "actions": [
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 8,
+              "media_id": 22,
+              "status": "SUCCESS",
+              "msg": "포스트 #8 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #22)"
+            }
+          ]
+        },
+        {
+          "site_name": "NewsPick24",
+          "duplicates_trashed": 0,
+          "thumbnails_generated": 2,
+          "contents_healed": 0,
+          "failed_heals": 0,
+          "actions": [
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 33,
+              "media_id": 37,
+              "status": "SUCCESS",
+              "msg": "포스트 #33 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #37)"
+            },
+            {
+              "type": "THUMBNAIL_HEAL",
+              "post_id": 32,
+              "media_id": 39,
+              "status": "SUCCESS",
+              "msg": "포스트 #32 16:9 썸네일 생성 및 미디어 연동 완료 (Media ID: #39)"
+            }
+          ]
+        }
+      ],
+      "duration_sec": 57.21
+    }
+  },
+  {
+    "action": "AUDIT",
+    "timestamp": "2026-09-24T04:42:36.296224+09:00",
+    "data": {
+      "timestamp": "2026-09-24T04:42:27.566320+09:00",
+      "duration_sec": 8.73,
+      "total_sites": 8,
+      "total_posts_checked": 34,
+      "total_defects_found": 0,
+      "sites": [
+        {
+          "site_name": "TravelPick24",
+          "url": "https://travelpick24.com",
+          "checked": 5,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "TrendSpot24",
+          "url": "https://trendspot24.com",
+          "checked": 5,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "ItemPick24",
+          "url": "https://item.travelpick24.com",
+          "checked": 5,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "EnterPick24",
+          "url": "https://enter.trendspot24.com",
+          "checked": 4,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "WelfarePick23",
+          "url": "https://welfare23.travelpick24.com",
+          "checked": 3,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "WelfarePick24",
+          "url": "https://welfare24.travelpick24.com",
+          "checked": 5,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "WelfarePick25",
+          "url": "https://welfare25.travelpick24.com",
+          "checked": 2,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        },
+        {
+          "site_name": "NewsPick24",
+          "url": "https://news.trendspot24.com",
+          "checked": 5,
+          "defect_count": 0,
+          "breakdown": {},
+          "defects": []
+        }
+      ]
+    }
+  }
+]

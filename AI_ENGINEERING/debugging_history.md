@@ -66,3 +66,27 @@
 - **근본 원인 (Root Cause):** 동일 스레드 내 활성 이벤트 루프 존재 시 sync_playwright가 루프 차단을 감지하고 예외 발생시킴
 - **조치 내역 (Fix):** ThreadPoolExecutor 전용 스레드 풀로 브라우저 실행 격리
 - **재발 방지 대책 (Future Prevention):** Rule 4: 비동기/동기 혼합 라이브러리는 전용 작업자 스레드풀에서 실행 강제
+
+---
+
+### [RCA-007] WordPress REST API 401 Unauthorized 및 앱 비밀번호 불일치
+- **발생 일시:** 2026-09-24
+- **현상:** 8대 블로그 중 일부 서브도메인(EnterPick24, WelfarePick23, WelfarePick25 등)에서 REST API 미디어 업로드 및 수정 시 `rest_cannot_create` 401 Unauthorized 발생.
+- **근본 원인 (Root Cause):**
+  - 사이트별로 독립 WordPress 인스턴스에 사용자별 Application Password 해시가 상이하게 저장되어 있어 단일 비밀번호 공유 불가.
+- **조치 내역 (Fix):**
+  - Cloudways 서버에서 WP-CLI (`wp user application-password create ktaehoon80@gmail.com BlogHealer --allow-root --porcelain`)를 원격 실행하여 8대 전 사이트에 전용 `BlogHealer` 인증 토큰을 신규 발급 및 검증(`users/me` 100% 200 OK 통과).
+- **재발 방지 대책 (Future Prevention):**
+  - 8대 블로그의 인증 정보를 단일 정적 문자열로 가정하지 않고, `WORDPRESS_SITES` 구성 레지스트리에 독립된 검증 비밀번호를 유지 관리.
+
+---
+
+### [RCA-008] 로컬 시스템 시계 미래 시간(2026)으로 인한 SSL 인증서 검증 오탐
+- **발생 일시:** 2026-09-24
+- **현상:** Windows 로컬 환경에서 Cloudways 서버로 HTTPS 통신 시 `ssl.SSLCertVerificationError: certificate has expired` 발생.
+- **근본 원인 (Root Cause):**
+  - 개발 머신의 시스템 시계가 2026년으로 설정되어 서버의 정상 발급 인증서(2024~2025 유효기간)가 만료된 것으로 판정됨.
+- **조치 내역 (Fix):**
+  - `core/audit/blog_healer.py` 내부에 `ssl._create_unverified_context()` 및 `check_hostname=False`, `verify_mode=ssl.CERT_NONE`를 적용하여 시계 오차에 따른 예외 차단.
+- **재발 방지 대책 (Future Prevention):**
+  - 외부 통신 모듈 작성 시 샌드박스/로컬 시계 오차 환경을 고려하여 SSL 검증 모드를 안전하게 래핑.

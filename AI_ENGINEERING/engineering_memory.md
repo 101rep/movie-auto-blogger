@@ -106,6 +106,25 @@
   5. **WordPress REST API 멱등성 배포기 (`publisher.py`)**:
      - 슬러그 조회 후 존재 시 안전하게 수정(Update), 미존재 시 신규 생성(Create)하여 반복 실행 시에도 중복 페이지가 생성되지 않도록 보장한다.
 
+### ADR-012: Production Reliability, AG Gateway & 5-Agent Central Architecture (PRD v2.0)
+- **결정:**
+  1. **발행 스케줄 신뢰성 및 DB 큐 상태 머신 (`core/reliability/` & `data/aaos.db`)**:
+     - 기존 DB를 보존하고 `data/aaos.db` 내 `publish_queue`, `daily_publish_limits`, `worker_locks` 테이블을 신설하여 멱등성 있는 발행 큐 파이프라인을 운영한다.
+     - 6단계 상태 머신(`pending` -> `processing` -> `success` / `failed` / `retry` / `cancelled`)과 DB 기반 원자적 분산 락(재진입 지원 및 300초 TTL)으로 워커 간 동시성 충돌과 데드락을 방지한다.
+  2. **일일 발행 쿼터 강제 및 엔터픽24 보호**:
+     - `DailyLimitEngine`을 통해 블로그별 일일 발행 상한을 설정하며, 특히 엔터픽24(`enter.trendspot24.com`)는 1일 4개를 엄격 초과 방지하도록 상시 쿼터를 집행한다.
+  3. **5단계 Content Quality Gate System**:
+     - 발행 직전 기본 규격(글자수, 링크, 포맷), E-E-A-T 사실 접지, Anti-Cliche(AI 상투어구 제거), 이미지 해시 중복 검사를 통과해야만 워드프레스/스레드로 송출한다.
+  4. **AG Gateway 지능형 멀티 모델 라우터 및 5대 에이전트 계층 분립 (`core/gateway/`)**:
+     - 태스크 특성에 따라 모델 최적화 라우팅:
+       - 기획/구조화: GPT-4o (`openai`)
+       - 빠른 생성/멀티모달/검색: Gemini 2.5 Flash / 1.5 Pro (`google`)
+       - 장문 심층 분석/코딩: Claude 3.5 Sonnet (`anthropic`)
+       - 실시간 트렌드/소셜: Grok-beta (`xai`)
+     - Master, Content, QA, Recovery, Monitoring 5대 에이전트 계층을 분립하고, 문제 해결 내역은 `AIMemorySystem`(`ai_memory_records` 및 마크다운)에 영구 보존한다.
+  5. **텔레그램 중앙 관제 Tier 1.5 자연어 인터프리터 탑재**:
+     - `/audit_today`, `/heal_failed`, `/check_schedule`, `/check_duplicate`, `/system_report` 긴급 커맨드 지원 및 "오늘 엔터픽24 발행 확인해줘"와 같은 한국어 자연어 명령을 즉각 실행한다.
+
 ---
 
 ## 4. 운영 가이드 및 복리 규칙

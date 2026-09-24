@@ -1,5 +1,35 @@
 # Release Notes (Engineering Changelog)
 
+## [v2.1.0] - 2026-09-25 : Antigravity Automation OS Production Reliability + AG Gateway Upgrade PRD v2.0
+### Added
+- **Production Publishing Reliability Audit & Zero-Failure Queue Architecture (`core/reliability/`):**
+  - **Scheduler Auditor (`scheduler_audit.py`)**: 8대 블로그 발행 일정 전수 진단, KST/UTC 타임존 정합성 검증, 시간 몰림(Interval Clumping) 및 병목 자동 감지, 텔레그램 진단 리포트 생성.
+  - **Publish Queue Engine (`queue_manager.py`)**: 6단계 상태 머신(`pending` -> `processing` -> `success` / `failed` / `retry` / `cancelled`) 기반 멱등 발행 보장 및 백오프 재시도 파이프라인.
+  - **Atomic Distributed Worker Lock (`worker_lock.py`)**: DB 기반 원자적 분산 락, 동일 워커 재진입(Re-entrant Lease Extension) 및 TTL 300초 자동 만료를 통한 데드락 원천 차단.
+  - **Blog Daily Limit Engine (`daily_limit_engine.py`)**: 일일 쿼터 초과 방지기. 특히 엔터픽24(`enter.trendspot24.com`) 하루 4개 엄격 쿼터 강제 집행 및 7대 블로그 슬롯 통제.
+- **5단계 Content Quality Gate System (`quality_gate.py`):**
+  - Tier 1 기본 규격 검사 (제목 10자 이상, 본문 1,200자 이상, 필수 섹션/공식 링크 포함).
+  - Tier 2 품질 및 E-E-A-T 검사 (공식 법령/통계/1차 출처 인용 및 신뢰도 검증).
+  - Tier 3 Anti-Cliche 필터 ("현대 사회에서", "알아보겠습니다", "살펴보겠습니다" 등 상투어구 완벽 차단).
+  - Tier 4 이미지 해시 중복 검사 (SHA-256 기반 이미지 중복 등록 및 재사용 방지).
+  - Tier 5 복구 연계 훅 (품질 미달 시 Repair Agent로 자동 반려 및 실시간 재생성).
+- **Auto Healing Engine & Telegram Emergency Control (`auto_healer.py`):**
+  - 긴급 복구 및 감사 명령어 5종 전면 구현:
+    - `/audit_today`: 당일 8대 블로그 및 큐 발행 상태 종합 진단.
+    - `/heal_failed`: 실패한 예약 큐 자동 분석 및 재시도 스케줄링.
+    - `/check_schedule`: 7대 블로그 일일 4개 예약 슬롯 점검 및 시간표 정합성 보고.
+    - `/check_duplicate`: 최근 7일 내 제목/슬러그/이미지 중복 발행 전수 스캔.
+    - `/system_report`: CPU, RAM, 디스크 용량, 큐 상태, 활성 락 등 시스템 건전성 종합 브리핑.
+- **AG Gateway & Multi-Model AI Router (`core/gateway/`):**
+  - **Dynamic Multi-Model Router (`router.py`)**: GPT-4o, Gemini 2.5 Flash / 1.5 Pro, Claude 3.5 Sonnet / Haiku, Grok-beta 지능형 라우팅. 태스크 유형(기획, 심층작성, 코드, 실시간검증, 긴급복구)별 최적 모델 자동 분기 및 모델 장애 시 결정론적 Fallback 체계.
+  - **5-Agent Management Layer (`agents.py`)**: MasterAgent, ContentAgent, QAAgent, RecoveryAgent, MonitoringAgent 전담 에이전트 계층 분립.
+  - **AI Memory System (`memory.py`)**: `ai_memory_records` 테이블 및 마크다운(`AI_ENGINEERING/debugging_history.md`) 복합 영구 저장소 연동.
+  - **자연어 운영 인터프리터 (`natural_language.py`)**: "오늘 엔터픽24 발행 확인해줘" 등 비정형 한국어 요청을 QA Agent 지능형 워크플로우로 자동 변환 및 즉각 보고.
+- **텔레그램 중앙 관제 통합 (`00_Central_AI_Manager/router/intent_router.py`):**
+  - Tier 1 직통 커맨드 5종 및 Tier 1.5 자연어 인터프리터 연동으로 무지연 즉각 응답 체계 완성.
+- **검증 및 테스트:**
+  - `tests/test_v2_reliability_and_gateway.py` 7종 전원 통과 및 전체 워크스페이스 회귀 테스트 23종 100% PASS.
+
 ## [v2.0.0] - 2026-09-24 : WordPress Multi Blog Trust Page Generator PRD v1.0 (E-E-A-T & AdSense Trust Architecture)
 ### Added
 - **8대 블로그 전용 독립 신뢰 페이지 구축 엔진 (`trust_page_generator/`):**

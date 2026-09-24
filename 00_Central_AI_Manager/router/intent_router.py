@@ -134,6 +134,27 @@ class IntentRouter:
             from telegram_bot.control_center import control_center
             return await control_center.handle_heal_blogs()
 
+        # ── Production Reliability PRD v2.0 Commands ─────────────────────────────
+        elif low in ("/audit_today", "오늘발행검사", "오늘검사", "발행전수점검"):
+            from core.reliability.auto_healer import AutoHealingSystem
+            return await AutoHealingSystem.audit_today(), None
+
+        elif low in ("/heal_failed", "실패복구", "실패자동복구", "장애복구"):
+            from core.reliability.auto_healer import AutoHealingSystem
+            return await AutoHealingSystem.heal_failed(), None
+
+        elif low in ("/check_schedule", "예약상태확인", "예약슬롯", "슬롯확인"):
+            from core.reliability.auto_healer import AutoHealingSystem
+            return await AutoHealingSystem.check_schedule(), None
+
+        elif low in ("/check_duplicate", "중복검사", "중복체크"):
+            from core.reliability.auto_healer import AutoHealingSystem
+            return await AutoHealingSystem.check_duplicate(), None
+
+        elif low in ("/system_report", "전체시스템상태", "통합관제", "시스템리포트"):
+            from core.reliability.auto_healer import AutoHealingSystem
+            return await AutoHealingSystem.system_report(), None
+
         elif low in ("/server", "서버", "서버상태", "서버점검", "용량"):
             return await self._handle_fast_server(user_id), None
 
@@ -367,6 +388,17 @@ class IntentRouter:
             return msg, markup
 
         # =====================================================================
+        # TIER 1.5: AG Gateway Natural Language Interpreter (PRD v2.0 PART 8)
+        # =====================================================================
+        try:
+            from core.gateway.natural_language import NaturalLanguageInterpreter
+            nl_reply = await NaturalLanguageInterpreter.process(clean_text, str(user_id))
+            if nl_reply:
+                return nl_reply, None
+        except Exception:
+            pass
+
+        # =====================================================================
         # TIER 2: Multi-turn Gemini Agent (with conversation context memory)
         # =====================================================================
         return await self._call_gemini_agent(clean_text, user_id)
@@ -377,6 +409,11 @@ class IntentRouter:
             "사장님, 실시간으로 연동된 전체 시스템(서버, 블로그, Threads, 쇼츠, 웹툰)을 총괄 관제하고 있습니다.\n\n"
             "• <code>/sites</code>: 전체 8대 워드프레스 블로그 주소 및 현황 목록\n"
             "• <code>/threads_all</code>: 전체 7대 Threads 계정 및 바이오 브릿지 링크\n"
+            "• <code>/audit_today</code>: 오늘 8대 블로그 발행·예약 전수 점검 (PRD v2.0)\n"
+            "• <code>/heal_failed</code>: 발행 실패 큐 및 결함 글 원클릭 자동 복구\n"
+            "• <code>/check_schedule</code>: 8대 블로그 일일 4편 예약 슬롯 현황 점검\n"
+            "• <code>/check_duplicate</code>: 제목·URL·이미지 해시 전수 중복 검사\n"
+            "• <code>/system_report</code>: CPU/RAM/큐/워커 락 통합 시스템 관제 리포트\n"
             "• <code>/audit_blogs</code>: 8대 블로그 사후 자체검수 (사진누락/동일제목/내용이상)\n"
             "• <code>/heal_blogs</code>: 8대 블로그 원클릭 자가복구 (중복삭제/16:9 썸네일/E-E-A-T)\n"
             "• <code>/status</code>: 전체 5대 시스템 가동 현황 종합\n"

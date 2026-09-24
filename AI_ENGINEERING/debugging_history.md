@@ -163,3 +163,48 @@
   - AI에게 직접 raw HTML 및 인라인 스타일을 생성하도록 명령하는 방식을 전면 금지하고, 모든 콘텐츠 수리/보완 도구는 [데이터 수집 -> JSON 구조화 생성 -> 템플릿 조립 -> 태그 검증 -> 배포] 5단계 파이프라인을 엄격히 준수하도록 강제.
 
 
+
+### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 05:56:37 KST
+- **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
+- **원인 (Root Cause):** Application Password capability restriction on non-admin user
+- **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings
+- **변경 파일 (Changed Files):** core/reliability/queue_manager.py
+- **테스트 결과 (Test Results):** PASS
+
+---
+
+### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 05:57:18 KST
+- **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
+- **원인 (Root Cause):** Application Password capability restriction on non-admin user
+- **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings
+- **변경 파일 (Changed Files):** core/reliability/queue_manager.py
+- **테스트 결과 (Test Results):** PASS
+
+---
+
+### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 05:57:46 KST
+- **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
+- **원인 (Root Cause):** Application Password capability restriction on non-admin user
+- **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings
+- **변경 파일 (Changed Files):** core/reliability/queue_manager.py
+- **테스트 결과 (Test Results):** PASS
+
+---
+
+### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 05:58:38 KST
+- **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
+- **원인 (Root Cause):** Application Password capability restriction on non-admin user
+- **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings
+- **변경 파일 (Changed Files):** core/reliability/queue_manager.py
+- **테스트 결과 (Test Results):** PASS
+
+---
+
+### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 05:59:42 KST
+- **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
+- **원인 (Root Cause):** Application Password capability restriction on non-admin user
+- **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings
+- **변경 파일 (Changed Files):** core/reliability/queue_manager.py
+- **테스트 결과 (Test Results):** PASS
+
+---

@@ -1,0 +1,600 @@
+﻿{% extends "base.html" %}
+
+{% block title %}13인 AI 총괄 관제 상황실 (Master Control Deck){% endblock %}
+
+{% block extra_head %}
+<style>
+  .pulse-node {
+    animation: pulse-border 2.5s infinite;
+  }
+  @keyframes pulse-border {
+    0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+    70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+  }
+  .pipeline-line {
+    width: 3px;
+    height: 32px;
+    background: linear-gradient(180deg, #3b82f6 0%, #06b6d4 100%);
+    margin: 0 auto;
+    position: relative;
+  }
+  .pipeline-line::after {
+    content: '';
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background: #ffffff;
+    border-radius: 50%;
+    left: -2px;
+    top: 0;
+    animation: flow-down 2s infinite ease-in-out;
+  }
+  @keyframes flow-down {
+    0% { top: 0%; opacity: 0; }
+    50% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  .agent-card {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border-left: 4px solid #3b82f6;
+  }
+  .agent-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12) !important;
+    border-left-color: #f59e0b;
+  }
+  .dept-header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    color: #ffffff;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-3 py-2">
+
+  <!-- Top Executive Cockpit Bar -->
+  <div class="card shadow-sm border-0 mb-4 bg-dark text-white rounded-3">
+    <div class="card-body p-3 p-md-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="badge bg-warning text-dark fw-bold px-2 py-1"><i class="bi bi-award-fill me-1"></i>CEO COMMAND</span>
+            <h3 class="h4 fw-bold mb-0 text-white">안티그래비티 자율 엔터프라이즈 총괄 상황실</h3>
+          </div>
+          <p class="text-secondary small mb-0">사장님 직속 13인 AI 전문 조직(4대 본부) 및 8대 블로그·SNS·펫시터 플랫폼 실시간 지휘 통제 데스크</p>
+        </div>
+
+        <!-- Quick Metrics -->
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <div class="px-3 py-2 bg-secondary bg-opacity-25 rounded text-center">
+            <div class="text-muted small">총 직원</div>
+            <div class="fw-bold fs-5 text-info">{{ enterprise.stats.total_employees }}명</div>
+          </div>
+          <div class="px-3 py-2 bg-secondary bg-opacity-25 rounded text-center">
+            <div class="text-muted small">연동 플랫폼</div>
+            <div class="fw-bold fs-5 text-success">{{ enterprise.stats.active_apps }}개</div>
+          </div>
+          <div class="px-3 py-2 bg-secondary bg-opacity-25 rounded text-center">
+            <div class="text-muted small">AI 크레딧 상태</div>
+            <div class="fw-bold fs-5 text-warning"><i class="bi bi-shield-check me-1"></i>안전 (정상)</div>
+          </div>
+          <div class="px-3 py-2 bg-secondary bg-opacity-25 rounded text-center">
+            <div class="text-muted small">신사업 기획 결재</div>
+            <div class="fw-bold fs-5 text-danger">{{ enterprise.stats.pending_ideas }}건 대기</div>
+          </div>
+          <a href="/admin/app" target="_blank" class="btn btn-warning fw-bold btn-sm px-3 py-2">
+            <i class="bi bi-phone me-1"></i> 사장님 모바일 앱 열기
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="row g-2 mt-3 pt-3 border-top border-secondary border-opacity-50">
+        <div class="col-md-7">
+          <form id="ceoQuickCommandForm" class="d-flex gap-2">
+            <div class="input-group">
+              <span class="input-group-text bg-secondary bg-opacity-50 border-0 text-white"><i class="bi bi-mic-fill"></i></span>
+              <input type="text" id="ceoCommandInput" class="form-control bg-secondary bg-opacity-25 border-0 text-white placeholder-light" placeholder="사장님 실시간 특명 하달 (예: '이번 펫시터 인스타툰에 노령견 돌봄 팁 포함시켜', '여행 블로그 후쿠오카 발행')" required>
+            </div>
+            <button type="submit" class="btn btn-primary px-3 text-nowrap"><i class="bi bi-send-fill me-1"></i>특명 전송</button>
+          </form>
+        </div>
+        <div class="col-md-5 d-flex justify-content-md-end gap-2">
+          <button type="button" class="btn btn-outline-info btn-sm" id="btnRunBrainstorm">
+            <i class="bi bi-lightbulb-fill me-1"></i>R&D 3인 즉시 회의 소집
+          </button>
+          <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#hireStaffModal">
+            <i class="bi bi-person-plus-fill me-1"></i>신규 직원 채용
+          </button>
+          <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#connectAppModal">
+            <i class="bi bi-plus-circle me-1"></i>새 앱/서비스 연동
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13-Person Tree Layout (Visual Connector Lines) -->
+  <div class="card shadow-sm border-0 mb-4 bg-white rounded-3 overflow-hidden">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0 fw-bold text-dark">
+        <i class="bi bi-diagram-3-fill me-2 text-primary"></i>13인 AI 자율 조직 배치도 & 실시간 데이터 파이프라인
+      </h5>
+      <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
+        <span class="spinner-grow spinner-grow-sm me-1"></span>실시간 펄스 가동 중
+      </span>
+    </div>
+
+    <div class="card-body p-4 text-center bg-light bg-opacity-50">
+
+      <!-- Level 1: CEO -->
+      <div class="d-inline-block">
+        <div class="card shadow-sm border-2 border-primary pulse-node px-4 py-2 bg-dark text-white rounded-pill">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-crown-fill text-warning fs-4"></i>
+            <div class="text-start">
+              <div class="fw-bold">👑 사장님 (CEO & Founder)</div>
+              <small class="text-secondary">최종 승인 및 스마트폰 텔레그램 직통 지휘</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connector 1 -->
+      <div class="pipeline-line"></div>
+
+      <!-- Level 2: COO (General Manager) -->
+      <div class="d-inline-block">
+        <div class="card shadow-sm border-0 px-4 py-2 bg-primary text-white rounded-pill">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-person-badge-fill text-white fs-4"></i>
+            <div class="text-start">
+              <div class="fw-bold">👔 총괄 매니저 (Master COO / 총괄 실장)</div>
+              <small class="text-white-50">4대 본부 오케스트레이션 & 일일 종합 브리핑 송부</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connector 2 -->
+      <div class="pipeline-line"></div>
+
+      <!-- Level 3: 4 Major Divisions Grid -->
+      <div class="row g-3 text-start mt-1">
+
+        <!-- Division 1: R&D Ideation -->
+        <div class="col-lg-3 col-md-6">
+          <div class="card h-100 shadow-sm border-0 rounded-3">
+            <div class="card-header dept-header py-2 d-flex justify-content-between align-items-center">
+              <span class="fw-bold"><i class="bi bi-lightbulb-fill text-warning me-1"></i>신사업 R&D실</span>
+              <span class="badge bg-warning text-dark">기획 3인</span>
+            </div>
+            <div class="card-body p-2 d-flex flex-column gap-2 bg-white">
+              {% for emp in enterprise.employees %}
+                {% if emp.dept_id == 'DEPT_RD' %}
+                <div class="card p-2 agent-card shadow-sm" onclick="openEmployeeModal('{{ emp.id }}')">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="fw-bold text-dark small"><i class="bi {{ emp.avatar_icon }} text-primary me-1"></i>{{ emp.name }}</div>
+                    <span class="badge {% if emp.status == 'WORKING' %}bg-primary{% else %}bg-secondary{% endif %} rounded-pill" style="font-size: 0.7rem;">{{ emp.status }}</span>
+                  </div>
+                  <div class="text-muted text-truncate" style="font-size: 0.75rem;">{{ emp.current_task }}</div>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Division 2: Quality & QC -->
+        <div class="col-lg-3 col-md-6">
+          <div class="card h-100 shadow-sm border-0 rounded-3">
+            <div class="card-header dept-header py-2 d-flex justify-content-between align-items-center">
+              <span class="fw-bold"><i class="bi bi-shield-check text-info me-1"></i>품질 관리 & 검수실</span>
+              <span class="badge bg-info text-dark">검수 2인</span>
+            </div>
+            <div class="card-body p-2 d-flex flex-column gap-2 bg-white">
+              {% for emp in enterprise.employees %}
+                {% if emp.dept_id == 'DEPT_QC' %}
+                <div class="card p-2 agent-card shadow-sm" onclick="openEmployeeModal('{{ emp.id }}')">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="fw-bold text-dark small"><i class="bi {{ emp.avatar_icon }} text-info me-1"></i>{{ emp.name }}</div>
+                    <span class="badge {% if emp.status == 'WORKING' %}bg-primary{% else %}bg-secondary{% endif %} rounded-pill" style="font-size: 0.7rem;">{{ emp.status }}</span>
+                  </div>
+                  <div class="text-muted text-truncate" style="font-size: 0.75rem;">{{ emp.current_task }}</div>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Division 3: Creative Studio -->
+        <div class="col-lg-3 col-md-6">
+          <div class="card h-100 shadow-sm border-0 rounded-3">
+            <div class="card-header dept-header py-2 d-flex justify-content-between align-items-center">
+              <span class="fw-bold"><i class="bi bi-palette-fill text-danger me-1"></i>콘텐츠 제작 스튜디오</span>
+              <span class="badge bg-danger">창작 4인</span>
+            </div>
+            <div class="card-body p-2 d-flex flex-column gap-2 bg-white">
+              {% for emp in enterprise.employees %}
+                {% if emp.dept_id == 'DEPT_PROD' %}
+                <div class="card p-2 agent-card shadow-sm" onclick="openEmployeeModal('{{ emp.id }}')">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="fw-bold text-dark small"><i class="bi {{ emp.avatar_icon }} text-danger me-1"></i>{{ emp.name }}</div>
+                    <span class="badge {% if emp.status == 'WORKING' %}bg-primary{% else %}bg-secondary{% endif %} rounded-pill" style="font-size: 0.7rem;">{{ emp.status }}</span>
+                  </div>
+                  <div class="text-muted text-truncate" style="font-size: 0.75rem;">{{ emp.current_task }}</div>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Division 4: Platform & Growth -->
+        <div class="col-lg-3 col-md-6">
+          <div class="card h-100 shadow-sm border-0 rounded-3">
+            <div class="card-header dept-header py-2 d-flex justify-content-between align-items-center">
+              <span class="fw-bold"><i class="bi bi-rocket-takeoff-fill text-success me-1"></i>성장 & 플랫폼 배포실</span>
+              <span class="badge bg-success">성장 3인</span>
+            </div>
+            <div class="card-body p-2 d-flex flex-column gap-2 bg-white">
+              {% for emp in enterprise.employees %}
+                {% if emp.dept_id == 'DEPT_DIST' %}
+                <div class="card p-2 agent-card shadow-sm" onclick="openEmployeeModal('{{ emp.id }}')">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="fw-bold text-dark small"><i class="bi {{ emp.avatar_icon }} text-success me-1"></i>{{ emp.name }}</div>
+                    <span class="badge {% if emp.status == 'WORKING' %}bg-primary{% else %}bg-secondary{% endif %} rounded-pill" style="font-size: 0.7rem;">{{ emp.status }}</span>
+                  </div>
+                  <div class="text-muted text-truncate" style="font-size: 0.75rem;">{{ emp.current_task }}</div>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Connector 3 -->
+      <div class="pipeline-line"></div>
+
+      <!-- Level 4: Connected Channels Grid -->
+      <div class="d-flex flex-wrap justify-content-center gap-2 mt-1">
+        {% for app in enterprise.apps %}
+        <div class="card px-3 py-2 shadow-sm border-0 bg-white rounded-pill d-flex flex-row align-items-center gap-2">
+          <i class="bi {{ app.icon }} text-primary"></i>
+          <span class="fw-semibold small text-dark">{{ app.name }}</span>
+          <span class="badge bg-success rounded-pill" style="font-size: 0.65rem;">가동중</span>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+
+  <!-- R&D Idea Proposals Section -->
+  <div class="card shadow-sm border-0 mb-4 rounded-3">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0 fw-bold">
+        <i class="bi bi-lightbulb text-warning me-2"></i>[신사업 기획 & 마케팅 R&D실] 일일 기획서 결재 센터
+      </h5>
+      <span class="badge bg-warning text-dark">R&D 3인 자율 회의 산출물</span>
+    </div>
+    <div class="card-body p-4">
+      {% for idea in enterprise.ideas %}
+      <div class="card border rounded-3 p-3 mb-3 bg-light bg-opacity-25" id="card-{{ idea.id }}">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div>
+            <span class="badge bg-primary me-2">{{ idea.category }}</span>
+            <span class="badge {% if idea.status == 'APPROVED' %}bg-success{% elif idea.status == 'PENDING' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ idea.status }}</span>
+            <h5 class="fw-bold mt-2 text-dark">{{ idea.title }}</h5>
+          </div>
+          <small class="text-muted">{{ idea.created_at }}</small>
+        </div>
+        <p class="text-secondary small mb-3">{{ idea.summary }}</p>
+
+        <div class="row g-2 mb-3 small">
+          <div class="col-md-6">
+            <div class="p-2 bg-white rounded border">
+              <strong><i class="bi bi-exclamation-triangle-fill text-danger me-1"></i>타겟 결핍(Pain-point):</strong> {{ idea.pain_point }}
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-2 bg-white rounded border">
+              <strong><i class="bi bi-cash-coin text-success me-1"></i>수익 모델(BM):</strong> {{ idea.monetization_bm }}
+            </div>
+          </div>
+        </div>
+
+        <!-- 3-Agent Brainstorming Transcript Accordion -->
+        <div class="accordion mb-3" id="acc-{{ idea.id }}">
+          <div class="accordion-item border-0 bg-white rounded shadow-sm">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2 small fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#col-{{ idea.id }}">
+                <i class="bi bi-chat-left-dots me-2 text-primary"></i>R&D 3인 실시간 브레인스토밍 회의록 열람
+              </button>
+            </h2>
+            <div id="col-{{ idea.id }}" class="accordion-collapse collapse p-3 bg-light">
+              {% for msg in idea.meeting_transcript %}
+              <div class="mb-2 small">
+                <span class="badge bg-secondary me-1">{{ msg.speaker }}</span>
+                <span class="text-dark">{{ msg.message }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- CEO Approval Buttons -->
+        <div class="d-flex justify-content-end gap-2">
+          <button class="btn btn-outline-secondary btn-sm" onclick="actionIdea('{{ idea.id }}', 'IN_PROGRESS')">
+            <i class="bi bi-arrow-repeat me-1"></i>보완 지시
+          </button>
+          <button class="btn btn-outline-danger btn-sm" onclick="actionIdea('{{ idea.id }}', 'REJECTED')">
+            <i class="bi bi-x-circle me-1"></i>반려
+          </button>
+          <button class="btn btn-success btn-sm px-3" onclick="actionIdea('{{ idea.id }}', 'APPROVED')">
+            <i class="bi bi-check-circle-fill me-1"></i>채택 & 개발 착수 결재
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<!-- Employee Detail Modal -->
+<div class="modal fade" id="employeeDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-3 shadow">
+      <div class="modal-header bg-dark text-white">
+        <h5 class="modal-title fw-bold" id="modalEmpName">직원 상세 프로필</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4" id="modalEmpBody">
+        <!-- Dynamic content injected via JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hire Staff Modal -->
+<div class="modal fade" id="hireStaffModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-3 shadow">
+      <form id="hireStaffForm">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold"><i class="bi bi-person-plus-fill me-2"></i>신규 AI 전문 직원 채용 (확장)</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-bold">직원 이름 & 호칭</label>
+            <input type="text" class="form-control" name="name" placeholder="예: 직원 14: 글로벌 번역관" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">배속 부서</label>
+            <select class="form-select" name="dept_id">
+              <option value="DEPT_RD">신사업 기획 & 마케팅 R&D실</option>
+              <option value="DEPT_QC">품질 관리 & 팩트 검수실</option>
+              <option value="DEPT_PROD" selected>크리에이티브 콘텐츠 제작실</option>
+              <option value="DEPT_DIST">SNS 성장 & 플랫폼 배포실</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">담당 직무 (Role)</label>
+            <input type="text" class="form-control" name="role" placeholder="예: 일본어/영어 번역 및 현지화" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">직무 설명</label>
+            <textarea class="form-control" name="description" rows="2" placeholder="이 직원이 수행할 핵심 작업과 퀄리티 목표"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+          <button type="submit" class="btn btn-primary px-3">즉시 채용 배속</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Connect App Modal -->
+<div class="modal fade" id="connectAppModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-3 shadow">
+      <form id="connectAppForm">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title fw-bold"><i class="bi bi-plus-circle me-2"></i>신규 앱 / 플랫폼 연동 등록</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-bold">앱 / 플랫폼 명칭</label>
+            <input type="text" class="form-control" name="name" placeholder="예: 펫닥터24 어플리케이션" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">카테고리</label>
+            <select class="form-select" name="category">
+              <option value="PLATFORM" selected>자체 앱 플랫폼</option>
+              <option value="BLOG">워드프레스 블로그</option>
+              <option value="SNS">SNS 마케팅 채널</option>
+              <option value="UTILITY">유틸리티 도구</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">URL 주소</label>
+            <input type="url" class="form-control" name="url" placeholder="https://petdoctor24.com">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">설명</label>
+            <input type="text" class="form-control" name="description" placeholder="서비스 요약 설명">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+          <button type="submit" class="btn btn-success px-3">플랫폼 연동 등록</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const enterpriseData = {{ enterprise | tojson }};
+
+function openEmployeeModal(empId) {
+  const emp = enterpriseData.employees.find(e => e.id === empId);
+  if (!emp) return;
+
+  document.getElementById("modalEmpName").innerText = emp.name;
+  let html = `
+    <div class="mb-3 text-center">
+      <div class="d-inline-block p-3 rounded-circle bg-primary bg-opacity-10 text-primary fs-2 mb-2">
+        <i class="bi ${emp.avatar_icon}"></i>
+      </div>
+      <h5 class="fw-bold mb-0">${emp.role}</h5>
+      <span class="badge bg-secondary mt-1">${emp.dept_name}</span>
+    </div>
+    <div class="p-3 bg-light rounded mb-3">
+      <strong>현재 진행 업무:</strong><br>
+      <span class="text-primary fw-bold">${emp.current_task}</span>
+    </div>
+    <div class="mb-3">
+      <strong>보유 전문 스킬:</strong><br>
+      <div class="d-flex flex-wrap gap-1 mt-1">
+        ${emp.skills.map(s => `<span class="badge bg-info text-dark">${s}</span>`).join('')}
+      </div>
+    </div>
+    <div>
+      <strong>최근 작업 실시간 로그:</strong>
+      <ul class="list-group list-group-flush small mt-2">
+        ${emp.recent_logs.map(l => `<li class="list-group-item px-0 py-1 text-muted"><i class="bi bi-clock me-1"></i>${l}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+  document.getElementById("modalEmpBody").innerHTML = html;
+  const modal = new bootstrap.Modal(document.getElementById("employeeDetailModal"));
+  modal.show();
+}
+
+async function actionIdea(ideaId, action) {
+  try {
+    const res = await fetch("/admin/api/enterprise/idea/action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idea_id: ideaId, action: action })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      location.reload();
+    }
+  } catch (err) {
+    alert("오류: " + err.message);
+  }
+}
+
+document.getElementById("ceoQuickCommandForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const input = document.getElementById("ceoCommandInput");
+  const instruction = input.value.trim();
+  if (!instruction) return;
+
+  try {
+    const res = await fetch("/admin/api/enterprise/task", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ instruction: instruction })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert("🚀 사장님 특명이 담당 AI 직원에게 하달되었습니다!");
+      input.value = "";
+      location.reload();
+    }
+  } catch (err) {
+    alert("오류: " + err.message);
+  }
+});
+
+document.getElementById("btnRunBrainstorm").addEventListener("click", async () => {
+  const btn = document.getElementById("btnRunBrainstorm");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>R&D 회의 중...';
+
+  try {
+    const res = await fetch("/admin/api/enterprise/run-brainstorm", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic: "반려동물 및 1인 가구 생활 밀착 솔루션" })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      location.reload();
+    }
+  } catch (err) {
+    alert("오류: " + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-lightbulb-fill me-1"></i>R&D 3인 즉시 회의 소집';
+  }
+});
+
+document.getElementById("hireStaffForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const payload = {
+    name: form.name.value,
+    dept_id: form.dept_id.value,
+    role: form.role.value,
+    description: form.description.value
+  };
+  try {
+    const res = await fetch("/admin/api/enterprise/hire", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      location.reload();
+    }
+  } catch (err) {
+    alert("오류: " + err.message);
+  }
+});
+
+document.getElementById("connectAppForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const payload = {
+    name: form.name.value,
+    category: form.category.value,
+    url: form.url.value,
+    description: form.description.value
+  };
+  try {
+    const res = await fetch("/admin/api/enterprise/connect-app", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(data.message);
+      location.reload();
+    }
+  } catch (err) {
+    alert("오류: " + err.message);
+  }
+});
+</script>
+{% endblock %}

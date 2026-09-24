@@ -1,0 +1,100 @@
+<!-- Content Opportunity Engine: Today's Recommended TOP 5 (Movie) -->
+<div class="col-12" id="opportunities">
+  <div class="card shadow-sm border-0 border-start border-4 border-primary">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <div class="d-flex align-items-center flex-wrap gap-2 mb-1">
+          <h5 class="card-title mb-0 fw-bold text-primary">
+            <i class="bi bi-bullseye me-2"></i>오늘의 콘텐츠 기회 발굴 TOP 5 (Opportunity Engine)
+          </h5>
+          <a href="{{ movie_site.site_url if movie_site else overview.wordpress_url }}" target="_blank" rel="noopener noreferrer" class="badge text-bg-light border border-primary-subtle text-primary text-decoration-none px-2 py-1 shadow-sm" title="트렌드스팟24 홈페이지 바로가기">
+            <i class="bi bi-film me-1 text-primary"></i><strong>트렌드스팟24</strong> <span class="text-secondary fw-normal">| trendspot24.com</span> <i class="bi bi-box-arrow-up-right small ms-1"></i>
+          </a>
+        </div>
+        <span class="text-muted small">트렌드 화제성, 개봉 시의성, 관객 평점, 경쟁 강도를 다차원 분석하여 자동 추천합니다.</span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-primary-subtle text-primary border border-primary px-2 py-1">자율 기회 분석 활성</span>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      {% if top_opportunities %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 50px;">순위</th>
+              <th>영화 정보</th>
+              <th style="width: 130px;">종합 기회 점수</th>
+              <th>점수 구성 분해 (Breakdown)</th>
+              <th>핵심 기회 요인</th>
+              <th style="width: 100px;">상태</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for opp in top_opportunities %}
+            <tr>
+              <td class="text-center fw-bold text-muted">{{ loop.index }}</td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  {% if opp.poster_reference %}
+                  <img src="{{ opp.poster_reference }}" alt="{{ opp.title }}" class="rounded shadow-sm" style="width: 38px; height: 55px; object-fit: cover;" onerror="this.style.display='none'">
+                  {% endif %}
+                  <div>
+                    <div class="fw-bold text-dark">{{ opp.title }}</div>
+                    <div class="small text-muted">개봉: {{ opp.release_date or '정보 없음' }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-baseline gap-1">
+                  <span class="fs-5 fw-bold text-primary">{{ opp.opportunity_score }}</span>
+                  <span class="small text-muted">/ 100</span>
+                </div>
+                <div class="progress" style="height: 5px;">
+                  <div class="progress-bar bg-primary" role="progressbar" style="width: {{ opp.opportunity_score }}%"></div>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex flex-wrap gap-1 small">
+                  <span class="badge bg-light text-dark border" title="트렌드 및 화제성 (0~30)">트렌드 {{ opp.breakdown.trend_factor }}</span>
+                  <span class="badge bg-light text-dark border" title="개봉 시의성 및 D-Day (0~25)">시의성 {{ opp.breakdown.recency_factor }}</span>
+                  <span class="badge bg-light text-dark border" title="평점 및 관객 반응 (0~20)">평점 {{ opp.breakdown.rating_quality_factor }}</span>
+                  <span class="badge bg-light text-dark border" title="정보 충실도 (0~15)">충실도 {{ opp.breakdown.completeness_factor }}</span>
+                  <span class="badge bg-light text-dark border" title="경쟁 우위 (0~10)">경쟁우위 {{ opp.breakdown.competition_factor }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="small text-secondary">
+                  {% for hl in opp.breakdown.highlights %}
+                  <div>&bull; {{ hl }}</div>
+                  {% else %}
+                  <span class="text-muted">-</span>
+                  {% endfor %}
+                </div>
+              </td>
+              <td>
+                {% if opp.status == 'HIGH_OPPORTUNITY' %}
+                <span class="badge bg-success">최우선 추천</span>
+                {% elif opp.status == 'MEDIUM' %}
+                <span class="badge bg-info text-white">유망 후보</span>
+                {% elif opp.status == 'EXCLUDED' %}
+                <span class="badge bg-secondary">기발행 제외</span>
+                {% else %}
+                <span class="badge bg-light text-dark border">일반</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="p-4 text-center text-muted">
+        <i class="bi bi-info-circle fs-3 mb-2 d-block text-secondary"></i>
+        발굴된 추천 영화 기회가 없습니다. 상단 '영화 API'를 테스트하거나 자동화 파이프라인을 가동하세요.
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>

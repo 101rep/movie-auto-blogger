@@ -90,3 +90,76 @@
   - `core/audit/blog_healer.py` 내부에 `ssl._create_unverified_context()` 및 `check_hostname=False`, `verify_mode=ssl.CERT_NONE`를 적용하여 시계 오차에 따른 예외 차단.
 - **재발 방지 대책 (Future Prevention):**
   - 외부 통신 모듈 작성 시 샌드박스/로컬 시계 오차 환경을 고려하여 SSL 검증 모드를 안전하게 래핑.
+
+---
+
+### [RCA-009] 아이템픽24 동일 제휴 URL 및 상품명 중복 등록 차단 & 3회 트래픽 정기 보고 체계
+- **발생 일시:** 2026-09-24
+- **현상:** 
+  1. 텔레그램으로 동일한 제휴 링크나 동일 상품이 반복 제출될 경우 워드프레스에 중복 포스팅이 생성되어 SEO 패널티 및 사용자 혼선 유발 위험.
+  2. 트래픽 보고가 기존 21:00 1회에 머물러 일중 방문자 추이 파악의 즉시성이 부족함.
+- **근본 원인 (Root Cause):**
+  1. `itempick_queue_service.py`에 URL 정규화(마케팅 트래킹 파라미터 스트리핑) 및 WordPress REST API 라이브 대조 가드가 부재함.
+  2. `daily_reporter.py`의 정기 보고 스케줄러가 `EVENING_TRAFFIC_HOUR = 21` 단일 시간으로 고정되어 있었음.
+- **조치 내역 (Fix):**
+  1. `itempick_queue_service.py`에 `normalize_url` 및 `_normalize_title_for_cmp` 기반 2단계 중복 검증 함수(`check_duplicate`) 구현.
+  2. 중복 감지 시 발행을 전면 취소하고, 텔레그램으로 거절 사유, 요청 URL, 매칭된 기존 포스팅 상세 정보(제목, ID, 링크, 등록일)를 정밀 전송.
+  3. `daily_reporter.py`에 `TRAFFIC_REPORT_HOURS = [9, 15, 21]` 및 `sent_traffic_keys` 캐시 가드를 도입하여 09시, 15시, 21시 KST 3회 정시 발송 체계 구축.
+- **재발 방지 대책 (Future Prevention):**
+  - 제휴 상품 포스팅 생성 시 무조건 사전/사후 2중 중복 검증을 통과해야만 미디어 업로드 및 포스팅이 발생하도록 엔지니어링 파이프라인 고정.
+
+---
+
+### [RCA-010] 텔레그램 글 수정 권한 부재로 인한 수정 미반영 허위 보고 및 빈 본문 이슈
+- **발생 일시:** 2026-09-24
+- **현상:**
+  1. 텔레그램으로 "트렌드스팟24에 제목 고스트 인 더 셀 내용이 없어 수정보안해줘" 요청 시, 봇은 "수정 및 보완 완료 보고"를 출력했으나 실제 웹페이지(`https://trendspot24.com/movie-2ecc13/`)에는 본문 섹션(기본정보, 줄거리, 출연진, 마무리)이 여전히 공백 상태로 방치됨.
+  2. 서버 로그에 `[TelegramBot Polling Error] No module named 'core'` 오류 반복 발생.
+- **근본 원인 (Root Cause):**
+  1. `00_Central_AI_Manager/router/gemini_tools.py`에 포스터 교체 도구(`fix_blog_post_poster`)와 삭제 도구(`manage_blog_posts`)만 존재하고, 본문 내용을 작성/수정/재생성하는 도구가 전혀 구현되어 있지 않았음.
+  2. Gemini AI가 사용자의 '수정보안' 프롬프트를 보고 가장 유사한 `fix_blog_post_poster`를 호출하였으며, 해당 도구는 포스터 이미지만 상단에 prepend하고 빈 본문 템플릿을 그대로 유지한 채 성공을 반환함.
+  3. `deploy_central_to_server.py`의 패키징 대상 폴더 목록에 `core` 디렉터리가 누락되어 Cloudways 서버에 `core` 모듈이 배포되지 않아, `control_center.py`의 `from core.audit.blog_healer import blog_healer` 구문에서 `ModuleNotFoundError` 발생.
+  4. `BlogHealer.audit_site`에서 텍스트 길이 측정 시 `<style>` 및 `<script>` 태그 내부의 CSS/JS 문자열을 제거하지 않아, CSS 코드가 2,000자 이상 포함된 빈 템플릿 글이 `THIN_CONTENT` 결함으로 감지되지 않는 사각지대 존재.
+- **조치 내역 (Fix):**
+  1. **고스트 인 더 셀 (ID: 137) 긴급 복구:** TMDB ID: 1393326 및 2026년 공개 인도네시아 하드 고어 호러 액션 정보(키모 스탐보엘 감독, 아비마나 아리아사티아 주연, 칼리조보 교도소 0번 셀 배경 줄거리, E-E-A-T 관람포인트 및 추천가이드)를 직접 생성하여 WordPress REST API로 포스트 137 본문 14,600자 즉시 업데이트 및 라이브 검증 완료.
+  2. **텔레그램 전용 본문 수정/재생성 도구 신규 탑재 (`repair_blog_post_content`):**
+     - 사이트 ID, 글 ID, 영화 제목, 사용자 수정 지시사항을 인자로 받아 Gemini AI로 전체 E-E-A-T 고품질 다크 매거진 본문을 작성하고 포스터까지 자동 보완하여 WordPress에 실제 업데이트하고 사후 검증까지 수행하는 완결형 도구 구현.
+     - `GEMINI_FUNCTION_DECLARATIONS`, `execute_tool_call`, `SYSTEM_INSTRUCTION`에 등록하고 L2 관리자 자동 승인 권한 부여.
+  3. **Cloudways 서버 `core` 모듈 배포 및 데몬 정상화:**
+     - `00_Central_AI_Manager/core` 패키지화 및 `deploy_central_to_server.py`에 포함하여 배포 완료.
+     - `central_ai_manager` 데몬 재기동 후 `No module named 'core'` 오류 완전 소멸 확인.
+  4. **`BlogHealer` 본문 길이 측정 알고리즘 고도화:**
+     - `<style>` 및 `<script>` 블록을 먼저 완전히 스트리핑한 후 순수 실텍스트 길이(`clean_len`) 및 빈 H2 섹션을 정밀 판별하도록 개선.
+- **재발 방지 대책 (Future Prevention):**
+  - AI 관제 에이전트에게 '수정' 명령이 들어왔을 때 포스터/메타데이터만 교체하고 본문 수정을 누락하는 일이 없도록, 본문 수정 전용 API(`repair_blog_post_content`)를 최우선 라우팅 규칙으로 영구 고정.
+
+---
+
+### [RCA-011] 텔레그램 블로그 본문 수정 시 글 퀄리티 저하, 토큰 절단 및 본문 증발 현상
+- **발생 일시:** 2026-09-24
+- **현상:**
+  1. 트렌드스팟24의 '하트 오브 더 비스트' (ID 134) 글의 내용이 비어 있거나 줄거리 중간에서 문장이 끊긴 채 하단 섹션(출연진, 감독, 관람포인트 등)이 통째로 증발함.
+  2. 사용자가 텔레그램을 통해 수정보안을 요청했을 때, 기존 정상 발행 글 대비 퀄리티가 현저히 떨어지고 단조롭게 작성("단순히 썼다가")되었으며, 글을 확인한 후 다시 들어가니 하단 내용이 사라져버리는 현상 발생.
+- **근본 원인 (Root Cause):**
+  1. **TMDB 공식 메타데이터 사전 접지(Grounding) 부재:**
+     - 기존 자동 발행 프로그램은 TMDB API로 감독, 배우, 공식 시놉시스, 평점, 장르, 러닝타임을 완벽히 수집한 후 글을 작성했으나, 텔레그램 `repair_blog_post_content`는 글 제목만 가지고 LLM에게 "자유 서술 인라인 HTML"을 생성하도록 요청하여 정보의 사실성과 깊이가 결여된 단조로운 글이 생성됨.
+  2. **원시 HTML 인라인 CSS 생성에 따른 토큰 한도 초과 및 문장 중단(Token Truncation):**
+     - LLM이 수십 개의 HTML 태그와 반복적인 인라인 CSS 속성(`style="..."`)을 한국어 장문과 함께 생성하다가 `maxOutputTokens` 한도에 도달하여 줄거리 2문단 도중(`...첨단 무기로 무장한 용병`)에서 문장이 급작스럽게 절단됨.
+  3. **HTML 태그 미닫힘(Unclosed Tags)으로 인한 워드프레스/브라우저 DOM 파싱 붕괴:**
+     - 출력이 중간에 잘리면서 `<p>`, `<section>`, `<div>` 등 닫는 태그가 닫히지 않은 채 워드프레스에 저장됨. 브라우저와 워드프레스 구텐베르크 파서가 깨진 DOM을 렌더링하지 못하거나 자동 보정하면서 잘린 지점 하단의 모든 섹션이 시각적으로 사라져 "다시 들어가니 지워지고 없어졌다"고 인식됨.
+  4. **단편적 하드코딩 폴백(Static Prison Horror Fallback):**
+     - AI 생성 실패 시 동작하는 비상 폴백 템플릿에 이전 수리 대상이었던 교도소 공포 영화 내용이 정적으로 고정되어 있어, 장르가 전혀 다른 영화에도 부적합한 내용이 출력될 위험이 있었음.
+- **조치 내역 (Fix):**
+  1. **하트 오브 비스트 (ID 134) 완벽 복원:**
+     - TMDB ID 1263337 (데이비드 에이어 감독, 브래드 피트 주연, 은퇴 군견 오딘, 102분, 평점 7.9) 공식 정보를 바탕으로 넷플릭스 다크 매거진 E-E-A-T 규격 14,858자 완벽 복구 및 라이브 배포 완료.
+  2. **`repair_blog_post_content` 구조적 전면 개편 (Structured Component Architecture):**
+     - `fetch_movie_full_metadata`: TMDB 다중 쿼리 검색('더', 'the' 제거 정규화)으로 감독, 출연진, 개봉일, 러닝타임, 장르, 평점, 줄거리를 사전 수집하여 AI 프롬프트에 사실 접지(Grounding).
+     - **구조화된 JSON 전용 생성:** LLM에게 비효율적인 raw HTML 대신 순수 텍스트 필드(`hook_quote`, `intro`, `synopsis_p1~p3`, `director_analysis`, `cast_analysis`, `viewing_points`, `recommended_for`, `closing_verdict`)만 JSON으로 생성하도록 하여 토큰 낭비 및 문장 절단을 원천 차단.
+     - `render_netflix_dark_magazine_html`: 수집된 메타데이터와 JSON 콘텐츠를 표준 다크 매거진 컴포넌트 템플릿으로 안전하게 조립.
+     - `validate_and_close_html`: 모든 태그(`<div`, `<section`, `<p` 등)의 열림/닫힘 정합성을 사전 검사하고 누락된 닫는 태그 자동 보정.
+  3. **Cloudways 프로덕션 서버 배포 및 단위 테스트 6종 통과:**
+     - `deploy_central_to_server.py`를 통해 무중단 배포 및 데몬 재기동 확인.
+- **재발 방지 대책 (Future Prevention):**
+  - AI에게 직접 raw HTML 및 인라인 스타일을 생성하도록 명령하는 방식을 전면 금지하고, 모든 콘텐츠 수리/보완 도구는 [데이터 수집 -> JSON 구조화 생성 -> 템플릿 조립 -> 태그 검증 -> 배포] 5단계 파이프라인을 엄격히 준수하도록 강제.
+
+

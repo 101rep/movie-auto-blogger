@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  aaos-core:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: aaos_core
+    restart: always
+    ports:
+      - "8000:8000"
+      - "9090:9090"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ../data:/app/data
+      - ../Threads Revenue Engine/tre.db:/app/Threads Revenue Engine/tre.db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: aaos_prometheus
+    restart: always
+    ports:
+      - "9091:9090"
+    volumes:
+      - ../monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: aaos_grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=antigravity
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+
+volumes:
+  prometheus_data:
+  grafana_data:

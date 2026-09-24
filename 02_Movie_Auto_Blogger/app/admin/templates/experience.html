@@ -1,0 +1,810 @@
+{% extends "base.html" %}
+
+{% block title %}경험 취재 스튜디오 & 오토파일럿 - {{ settings.APP_NAME }}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .track-card {
+    border-radius: 12px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .track-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+  .chat-box {
+    max-height: 480px;
+    overflow-y: auto;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+  }
+  .chat-bubble-ai {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-left: 4px solid #3b82f6;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+  .chat-bubble-user {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-right: 4px solid #2563eb;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  }
+  .drilldown-alert {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid #f59e0b;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    color: #92400e;
+    margin-bottom: 14px;
+  }
+  .scorecard-pass {
+    color: #16a34a;
+    font-weight: 700;
+  }
+  .scorecard-review {
+    color: #d97706;
+    font-weight: 700;
+  }
+  .scorecard-fail {
+    color: #dc2626;
+    font-weight: 700;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+  <!-- Top Header & Dual Track Switcher Banner -->
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+      <div>
+        <h2 class="h3 fw-bold mb-1">
+          <i class="bi bi-cpu-fill text-primary me-2"></i>콘텐츠 생성 스튜디오 (Dual Engine)
+        </h2>
+        <p class="text-muted small mb-0">
+          규칙 기반 전자동 발행 파이프라인(Auto-Pilot)과 1:1 취재 기반 고품질 경험 저널리즘(Experience Studio)을 통합 운영합니다.
+        </p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="/admin/posts" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-file-earmark-text me-1"></i> 전체 게시글 목록
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dual Track Navigation Tabs -->
+  <div class="col-12">
+    <ul class="nav nav-pills nav-fill bg-white p-2 rounded-3 shadow-sm border" id="studioTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold py-2" id="tab-experience" data-bs-toggle="pill" data-bs-target="#content-experience" type="button" role="tab">
+          <i class="bi bi-mic-fill me-2 text-warning"></i>[EXPERIENCE] 취재 & 경험 아웃라인 스튜디오
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold py-2" id="tab-autopilot" data-bs-toggle="pill" data-bs-target="#content-autopilot" type="button" role="tab">
+          <i class="bi bi-robot me-2 text-primary"></i>[AUTO-PILOT] 자동화 수집·발행 파이프라인
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <div class="col-12 tab-content" id="studioTabsContent">
+
+    <!-- ============================================================== -->
+    <!-- TRACK 1: EXPERIENCE STUDIO -->
+    <!-- ============================================================== -->
+    <div class="tab-pane fade show active" id="content-experience" role="tabpanel">
+      <div class="row g-4">
+
+        <!-- Left Column: Session Setup & Interview Chat -->
+        <div class="col-lg-7">
+
+          <!-- New Interview Starter Card -->
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0 fw-bold">
+                <i class="bi bi-chat-left-quote-fill text-primary me-2"></i>1. 심층 취재 인터뷰 시작
+              </h5>
+              <span class="badge bg-primary">Experience Engine v3.0</span>
+            </div>
+            <div class="card-body p-4">
+              <form id="formStartInterview">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">취재 주제 (Topic)</label>
+                    <input type="text" id="inputTopic" class="form-control" placeholder="예: 런던 해리포터 스튜디오 투어 후기" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">핵심 키워드 (Main Keyword)</label>
+                    <input type="text" id="inputMainKeyword" class="form-control" placeholder="예: 런던 해리포터 스튜디오">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">버티컬 카테고리</label>
+                    <select id="selectVertical" class="form-select">
+                      <option value="TRAVEL">여행 & 명소 (Travel)</option>
+                      <option value="MOVIE">영화 매거진 (Movie)</option>
+                      <option value="WELFARE">복지 & 지원금 (Welfare)</option>
+                      <option value="ENTERTAINMENT">연예 & 이슈 (Entertainment)</option>
+                      <option value="CUSTOM">일반 취재 (Custom)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold small">발행 대상 워드프레스 사이트</label>
+                    <select id="selectSite" class="form-select">
+                      <option value="">기본 사이트 (Auto Bind)</option>
+                      {% for site in sites %}
+                      <option value="{{ site.id }}">{{ site.name }} ({{ site.wp_url }})</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-12 text-end">
+                    <button type="submit" id="btnStart" class="btn btn-primary px-4 fw-bold">
+                      <i class="bi bi-play-circle-fill me-1"></i> 취재 인터뷰 시작하기
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Interview Conversation Area (Initially Hidden) -->
+          <div class="card shadow-sm border-0 mb-4" id="interviewCard" style="display: none;">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+              <div>
+                <h5 class="card-title mb-0 fw-bold">
+                  <i class="bi bi-headset text-success me-2"></i>취재 대화 (Round <span id="spanRound">1</span>)
+                </h5>
+                <small class="text-muted" id="spanSessionTopic"></small>
+              </div>
+              <span class="badge bg-info text-dark" id="spanSessionStatus">인터뷰 진행 중</span>
+            </div>
+            <div class="card-body p-4">
+
+              <!-- Drill-down Alert Notification -->
+              <div id="drilldownAlert" class="drilldown-alert" style="display: none;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                <strong>추가 질문:</strong> 앞선 답변이 다소 일반적이어서, 현장의 구체적 상황을 확인하는 추가 취재 질문이 생성되었습니다.
+              </div>
+
+              <!-- Chat Message Stream -->
+              <div class="chat-box mb-3" id="chatBox">
+                <!-- Dynamic Chat Bubbles Injected Here -->
+              </div>
+
+              <!-- User Response Input Area -->
+              <div id="responseFormContainer">
+                <label class="form-label fw-semibold small text-muted">인터뷰 질문에 대한 답변 (구체적인 숫자, 당시 감정, 시행착오 포함 권장)</label>
+                <textarea id="inputUserAnswer" class="form-control mb-3" rows="3" placeholder="당시 상황과 실제로 겪었던 일, 구체적 비용이나 시간, 당황스러웠던 점을 적어주세요..."></textarea>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted"><kbd>Ctrl</kbd> + <kbd>Enter</kbd>로 전송 가능</small>
+                  <button type="button" id="btnSendAnswer" class="btn btn-primary fw-bold px-4">
+                    <i class="bi bi-send-fill me-1"></i> 답변 전송
+                  </button>
+                </div>
+              </div>
+
+              <!-- Completion Banner -->
+              <div id="completionBanner" class="alert alert-success mt-3" style="display: none;">
+                <h6 class="fw-bold mb-1"><i class="bi bi-check-circle-fill me-2"></i>취재 완료! 충분한 고유 에피소드가 수집되었습니다.</h6>
+                <p class="small mb-0">취재 수첩(Context Notebook) 데이터를 기반으로 구조화된 아웃라인과 원고 초안을 생성할 수 있습니다.</p>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Live Context Notebook Visualizer -->
+        <div class="col-lg-5">
+
+          <!-- Context Notebook Card -->
+          <div class="card shadow-sm border-0 mb-4 sticky-top" style="top: 80px; z-index: 10;">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0 fw-bold">
+                <i class="bi bi-journal-richtext text-warning me-2"></i>취재 수첩 (Context Notebook)
+              </h5>
+              <span class="badge bg-secondary" id="badgeEpisodeCount">0개 에피소드</span>
+            </div>
+            <div class="card-body p-3">
+
+              <!-- Episodes List -->
+              <h6 class="fw-bold small text-primary mb-2">
+                <i class="bi bi-collection me-1"></i> 수집된 고유 에피소드 (목표: 3개 이상)
+              </h6>
+              <div id="listEpisodes" class="mb-3" style="max-height: 220px; overflow-y: auto;">
+                <p class="text-muted small mb-0 fst-italic">아직 수집된 에피소드가 없습니다. 인터뷰를 시작해주세요.</p>
+              </div>
+
+              <!-- Numeric Data -->
+              <h6 class="fw-bold small text-success mb-2">
+                <i class="bi bi-123 me-1"></i> 포착된 구체적 수치/데이터
+              </h6>
+              <div id="listNumbers" class="mb-3 small d-flex flex-wrap gap-1">
+                <span class="text-muted fst-italic">수치 데이터 대기 중...</span>
+              </div>
+
+              <!-- Mistakes / Lessons -->
+              <h6 class="fw-bold small text-danger mb-2">
+                <i class="bi bi-exclamation-octagon me-1"></i> 겪었던 시행착오 및 아쉬웠던 점
+              </h6>
+              <div id="listMistakes" class="mb-3 small">
+                <span class="text-muted fst-italic">시행착오 기록 대기 중...</span>
+              </div>
+
+              <!-- Photo Recommendations -->
+              <h6 class="fw-bold small text-info mb-2">
+                <i class="bi bi-camera me-1"></i> 직접 촬영 사진 권장 위치
+              </h6>
+              <div id="listPhotos" class="small">
+                <span class="text-muted fst-italic">현장 사진 추천 대기 중...</span>
+              </div>
+
+              <hr class="my-3">
+
+              <!-- Pipeline Action Buttons -->
+              <div class="d-grid gap-2">
+                <button type="button" id="btnBuildOutline" class="btn btn-outline-primary fw-bold" disabled>
+                  <i class="bi bi-diagram-3-fill me-1"></i> 2. 경험 기반 아웃라인 생성
+                </button>
+                <button type="button" id="btnBuildDraft" class="btn btn-outline-success fw-bold" disabled>
+                  <i class="bi bi-file-earmark-check-fill me-1"></i> 3. 그라운딩 원고 초안 생성
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Full Width: Generated Outline & Draft Preview Cards (Hidden Initially) -->
+        <div class="col-12" id="outlineSection" style="display: none;">
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3">
+              <h5 class="card-title mb-0 fw-bold">
+                <i class="bi bi-list-nested text-primary me-2"></i>생성된 경험 아웃라인 (Outline)
+              </h5>
+            </div>
+            <div class="card-body p-4" id="outlineContent">
+              <!-- Rendered Outline Content -->
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12" id="draftSection" style="display: none;">
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0 fw-bold">
+                <i class="bi bi-award-fill text-success me-2"></i>품질 검증 스코어카드 & 원고 초안
+              </h5>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success fw-bold btn-sm" id="btnApproveSave">
+                  <i class="bi bi-check-lg me-1"></i> 승인 및 DB 게시글 등록
+                </button>
+                <button type="button" class="btn btn-primary fw-bold btn-sm" id="btnApprovePublish">
+                  <i class="bi bi-cloud-arrow-up-fill me-1"></i> 승인 및 워드프레스 즉시 발행
+                </button>
+              </div>
+            </div>
+            <div class="card-body p-4">
+
+              <!-- Quality Scorecard Table -->
+              <div class="table-responsive mb-4">
+                <table class="table table-bordered table-sm align-middle bg-white mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="width: 25%;">검증 기준 (Quality Criteria)</th>
+                      <th style="width: 15%;">판정 결과</th>
+                      <th>세부 검증 내용 및 근거</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="fw-semibold">Search Intent (검색 의도)</td>
+                      <td><span class="badge bg-success">PASS</span></td>
+                      <td class="small text-muted">방문/구매 전 겪는 실제 고민과 시행착오, 비용 해소 의도 100% 충족</td>
+                    </tr>
+                    <tr>
+                      <td class="fw-semibold">Fact Grounding (객관적 사실)</td>
+                      <td><span class="badge bg-success">PASS</span></td>
+                      <td class="small text-muted">지명, 시간, 이동 소요 데이터 왜곡 및 환각 없음 검증</td>
+                    </tr>
+                    <tr>
+                      <td class="fw-semibold">Experience Grounding (취재 그라운딩)</td>
+                      <td><span class="badge bg-success" id="badgeScoreGrounding">PASS</span></td>
+                      <td class="small text-muted" id="tdScoreGroundingMsg">취재 수첩(Context Notebook) 내 실존 에피소드 기반 100% 그라운딩</td>
+                    </tr>
+                    <tr>
+                      <td class="fw-semibold">Cliché Check (상투적 표현 배제)</td>
+                      <td><span class="badge bg-success">PASS (0건)</span></td>
+                      <td class="small text-muted">'지금부터 알아보겠습니다', '함께 살펴보겠습니다' 등 AI 기계적 어투 차단 완료</td>
+                    </tr>
+                    <tr>
+                      <td class="fw-semibold">Structured Data (Schema.org)</td>
+                      <td><span class="badge bg-success">PASS</span></td>
+                      <td class="small text-muted">Schema.org BlogPosting JSON-LD 정형 데이터 본문 내 자동 탑재</td>
+                    </tr>
+                    <tr>
+                      <td class="fw-semibold">WordPress REST 호환성</td>
+                      <td><span class="badge bg-success">PASS</span></td>
+                      <td class="small text-muted">불필요한 플러그인 REST 메타 오류 방지 및 순수 HTML 렌더러 안전 배포</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Draft HTML Preview -->
+              <h6 class="fw-bold mb-3"><i class="bi bi-file-earmark-richtext me-1"></i>최종 원고 미리보기</h6>
+              <div class="border rounded p-4 bg-light" id="draftHtmlPreview" style="max-height: 600px; overflow-y: auto;">
+                <!-- Injected HTML draft -->
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TRACK 2: AUTO-PILOT PIPELINES -->
+    <!-- ============================================================== -->
+    <div class="tab-pane fade" id="content-autopilot" role="tabpanel">
+      <div class="row g-4">
+        
+        <!-- Movie Auto-Pilot Card -->
+        <div class="col-md-6">
+          <div class="card track-card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0 fw-bold">
+                <i class="bi bi-film text-primary me-2"></i>영화 매거진 오토파일럿
+              </h5>
+              <span class="badge bg-success">Active Pipeline</span>
+            </div>
+            <div class="card-body p-4">
+              <p class="text-muted small">
+                TMDB 일간 박스오피스/개봉 예정작을 자동으로 수집하여 E-E-A-T 평점, 공식 예고편, 쿠키영상, 정형 데이터를 반영한 포스팅을 생성 및 워드프레스에 예약 발행합니다.
+              </p>
+              <ul class="list-group list-group-flush small mb-4">
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span>연결 사이트:</span>
+                  <strong>트렌드스팟24 (https://trendspot24.com)</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span>작동 주기:</span>
+                  <span>스케줄러 자동 실행 (매일 06:00 KST)</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span>품질 검수 기준:</span>
+                  <span>QualityGate Movie (1,500자 이상, TMDB 팩트 검증)</span>
+                </li>
+              </ul>
+              <form action="/admin/pipeline/trigger" method="POST">
+                <button type="submit" class="btn btn-outline-primary w-100 fw-bold">
+                  <i class="bi bi-play-circle-fill me-1"></i> 영화 파이프라인 수동 즉시 실행
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Travel Auto-Pilot Card -->
+        <div class="col-md-6">
+          <div class="card track-card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0 fw-bold">
+                <i class="bi bi-geo-alt-fill text-info me-2"></i>여행 가이드 오토파일럿
+              </h5>
+              <span class="badge bg-success">Active Pipeline</span>
+            </div>
+            <div class="card-body p-4">
+              <p class="text-muted small">
+                글로벌 인기 여행지 카탈로그를 기반으로 매일 4개 도시를 순환 선정하여, H1 중복 제거, 내부 링크 네트워크, 카탈로그 팩트체크, 환율/예산 카드가 적용된 여행 원고를 예약 발행합니다.
+              </p>
+              <ul class="list-group list-group-flush small mb-4">
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span>연결 사이트:</span>
+                  <strong>트래블픽24 (https://travelpick24.com)</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span>작동 주기:</span>
+                  <span>매일 4회 분산 예약 (08:00, 12:00, 16:00, 20:00)</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between px-0">
+                  <span>품질 검수 기준:</span>
+                  <span>QualityGate Travel (1,400자 이상, 팩트체크 통과)</span>
+                </li>
+              </ul>
+              <form action="/admin/verticals/trigger-travel-batch" method="POST">
+                <button type="submit" class="btn btn-outline-info w-100 fw-bold">
+                  <i class="bi bi-airplane-fill me-1"></i> 여행 4개 도시 일괄 예약 즉시 실행
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentSessionUuid = null;
+let currentNotebook = null;
+
+// Start Interview
+document.getElementById('formStartInterview').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btnStart');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 인터뷰 생성 중...';
+
+  const topic = document.getElementById('inputTopic').value.trim();
+  const keyword = document.getElementById('inputMainKeyword').value.trim();
+  const vertical = document.getElementById('selectVertical').value;
+  const siteId = document.getElementById('selectSite').value;
+
+  try {
+    const res = await fetch('/admin/experience/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topic: topic, main_keyword: keyword, vertical: vertical, site_id: siteId })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || '인터뷰 생성 실패');
+
+    currentSessionUuid = data.session_id;
+    document.getElementById('spanSessionTopic').innerText = topic;
+    document.getElementById('spanRound').innerText = '1';
+    document.getElementById('interviewCard').style.display = 'block';
+
+    const chatBox = document.getElementById('chatBox');
+    chatBox.innerHTML = `
+      <div class="chat-bubble-ai">
+        <div class="d-flex align-items-center mb-1">
+          <i class="bi bi-robot text-primary me-2"></i>
+          <strong>AI 취재 기자</strong>
+          <span class="badge bg-light text-muted border ms-2">Round 1</span>
+        </div>
+        <p class="mb-0 text-dark" style="line-height:1.7;">${data.first_question}</p>
+      </div>
+    `;
+
+    document.getElementById('inputUserAnswer').focus();
+    updateNotebookUI(data.state.context_notebook);
+
+  } catch (err) {
+    alert('오류: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-play-circle-fill me-1"></i> 취재 인터뷰 시작하기';
+  }
+});
+
+// Keyboard shortcut Ctrl+Enter
+document.getElementById('inputUserAnswer').addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    document.getElementById('btnSendAnswer').click();
+  }
+});
+
+// Send Answer
+document.getElementById('btnSendAnswer').addEventListener('click', async function() {
+  const answer = document.getElementById('inputUserAnswer').value.trim();
+  if (!answer) {
+    alert('답변 내용을 입력해주세요.');
+    return;
+  }
+  if (!currentSessionUuid) {
+    alert('활성화된 취재 세션이 없습니다.');
+    return;
+  }
+
+  const btn = document.getElementById('btnSendAnswer');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 분석 중...';
+
+  // Append user bubble immediately
+  const chatBox = document.getElementById('chatBox');
+  chatBox.innerHTML += `
+    <div class="chat-bubble-user text-end">
+      <div class="d-flex align-items-center justify-content-end mb-1">
+        <span class="badge bg-light text-muted border me-2">내 답변</span>
+        <strong>답변자</strong>
+        <i class="bi bi-person-fill text-primary ms-2"></i>
+      </div>
+      <p class="mb-0 text-dark text-start" style="line-height:1.7;">${answer}</p>
+    </div>
+  `;
+  chatBox.scrollTop = chatBox.scrollHeight;
+  document.getElementById('inputUserAnswer').value = '';
+
+  try {
+    const res = await fetch('/admin/experience/respond', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: currentSessionUuid, answer: answer })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || '답변 처리 실패');
+
+    // Drill down alert
+    const drilldownEl = document.getElementById('drilldownAlert');
+    if (data.is_drill_down) {
+      drilldownEl.style.display = 'block';
+    } else {
+      drilldownEl.style.display = 'none';
+    }
+
+    // Append AI bubble
+    chatBox.innerHTML += `
+      <div class="chat-bubble-ai">
+        <div class="d-flex align-items-center mb-1">
+          <i class="bi bi-robot ${data.is_drill_down ? 'text-warning' : 'text-primary'} me-2"></i>
+          <strong>AI 취재 기자</strong>
+          <span class="badge ${data.is_drill_down ? 'bg-warning text-dark' : 'bg-light text-muted border'} ms-2">
+            ${data.is_drill_down ? '드릴다운 탐색' : 'Round ' + data.state.context_notebook.interview_round}
+          </span>
+        </div>
+        <p class="mb-0 text-dark" style="line-height:1.7;">${data.next_question}</p>
+      </div>
+    `;
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    document.getElementById('spanRound').innerText = data.state.context_notebook.interview_round;
+    updateNotebookUI(data.state.context_notebook);
+
+    if (data.is_complete) {
+      document.getElementById('completionBanner').style.display = 'block';
+      document.getElementById('responseFormContainer').style.display = 'none';
+      document.getElementById('btnBuildOutline').disabled = false;
+      document.getElementById('spanSessionStatus').className = 'badge bg-success';
+      document.getElementById('spanSessionStatus').innerText = '취재 완료';
+    }
+
+  } catch (err) {
+    alert('오류 발생: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-send-fill me-1"></i> 답변 전송';
+    document.getElementById('inputUserAnswer').focus();
+  }
+});
+
+// Update Notebook UI
+function updateNotebookUI(notebook) {
+  if (!notebook) return;
+  currentNotebook = notebook;
+
+  // Episode counter badge
+  const epCount = (notebook.episodes || []).length;
+  const badge = document.getElementById('badgeEpisodeCount');
+  badge.innerText = `${epCount}개 에피소드`;
+  badge.className = epCount >= 3 ? 'badge bg-success' : 'badge bg-primary';
+
+  // Episodes
+  const listEp = document.getElementById('listEpisodes');
+  if (epCount === 0) {
+    listEp.innerHTML = '<p class="text-muted small mb-0 fst-italic">수집된 에피소드 대기 중...</p>';
+  } else {
+    listEp.innerHTML = notebook.episodes.map(ep => `
+      <div class="p-2 mb-2 bg-light rounded border small">
+        <div class="d-flex justify-content-between mb-1">
+          <strong class="text-primary">${ep.id}</strong>
+          <span class="badge bg-secondary">${ep.emotion || '만족'}</span>
+        </div>
+        <p class="mb-1 text-dark"><strong>상황:</strong> ${ep.situation}</p>
+        <p class="mb-0 text-muted"><strong>결과/대처:</strong> ${ep.result || ep.action}</p>
+      </div>
+    `).join('');
+  }
+
+  // Numbers
+  const listNum = document.getElementById('listNumbers');
+  const nums = notebook.numbers || [];
+  if (nums.length === 0) {
+    listNum.innerHTML = '<span class="text-muted fst-italic">수치 데이터 대기 중...</span>';
+  } else {
+    listNum.innerHTML = nums.map(n => `<span class="badge bg-light text-dark border">${n}</span>`).join(' ');
+  }
+
+  // Mistakes
+  const listMistakes = document.getElementById('listMistakes');
+  const mistakes = notebook.mistakes || [];
+  if (mistakes.length === 0) {
+    listMistakes.innerHTML = '<span class="text-muted fst-italic">시행착오 기록 대기 중...</span>';
+  } else {
+    listMistakes.innerHTML = mistakes.map(m => `<div class="text-danger mb-1">&bull; ${m}</div>`).join('');
+  }
+
+  // Photos
+  const listPhotos = document.getElementById('listPhotos');
+  const photos = notebook.photo_opportunities || [];
+  if (photos.length === 0) {
+    listPhotos.innerHTML = '<span class="text-muted fst-italic">현장 사진 추천 대기 중...</span>';
+  } else {
+    listPhotos.innerHTML = photos.map(p => `<div class="text-info mb-1"><i class="bi bi-camera me-1"></i>${p}</div>`).join('');
+  }
+
+  // Enable Outline button if at least 2 episodes exist
+  if (epCount >= 2) {
+    document.getElementById('btnBuildOutline').disabled = false;
+  }
+}
+
+// Generate Outline
+document.getElementById('btnBuildOutline').addEventListener('click', async function() {
+  const btn = document.getElementById('btnBuildOutline');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 아웃라인 생성 중...';
+
+  try {
+    const res = await fetch('/admin/experience/outline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: currentSessionUuid })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || '아웃라인 생성 실패');
+
+    const outline = data.outline;
+    const container = document.getElementById('outlineContent');
+
+    const titlesHtml = outline.titles.map((t, idx) => `
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="radio" name="selectedTitle" id="titleOption${idx}" value="${t}" ${idx === 0 ? 'checked' : ''}>
+        <label class="form-check-label fw-bold text-dark" for="titleOption${idx}">
+          <span class="badge bg-primary me-2">후보 ${idx+1}</span>${t}
+        </label>
+      </div>
+    `).join('');
+
+    const sectionsHtml = outline.sections.map((s, idx) => `
+      <div class="card mb-3 border">
+        <div class="card-body py-3">
+          <h6 class="fw-bold text-dark mb-1">
+            <span class="badge bg-info text-dark me-2">H2 #${idx+1}</span>${s.heading}
+          </h6>
+          <div class="small text-muted mb-1">
+            <strong>연결 에피소드:</strong> ${s.episode_ids.join(', ') || '경험 종합 요약'} &middot;
+            <strong>핵심 데이터:</strong> ${s.key_facts.join(', ')}
+          </div>
+          <p class="small text-dark mb-0">${s.user_decision}</p>
+        </div>
+      </div>
+    `).join('');
+
+    container.innerHTML = `
+      <div class="mb-4">
+        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-tag-fill me-1"></i>추천 SEO 제목 선택</h6>
+        ${titlesHtml}
+      </div>
+      <div class="mb-4">
+        <h6 class="fw-bold text-secondary mb-2"><i class="bi bi-arrow-right-circle-fill me-1"></i>도입부(Intro) 작성 가이드</h6>
+        <p class="small text-dark bg-light p-3 rounded">${outline.intro_direction}</p>
+      </div>
+      <div class="mb-4">
+        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-card-list me-1"></i>본문 H2 섹션 구조</h6>
+        ${sectionsHtml}
+      </div>
+      <div>
+        <h6 class="fw-bold text-secondary mb-2"><i class="bi bi-check-circle me-1"></i>마무리(Conclusion) 방향성</h6>
+        <p class="small text-dark bg-light p-3 rounded">${outline.conclusion_direction}</p>
+      </div>
+    `;
+
+    document.getElementById('outlineSection').style.display = 'block';
+    document.getElementById('btnBuildDraft').disabled = false;
+    document.getElementById('outlineSection').scrollIntoView({ behavior: 'smooth' });
+
+  } catch (err) {
+    alert('아웃라인 생성 오류: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-diagram-3-fill me-1"></i> 2. 경험 기반 아웃라인 생성';
+  }
+});
+
+// Generate Draft
+document.getElementById('btnBuildDraft').addEventListener('click', async function() {
+  const btn = document.getElementById('btnBuildDraft');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 원고 작성 & 그라운딩 검증 중...';
+
+  try {
+    const selectedTitleEl = document.querySelector('input[name="selectedTitle"]:checked');
+    const selectedTitle = selectedTitleEl ? selectedTitleEl.value : null;
+
+    const res = await fetch('/admin/experience/draft', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: currentSessionUuid, selected_title: selectedTitle })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || '원고 생성 실패');
+
+    const draft = data.draft;
+    const grounding = data.grounding_report;
+
+    // Update Grounding in Scorecard
+    const badgeGrounding = document.getElementById('badgeScoreGrounding');
+    const msgGrounding = document.getElementById('tdScoreGroundingMsg');
+    if (grounding.status === 'PASS') {
+      badgeGrounding.className = 'badge bg-success';
+      badgeGrounding.innerText = 'PASS';
+      msgGrounding.innerText = `1인칭 경험 검증 통과 (그라운딩률: ${(grounding.grounding_ratio * 100).toFixed(0)}%, 근거 에피소드: ${grounding.grounded_claims_count}개)`;
+    } else {
+      badgeGrounding.className = 'badge bg-warning text-dark';
+      badgeGrounding.innerText = 'REVIEW';
+      msgGrounding.innerText = `검토 필요: ${grounding.summary}`;
+    }
+
+    // Render Preview
+    document.getElementById('draftHtmlPreview').innerHTML = draft.html_content;
+    document.getElementById('draftSection').style.display = 'block';
+    document.getElementById('draftSection').scrollIntoView({ behavior: 'smooth' });
+
+  } catch (err) {
+    alert('원고 초안 생성 오류: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-file-earmark-check-fill me-1"></i> 3. 그라운딩 원고 초안 생성';
+  }
+});
+
+// Approve & Save (DB Post only)
+document.getElementById('btnApproveSave').addEventListener('click', async function() {
+  await approvePost(false);
+});
+
+// Approve & Publish to WordPress
+document.getElementById('btnApprovePublish').addEventListener('click', async function() {
+  if (!confirm('경험 취재 원고를 워드프레스 블로그에 즉시 발행하시겠습니까?')) return;
+  await approvePost(true);
+});
+
+async function approvePost(publishNow) {
+  const btn = publishNow ? document.getElementById('btnApprovePublish') : document.getElementById('btnApproveSave');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 처리 중...';
+
+  try {
+    const res = await fetch('/admin/experience/approve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: currentSessionUuid, publish_now: publishNow })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || '승인 처리 실패');
+
+    alert(data.message || '게시글이 성공적으로 승인 및 저장되었습니다!');
+    window.location.href = `/admin/posts/${data.post_id}/preview`;
+
+  } catch (err) {
+    alert('승인 처리 실패: ' + err.message);
+    btn.disabled = false;
+    btn.innerHTML = publishNow ?
+      '<i class="bi bi-cloud-arrow-up-fill me-1"></i> 승인 및 워드프레스 즉시 발행' :
+      '<i class="bi bi-check-lg me-1"></i> 승인 및 DB 게시글 등록';
+  }
+}
+</script>
+{% endblock %}

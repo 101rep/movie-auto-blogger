@@ -1,0 +1,71 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: tre
+      POSTGRES_USER: tre
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U tre]
+      interval: 5s
+      retries: 20
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      retries: 10
+  migrate:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    env_file: .env
+    environment: &env
+      DATABASE_URL: postgresql+psycopg://tre:${POSTGRES_PASSWORD}@postgres:5432/tre
+      REDIS_URL: redis://redis:6379/0
+      QUEUE_MODE: rq
+    command: [sh, -c, "python -m alembic upgrade head && python -m apps.backend.tre.seed"]
+    depends_on:
+      postgres: {condition: service_healthy}
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    env_file: .env
+    environment: *env
+    ports: [127.0.0.1:8000:8000]
+    restart: unless-stopped
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+  worker:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    env_file: .env
+    environment: *env
+    command: [python, -m, rq, worker, publishing, --url, redis://redis:6379/0]
+    restart: unless-stopped
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      redis: {condition: service_healthy}
+  dispatcher:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    env_file: .env
+    environment: *env
+    command: [python, -m, apps.worker.dispatch]
+    restart: unless-stopped
+    depends_on:
+      worker: {condition: service_started}
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    ports: [127.0.0.1:3000:3000]
+    restart: unless-stopped
+    depends_on:
+      backend: {condition: service_started}
+volumes:
+  pgdata:

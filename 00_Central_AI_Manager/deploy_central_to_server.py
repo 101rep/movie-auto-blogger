@@ -7,7 +7,7 @@ def deploy():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     zip_path = os.path.join(base_dir, "central_sync.zip")
 
-    dirs_to_include = ["adapters", "security", "router", "telegram_bot", "monitor", "data", "nexus_command", "services"]
+    dirs_to_include = ["adapters", "security", "router", "telegram_bot", "monitor", "data", "nexus_command", "services", "agent", "ag_gateway", "mcp_server", "tests", "core"]
     files_to_include = [".env", "config.py", "main.py", "desktop_controller.py"]
 
     print("[1/5] 관제 센터 코드 패키징 중...")
@@ -63,7 +63,7 @@ fi
 EOF
 chmod +x {remote_dir}/run_daemon.sh && \\
 pkill -9 -f "central_ai_manager/main.py" 2>/dev/null || true && \\
-sleep 1 && \\
+sleep 2 && \\
 /bin/bash {remote_dir}/run_daemon.sh
 """
     stdin, stdout, stderr = client.exec_command(deploy_cmd)
@@ -83,7 +83,7 @@ crontab -l
 
     print("[5/5] 가동 상태 확인 대시...")
     time.sleep(3)
-    stdin, stdout, stderr = client.exec_command("ps aux | grep 'central_ai_manager.*main.py' | grep -v grep")
+    stdin, stdout, stderr = client.exec_command("ps aux | grep 'central_ai_manager/main.py' | grep -v grep")
     ps_out = stdout.read().decode('utf-8', errors='ignore').strip()
     client.close()
 
@@ -93,11 +93,11 @@ crontab -l
     print(f"가동 프로세스:\n{ps_out}")
     if ps_out:
         print("\n==================================================================")
-        print(">>> 🎉 축하합니다! 텔레그램 관제 봇이 Cloudways 서버에서 24시간 가동 중입니다! <<<")
-        print(">>> 텔레그램 @antigravity_courier24_bot 으로 메시지를 보내보세요! <<<")
+        print(">>> [SUCCESS] Central AI Manager v2.0 is running on Cloudways! <<<")
+        print(">>> Telegram @antigravity_courier24_bot is ACTIVE! <<<")
         print("==================================================================\n")
     else:
-        print(">>> 경고: 프로세스 확인 필요 <<<")
+        print(">>> WARNING: Process check required <<<")
 
 if __name__ == "__main__":
     deploy()

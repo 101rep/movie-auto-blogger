@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}멀티 사이트 및 도메인 관리 - {{ settings.APP_NAME }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+
+  <!-- Header & Flash Messages -->
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+      <div>
+        <h2 class="h3 fw-bold mb-1"><i class="bi bi-hdd-network text-primary me-2"></i>멀티 사이트 & 버티컬 관리</h2>
+        <p class="text-muted small mb-0">복수 워드프레스 도메인과 분야별 자동화 파이프라인(영화, 복지, 연예)을 한곳에서 통합 제어합니다.</p>
+      </div>
+      <div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSiteModal">
+          <i class="bi bi-plus-circle me-1"></i> 새 사이트(도메인) 추가
+        </button>
+      </div>
+    </div>
+
+    {% if success_msg %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle-fill me-2"></i>{{ success_msg }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+
+    {% if error_msg %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error_msg }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Verticals Overview Cards -->
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white py-3">
+        <h5 class="card-title mb-0 fw-bold"><i class="bi bi-layers text-warning me-2"></i>운영 중인 버티컬(Vertical) 플랫폼 현황</h5>
+      </div>
+      <div class="card-body p-3">
+        <div class="row g-3">
+          {% for v in verticals %}
+          <div class="col-md-4">
+            <div class="card h-100 border {% if v.is_active %}border-success{% else %}border-light{% endif %} shadow-sm">
+              <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="badge {% if v.is_active %}bg-success{% else %}bg-secondary{% endif %}">{{ v.status }}</span>
+                  <span class="badge bg-light text-dark border">{{ v.primary_provider }}</span>
+                </div>
+                <h5 class="fw-bold mb-1">{{ v.name }}</h5>
+                <p class="small text-muted mb-3" style="min-height: 40px;">{{ v.description }}</p>
+                
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                  <small class="text-muted font-monospace">{{ v.type }}</small>
+                  {% if v.is_active %}
+                  <div class="d-flex gap-1">
+                    <form action="/admin/verticals/trigger" method="POST" class="d-inline">
+                      <input type="hidden" name="vertical_type" value="{{ v.type }}">
+                      <button type="submit" class="btn btn-sm btn-outline-primary" title="후보를 수집하고 즉시 1건의 원고를 생성합니다">
+                        <i class="bi bi-play-fill me-1"></i>1건 생성
+                      </button>
+                    </form>
+                    {% if v.type == 'TRAVEL' %}
+                    <form action="/admin/verticals/trigger-travel-batch" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-sm btn-success" title="오늘 여행 정보 4개를 자동 생성하여 워드프레스에 시간대별로 즉시 예약합니다">
+                        <i class="bi bi-calendar-check me-1"></i>4개 일괄 예약
+                      </button>
+                    </form>
+                    {% endif %}
+                  </div>
+                  {% else %}
+                  <span class="badge bg-light text-muted">개발 준비중</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registered Sites Table -->
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 fw-bold"><i class="bi bi-globe2 text-primary me-2"></i>등록된 워드프레스 사이트 (발행 대상)</h5>
+        <span class="badge bg-primary">총 {{ sites|length }}개 사이트</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 60px;" class="text-center">ID</th>
+                <th>사이트 이름</th>
+                <th>도메인 URL</th>
+                <th>담당 버티컬</th>
+                <th class="text-center">상태</th>
+                <th class="text-center">등록일</th>
+                <th class="text-end" style="width: 260px;">관리 액션</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if sites %}
+                {% for site in sites %}
+                <tr>
+                  <td class="text-center text-muted font-monospace">{{ site.id }}</td>
+                  <td><strong>{{ site.name }}</strong></td>
+                  <td>
+                    <a href="{{ site.site_url }}" target="_blank" class="text-decoration-none font-monospace small">
+                      {{ site.site_url }} <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                  </td>
+                  <td>
+                    <span class="badge {% if site.vertical == 'WELFARE' %}bg-danger{% elif site.vertical == 'ENTERTAINMENT' %}bg-warning text-dark{% else %}bg-primary{% endif %}">
+                      {{ site.vertical }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    {% if site.is_active %}
+                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>가동중</span>
+                    {% else %}
+                    <span class="badge bg-secondary">비활성화</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-center small text-muted">{{ site.created_at.strftime('%Y-%m-%d') if site.created_at else '-' }}</td>
+                  <td class="text-end">
+                    <div class="btn-group btn-group-sm">
+                      <form action="/admin/sites/{{ site.id }}/test" method="POST" class="d-inline">
+                        <button type="submit" class="btn btn-outline-info" title="워드프레스 REST API 연결 상태를 실시간 테스트합니다">
+                          <i class="bi bi-broadcast"></i> 연결 테스트
+                        </button>
+                      </form>
+                      <form action="/admin/sites/{{ site.id }}/toggle" method="POST" class="d-inline ms-1">
+                        <button type="submit" class="btn btn-outline-secondary" title="사이트 가동 상태를 켭니다/끕니다">
+                          {{ '일시정지' if site.is_active else '재개' }}
+                        </button>
+                      </form>
+                      <form action="/admin/sites/{{ site.id }}/delete" method="POST" class="d-inline ms-1" onsubmit="return confirm('정말 이 사이트를 삭제하시겠습니까?');">
+                        <button type="submit" class="btn btn-outline-danger">
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    <p class="mb-2">아직 등록된 추가 사이트가 없습니다. 기본 사이트(trendspot24.com)는 .env 환경변수를 통해 운영 중입니다.</p>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addSiteModal">
+                      <i class="bi bi-plus-circle me-1"></i> 새 도메인(복지/연예 블로그) 등록하기
+                    </button>
+                  </td>
+                </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Operational Step-by-step Guide for Domain Linking -->
+  <div class="col-12">
+    <div class="card shadow-sm border-0 border-start border-4 border-info">
+      <div class="card-body p-4">
+        <h5 class="fw-bold text-dark mb-3"><i class="bi bi-signpost-split-fill text-info me-2"></i>새 도메인 구매 후 워드프레스 자동 포스팅 연결 4단계 가이드</h5>
+        <div class="row g-3">
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded h-100">
+              <h6 class="fw-bold text-primary">1단계: 도메인 구입</h6>
+              <p class="small text-muted mb-0">가비아, 호스팅케이알, 네임칩 등에서 원하는 도메인(예: <code>welfare24.kr</code>)을 구매합니다.</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded h-100">
+              <h6 class="fw-bold text-primary">2단계: Cloudways 워드프레스 추가</h6>
+              <p class="small text-muted mb-0">기존 Cloudways 서버(139.59.125.237)에서 [Add Application]을 눌러 새 워드프레스를 생성하고 도메인을 연결합니다. (서버 추가비용 0원)</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded h-100">
+              <h6 class="fw-bold text-primary">3단계: Application Password 발급</h6>
+              <p class="small text-muted mb-0">새 워드프레스 관리자 > [사용자] > [프로필] 하단에서 새 <strong>애플리케이션 비밀번호(Application Password)</strong>를 생성합니다.</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="p-3 bg-light rounded h-100">
+              <h6 class="fw-bold text-primary">4단계: 본 페이지 등록 & 연결 테스트</h6>
+              <p class="small text-muted mb-0">우측 상단 <strong>[새 사이트 추가]</strong> 버튼을 누르고 URL과 발급받은 비밀번호를 입력 후 <strong>[연결 테스트]</strong>를 누르면 연동 끝!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal: Add New Site -->
+<div class="modal fade" id="addSiteModal" tabindex="-1" aria-labelledby="addSiteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="/admin/sites/create" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="addSiteModalLabel"><i class="bi bi-plus-circle text-primary me-2"></i>새 워드프레스 사이트 등록</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">사이트 이름 <span class="text-danger">*</span></label>
+            <input type="text" name="name" class="form-control" placeholder="예: 대한민국 복지 알리미 포털" required>
+            <div class="form-text">관리자 화면에서 구분할 사이트의 명칭입니다.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">사이트 주소 (URL) <span class="text-danger">*</span></label>
+            <input type="url" name="site_url" class="form-control" placeholder="https://your-domain.com" required>
+            <div class="form-text">새로 구매하여 워드프레스에 연결한 도메인 전체 주소입니다.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">발행 대상 버티컬(분야) <span class="text-danger">*</span></label>
+            <select name="vertical" class="form-select" required>
+              <option value="WELFARE" selected>복지 & 지원금 포털 (WELFARE)</option>
+              <option value="ENTERTAINMENT">연예 & K-컬처 매거진 (ENTERTAINMENT)</option>
+              <option value="TRAVEL">여행 & 명소 가이드 (TRAVEL)</option>
+              <option value="MOVIE">영화 매거진 (MOVIE)</option>
+              <option value="NEWS">종합 뉴스 (NEWS)</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">워드프레스 관리자 아이디 (선택)</label>
+            <input type="text" name="wp_username" class="form-control" placeholder="미입력 시 기본 관리자 계정 적용">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">애플리케이션 비밀번호 (Application Password)</label>
+            <input type="text" name="wp_application_password" class="form-control font-monospace" placeholder="예: abcd efgh ijkl mnop (공백 자동 제거됨)">
+            <div class="form-text">워드프레스 관리자 > 사용자 > 프로필 하단에서 생성한 24자리 암호입니다.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>사이트 등록하기</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -32,8 +32,124 @@ class NexusOrchestrator:
         ))
 
         # =====================================================================
-        # TIER 1: Fast Intent Matching & Context Resolution
+        # TIER 1: Fast Intent Matching & Shopping Link Interceptor
         # =====================================================================
+        # Shopping Link Immediate Publish (Coupang, Today's House, Olive Young, Toss)
+        if any(domain in low for domain in ["coupang.com", "ohou.se", "ozip.me", "oliveyoung.co.kr", "toss.im", "toss.me", "tossshop", "toss.shopping", "toss.bz", "toss.link"]) or (
+            ("item." in low or "아이템" in low or "리뷰" in low or "토스" in low) and ("http://" in low or "https://" in low)
+        ):
+            from services.itempick_queue_service import itempick_queue_service
+            res = itempick_queue_service.add_and_publish_now(clean_text, session_id)
+            if res.get("status") == "SUCCESS":
+                title_info = res.get('title_hint') or "[자동 탐색 모드]"
+                card = ActionCard(
+                    card_type="STATUS",
+                    title="🚀 아이템픽24 즉시 발행 시작",
+                    subtitle=f"대상: {res.get('platform_name')} | 모드: {res.get('mode_name')}",
+                    status_badge="작성 진행 중",
+                    badge_color="blue",
+                    details=[
+                        {"label": "플랫폼", "value": res.get("platform_name")},
+                        {"label": "인식 상품명", "value": title_info},
+                        {"label": "작성 모드", "value": res.get("mode_name")},
+                        {"label": "품질 엔진", "value": "E-E-A-T 구매 가이드 + 16:9 썸네일"}
+                    ],
+                    buttons=[
+                        CardButton(label="🌐 아이템픽24 보기", action_type="open_url", payload="https://item.travelpick24.com", style="primary"),
+                        CardButton(label="📋 발행 작업 현황", action_type="send_message", payload="/tasks", style="secondary")
+                    ]
+                )
+                msg = ChatMessage(
+                    session_id=session_id,
+                    sender="NEXUS",
+                    msg_type=MessageType.ACTION_CARD,
+                    content=f"🚀 <b>[아이템픽24 즉시 발행 시작]</b>\n\n{title_info} 상품에 대한 E-E-A-T 구매 가이드 포스팅을 지금 즉시 작성 중입니다.",
+                    card=card
+                )
+                return session_manager.add_message(msg)
+            else:
+                return session_manager.add_message(ChatMessage(
+                    session_id=session_id,
+                    sender="NEXUS",
+                    msg_type=MessageType.ERROR,
+                    content=f"❌ <b>[발행 실패]</b>\n{res.get('message', '알 수 없는 오류')}"
+                ))
+
+        # Reset Session
+        if low in ("/reset", "대화초기화", "초기화", "새대화"):
+            from agent.memory_db import agent_db
+            agent_db.reset_session(session_id)
+            session_manager.clear_session(session_id)
+            return session_manager.add_message(ChatMessage(
+                session_id=session_id,
+                sender="NEXUS",
+                msg_type=MessageType.SYSTEM,
+                content="🔄 <b>대화 세션과 기억이 초기화되었습니다.</b> 새로운 명령을 말씀해 주세요."
+            ))
+
+        # Tasks Status
+        if low in ("/tasks", "작업목록", "작업현황", "백그라운드"):
+            from agent.task_queue import task_queue
+            report = task_queue.format_status_report(session_id)
+            card = ActionCard(
+                card_type="STATUS",
+                title="📋 백그라운드 작업 큐 현황",
+                status_badge="ACTIVE",
+                badge_color="blue",
+                raw_content=report
+            )
+            return session_manager.add_message(ChatMessage(
+                session_id=session_id,
+                sender="NEXUS",
+                msg_type=MessageType.ACTION_CARD,
+                content=report,
+                card=card
+            ))
+
+        # Cost Summary
+        if low in ("/cost", "/costs", "비용", "비용조회", "토큰비용"):
+            from agent.memory_db import agent_db
+            summary = agent_db.get_cost_summary(days=30)
+            lines = ["💰 <b>[AI 토큰 및 비용 사용 현황 (30일)]</b>\n"]
+            for row in summary.get("by_provider", []):
+                lines.append(f"• <b>{row['provider']}</b> ({row['model']}): ${row['cost']:.6f} ({row['calls']}회 호출)")
+            lines.append(f"\n<b>총 누적 비용: ${summary['total_usd']:.6f}</b>")
+            cost_text = "\n".join(lines)
+            card = ActionCard(
+                card_type="STATUS",
+                title="💰 AI 엔진 누적 비용",
+                subtitle=f"30일 총액: ${summary['total_usd']:.4f}",
+                status_badge=f"${summary['total_usd']:.4f}",
+                badge_color="green",
+                raw_content=cost_text
+            )
+            return session_manager.add_message(ChatMessage(
+                session_id=session_id,
+                sender="NEXUS",
+                msg_type=MessageType.ACTION_CARD,
+                content=cost_text,
+                card=card
+            ))
+
+        # Approvals
+        if low in ("/approvals", "승인목록", "승인대기", "대기승인"):
+            from agent.memory_db import agent_db
+            pending = agent_db.get_pending_approvals(session_id)
+            if not pending:
+                return session_manager.add_message(ChatMessage(
+                    session_id=session_id,
+                    sender="NEXUS",
+                    content="📋 <b>[승인 대기 목록]</b> 현재 대기 중인 승인 요청이 없습니다."
+                ))
+            lines = [f"📋 <b>[승인 대기 목록 ({len(pending)}건)]</b>"]
+            for p in pending:
+                lines.append(f"• <code>{p['description']}</code> (작업: {p['action_name']})")
+            return session_manager.add_message(ChatMessage(
+                session_id=session_id,
+                sender="NEXUS",
+                content="\n".join(lines)
+            ))
+
         # Help
         if low in ("/start", "/help", "도움말", "명령어", "메뉴", "안내"):
             return self._handle_help(session_id)
@@ -362,6 +478,22 @@ class NexusOrchestrator:
                     return session_manager.add_message(ChatMessage(session_id=session_id, sender="NEXUS", msg_type=MessageType.ERROR, content=err_msg))
 
                 res_json = res.json()
+                
+                # Track token usage in agent_db
+                try:
+                    from agent.memory_db import agent_db
+                    usage = res_json.get("usageMetadata", {})
+                    if usage:
+                        agent_db.record_cost(
+                            provider="gemini",
+                            model=self.model,
+                            input_tokens=usage.get("promptTokenCount", 0),
+                            output_tokens=usage.get("candidatesTokenCount", 0),
+                            task_id=f"nexus_{session_id}"
+                        )
+                except Exception:
+                    pass
+
                 candidate = res_json.get("candidates", [{}])[0]
                 content = candidate.get("content", {})
                 parts = content.get("parts", [])

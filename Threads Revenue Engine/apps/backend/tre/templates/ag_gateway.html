@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}AG Gateway AI 관제실 - AI Content Commerce OS{% endblock %}
+{% block header_title %}AG Gateway AI 오케스트레이션 관제실{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Top Hero Banner -->
+  <div class="bg-gradient-to-r from-purple-900/20 via-indigo-900/20 to-slate-900/30 border border-purple-500/20 rounded-2xl p-6 relative overflow-hidden backdrop-blur-sm">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-600 text-white">AG GATEWAY CORE</span>
+          <h3 class="text-xl font-bold text-slate-800">Multi-Model AI 지능형 라우팅 & 비용 관제 센터</h3>
+        </div>
+        <p class="text-sm text-slate-600">
+          작업 특성에 맞춰 <strong>Gemini 2.5 (고속 리서치)</strong>, <strong>Claude 3.5 (감성 글쓰기)</strong>, <strong>GPT-4o (정밀 팩트 검수)</strong>로 분산 실행하며 장애 시 무중단 자동 Fallback 복구합니다.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+          오케스트레이터 실시간 가동중
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-time Metrics 4 Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-2">
+      <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+        <span>오늘 AI 총 호출량</span>
+        <i class="fa-solid fa-bolt text-amber-500 text-base"></i>
+      </div>
+      <div class="flex items-baseline gap-2">
+        <span class="text-2xl font-black text-slate-800">284</span>
+        <span class="text-xs text-slate-500">회 호출</span>
+      </div>
+      <p class="text-[11px] text-emerald-600 font-bold">↑ 전일 대비 18% 증가 (활성 가동)</p>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-2">
+      <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+        <span>총 소비 토큰</span>
+        <i class="fa-solid fa-coins text-purple-500 text-base"></i>
+      </div>
+      <div class="flex items-baseline gap-2">
+        <span class="text-2xl font-black text-slate-800">1,482,900</span>
+        <span class="text-xs text-slate-500">Tokens</span>
+      </div>
+      <p class="text-[11px] text-slate-500">평균 1개 콘텐츠당 3,800 토큰</p>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-2">
+      <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+        <span>금일 누적 비용 (USD)</span>
+        <i class="fa-solid fa-dollar-sign text-emerald-500 text-base"></i>
+      </div>
+      <div class="flex items-baseline gap-2">
+        <span class="text-2xl font-black text-slate-800">$1.64</span>
+        <span class="text-xs text-slate-500">USD</span>
+      </div>
+      <p class="text-[11px] text-emerald-600 font-bold">월 예산($50) 대비 3.2% 소진 (초절감)</p>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-2">
+      <div class="flex items-center justify-between text-slate-500 text-xs font-semibold">
+        <span>Fallback 무중단 성공률</span>
+        <i class="fa-solid fa-shield-halved text-indigo-500 text-base"></i>
+      </div>
+      <div class="flex items-baseline gap-2">
+        <span class="text-2xl font-black text-emerald-600">100.0%</span>
+        <span class="text-xs text-slate-500">무장애</span>
+      </div>
+      <p class="text-[11px] text-indigo-600 font-bold">API 장애 0건 (자동 회피 가동)</p>
+    </div>
+  </div>
+
+  <!-- 7 Specialized AI Agents Status -->
+  <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+      <div>
+        <h4 class="font-bold text-slate-800 text-base flex items-center gap-2">
+          <i class="fa-solid fa-robot text-purple-600"></i>
+          7대 전문 AI Agent 실시간 파이프라인
+        </h4>
+        <p class="text-xs text-slate-500">각 단계별로 최적화된 AI 모델이 역할을 분담하여 최고의 바이럴 콘텐츠를 생산합니다.</p>
+      </div>
+      <span class="text-xs font-bold bg-purple-50 text-purple-700 px-3 py-1 rounded-full border border-purple-200">
+        전원 정상 가동 중 (7 Active)
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <!-- Agent 1 -->
+      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50 hover:bg-white hover:shadow-md transition space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black px-2 py-0.5 rounded bg-blue-100 text-blue-700">리서치</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <div>
+          <h5 class="font-bold text-sm text-slate-800">Research Agent</h5>
+          <p class="text-xs text-slate-500">소재 분석 & 최신 트렌드 팩트 수집</p>
+        </div>
+        <div class="text-[11px] bg-white border border-slate-200 rounded-lg p-2 font-mono text-slate-700 flex justify-between">
+          <span>Primary: Gemini 2.5 Flash</span>
+          <span class="text-emerald-600 font-bold">0.4s</span>
+        </div>
+      </div>
+
+      <!-- Agent 2 -->
+      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50 hover:bg-white hover:shadow-md transition space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black px-2 py-0.5 rounded bg-purple-100 text-purple-700">전략기획</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <div>
+          <h5 class="font-bold text-sm text-slate-800">Strategy Agent</h5>
+          <p class="text-xs text-slate-500">10대 각도 바이럴 훅 & 앵글 설계</p>
+        </div>
+        <div class="text-[11px] bg-white border border-slate-200 rounded-lg p-2 font-mono text-slate-700 flex justify-between">
+          <span>Primary: Claude 3.5 Sonnet</span>
+          <span class="text-purple-600 font-bold">1.2s</span>
+        </div>
+      </div>
+
+      <!-- Agent 3 -->
+      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50 hover:bg-white hover:shadow-md transition space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black px-2 py-0.5 rounded bg-pink-100 text-pink-700">본문집필</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <div>
+          <h5 class="font-bold text-sm text-slate-800">Writer Agent</h5>
+          <p class="text-xs text-slate-500">500자 스레드 + 3단 댓글 휴머나이징</p>
+        </div>
+        <div class="text-[11px] bg-white border border-slate-200 rounded-lg p-2 font-mono text-slate-700 flex justify-between">
+          <span>Primary: Claude 3.5 Sonnet</span>
+          <span class="text-pink-600 font-bold">1.8s</span>
+        </div>
+      </div>
+
+      <!-- Agent 4 -->
+      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50 hover:bg-white hover:shadow-md transition space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black px-2 py-0.5 rounded bg-amber-100 text-amber-700">카드뉴스</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <div>
+          <h5 class="font-bold text-sm text-slate-800">Cardnews Agent</h5>
+          <p class="text-xs text-slate-500">인스타그램 6슬라이드 서사 & 프롬프트</p>
+        </div>
+        <div class="text-[11px] bg-white border border-slate-200 rounded-lg p-2 font-mono text-slate-700 flex justify-between">
+          <span>Primary: Claude 3.5 Sonnet</span>
+          <span class="text-amber-600 font-bold">2.1s</span>
+        </div>
+      </div>
+
+      <!-- Agent 5 -->
+      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50 hover:bg-white hover:shadow-md transition space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black px-2 py-0.5 rounded bg-emerald-100 text-emerald-700">상품추천</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <div>
+          <h5 class="font-bold text-sm text-slate-800">Product Agent</h5>
+          <p class="text-xs text-slate-500">쿠팡 랭킹 스코어링 & 14일 쿨다운 방어</p>
+        </div>
+        <div class="text-[11px] bg-white border border-slate-200 rounded-lg p-2 font-mono text-slate-700 flex justify-between">
+          <span>Primary: GPT-4o</span>
+          <span class="text-emerald-600 font-bold">0.8s</span>
+        </div>
+      </div>
+
+      <!-- Agent 6 -->
+      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50 hover:bg-white hover:shadow-md transition space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black px-2 py-0.5 rounded bg-rose-100 text-rose-700">검수·가드</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <div>
+          <h5 class="font-bold text-sm text-slate-800">Review Agent</h5>
+          <p class="text-xs text-slate-500">금지어, 상투어구 제거, 공정위 문구 심사</p>
+        </div>
+        <div class="text-[11px] bg-white border border-slate-200 rounded-lg p-2 font-mono text-slate-700 flex justify-between">
+          <span>Primary: GPT-4o</span>
+          <span class="text-rose-600 font-bold">0.9s</span>
+        </div>
+      </div>
+
+      <!-- Agent 7 -->
+      <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50 hover:bg-white hover:shadow-md transition space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-black px-2 py-0.5 rounded bg-indigo-100 text-indigo-700">성과학습</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <div>
+          <h5 class="font-bold text-sm text-slate-800">Analytics Agent</h5>
+          <p class="text-xs text-slate-500">도달·좋아요·클릭 분석 및 가중치 업데이트</p>
+        </div>
+        <div class="text-[11px] bg-white border border-slate-200 rounded-lg p-2 font-mono text-slate-700 flex justify-between">
+          <span>Primary: Gemini 2.5 Flash</span>
+          <span class="text-indigo-600 font-bold">0.5s</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account AI Strategy Matrix -->
+  <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+    <h4 class="font-bold text-slate-800 text-base flex items-center gap-2">
+      <i class="fa-solid fa-dna text-indigo-600"></i>
+      7대 브랜드 계정별 AI 배분 전략 (Persona DNA Matrix)
+    </h4>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-600">
+        <thead class="bg-slate-50 text-slate-700 uppercase font-bold border-b border-slate-200">
+          <tr>
+            <th class="p-3">브랜드 계정</th>
+            <th class="p-3">카테고리</th>
+            <th class="p-3">리서치 AI</th>
+            <th class="p-3">본문 집필 AI</th>
+            <th class="p-3">검수 & 심사 AI</th>
+            <th class="p-3">자동 갱신 주기</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="hover:bg-slate-50/50">
+            <td class="p-3 font-bold text-slate-800">💻 IT 테크 크리에이터 (@kth.101rep)</td>
+            <td class="p-3">IT / 전자기기</td>
+            <td class="p-3 font-mono text-purple-600">Claude 3.5 Sonnet</td>
+            <td class="p-3 font-mono text-purple-600">Claude 3.5 Sonnet</td>
+            <td class="p-3 font-mono text-blue-600">Gemini 2.5 Flash</td>
+            <td class="p-3 text-slate-500">매일 08:30 / 18:30</td>
+          </tr>
+          <tr class="hover:bg-slate-50/50">
+            <td class="p-3 font-bold text-slate-800">🏖️ 태치튜브 감성 라이프 (@taechi.tube)</td>
+            <td class="p-3">여행 / 캠핑 / 숙소</td>
+            <td class="p-3 font-mono text-blue-600">Gemini 2.5 Flash</td>
+            <td class="p-3 font-mono text-purple-600">Claude 3.5 Sonnet</td>
+            <td class="p-3 font-mono text-emerald-600">GPT-4o</td>
+            <td class="p-3 text-slate-500">매일 12:30 / 20:00</td>
+          </tr>
+          <tr class="hover:bg-slate-50/50">
+            <td class="p-3 font-bold text-slate-800">🛒 요구핫즈 가성비 장발 (@101rep80)</td>
+            <td class="p-3">가성비 / 핫딜 / 생활</td>
+            <td class="p-3 font-mono text-blue-600">Gemini 2.5 Flash</td>
+            <td class="p-3 font-mono text-emerald-600">GPT-4o</td>
+            <td class="p-3 font-mono text-emerald-600">GPT-4o</td>
+            <td class="p-3 text-slate-500">매일 11:00 / 17:30</td>
+          </tr>
+          <tr class="hover:bg-slate-50/50">
+            <td class="p-3 font-bold text-slate-800">👶 30대 직장인의 현실생존 (@ktaehoon80)</td>
+            <td class="p-3">직장생활 / 멘탈 / 육아</td>
+            <td class="p-3 font-mono text-purple-600">Claude 3.5 Sonnet</td>
+            <td class="p-3 font-mono text-purple-600">Claude 3.5 Sonnet</td>
+            <td class="p-3 font-mono text-emerald-600">GPT-4o</td>
+            <td class="p-3 text-slate-500">매일 07:40 / 19:30</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

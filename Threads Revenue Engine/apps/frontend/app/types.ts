@@ -1,0 +1,6 @@
+export type Account={id:number;name:string;username:string;category:string;status:string;timezone:string;daily_post_limit:number;daily_affiliate_limit:number;minimum_interval:number;affiliate_ratio:number;reply_count:number;content_ratios:Record<string,number>;access_token_reference:string|null};
+export type Post={id:number;account_id:number;body:string;goal:string;angle:string;status:string;remote_id:string|null;scheduled_at:string|null;approved_at:string|null;error_code:string|null;validation?:{result:string;human_score:number;errors:string[];warnings:string[]};replies:{body:string;remote_id:string|null}[]};
+export type Snapshot={kill_switch:boolean;today_posts:number;success:number;failed:number;scheduled:number;affiliate:number;information:number;worker:{status:string;last_seen:string|null};queue:Record<string,number>;telegram:{sent:number}};
+export type SourceItem={id:number;source_title:string;source_text:string;category:string;status:string};
+export type Product={id:number;name:string;provider:string;price:number|null;category:string;rating:number|null;review_count:number|null};
+export type Notification={id:number;created_at:string;state:string;body:string;remote_id:string|null};

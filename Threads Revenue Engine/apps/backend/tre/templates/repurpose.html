@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}3-Way 원소스 멀티유즈 - AI Content Commerce OS{% endblock %}
+{% block header_title %}3-Way 원소스 멀티유즈 엔진{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Top Hero Banner -->
+  <div class="bg-gradient-to-r from-cyan-900/20 via-blue-900/20 to-indigo-900/20 border border-cyan-500/20 rounded-2xl p-6 relative overflow-hidden backdrop-blur-sm">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-cyan-600 text-white">OMNI-CHANNEL REPURPOSE</span>
+          <h3 class="text-xl font-bold text-slate-800">1개 소재 ➔ Threads + Instagram + SEO 블로그 3단 동시 분기</h3>
+        </div>
+        <p class="text-sm text-slate-600">
+          하나의 상품이나 기획 아이디어를 넣으면 채널별 소비 문법에 맞춰 <strong>스레드(500자 숏폼)</strong>, <strong>인스타(6슬라이드 캐러셀)</strong>, <strong>블로그(E-E-A-T 장문)</strong>로 자동 재가공합니다.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-cyan-100 text-cyan-800 border border-cyan-300">
+          <i class="fa-solid fa-arrows-split-up-and-left"></i>
+          트리플 파이프라인 대기
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sourcing Input Area -->
+  <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+    <h4 class="font-bold text-slate-800 text-base flex items-center gap-2">
+      <i class="fa-solid fa-box-open text-cyan-600"></i>
+      변환할 원본 소재 선택 및 생성
+    </h4>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <label class="block text-xs font-bold text-slate-600 uppercase mb-2">타깃 브랜드 계정</label>
+        <select id="repurpose-account" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+          <option value="1" selected>💻 [IT/테크] 스레드 1호기 (@kth.101rep)</option>
+          <option value="2">🧸 [팬시/캐릭터] 스레드 2호기 (@toontoooon)</option>
+          <option value="3">💄 [뷰티/관리] 스레드 3호기 (@lookatmeai)</option>
+          <option value="4">🏕️ [라이프/캠핑] 스레드 4호기 (@taechi.tube)</option>
+          <option value="5">🔥 [가성비/핫딜] 스레드 5호기 (@101rep80)</option>
+          <option value="6">🍳 [살림/리빙] 스레드 6호기 (@yr170425)</option>
+          <option value="7">💼 [직장인/생존] 스레드 7호기 (@ktaehoon80)</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-slate-600 uppercase mb-2">연동 쿠팡 상품</label>
+        <select id="repurpose-product" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+          {% for p in products %}
+          <option value="{{ p.id }}">{{ p.name }}</option>
+          {% else %}
+          <option value="1">로지텍 MX Master 3S 무선 마우스</option>
+          <option value="2">스탠리 퀜처 H2.0 플로우스테이트 텀블러</option>
+          <option value="3">다이슨 에어랩 멀티 스타일러 컴플리트 롱</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="flex items-end">
+        <button type="button" onclick="runTripleRepurpose()" class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2 text-sm">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>3개 채널 원클릭 동시 생성</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-Way Output Channel Tabs -->
+  <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+    <!-- Tab Navigation -->
+    <div class="flex items-center gap-2 border-b border-slate-200 pb-3">
+      <button onclick="switchTab('threads')" id="tab-threads-btn" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-white shadow-sm">
+        <i class="fa-brands fa-threads"></i>
+        <span>Threads (스레드 본문+3단 댓글)</span>
+      </button>
+      <button onclick="switchTab('instagram')" id="tab-instagram-btn" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:bg-slate-100">
+        <i class="fa-brands fa-instagram text-pink-600"></i>
+        <span>Instagram (6장 캐러셀 서사)</span>
+      </button>
+      <button onclick="switchTab('blog')" id="tab-blog-btn" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:bg-slate-100">
+        <i class="fa-solid fa-newspaper text-emerald-600"></i>
+        <span>SEO Blog (워드프레스/네이버 E-E-A-T)</span>
+      </button>
+    </div>
+
+    <!-- Tab 1: Threads Panel -->
+    <div id="panel-threads" class="space-y-4">
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-500 uppercase">Threads 본문 (500자 숏폼 훅)</span>
+          <button onclick="copyText('threads-text')" class="text-xs text-indigo-600 font-bold hover:underline">
+            <i class="fa-regular fa-copy"></i> 복사
+          </button>
+        </div>
+        <textarea id="threads-text" rows="5" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-800 leading-relaxed font-sans" readonly>
+맥북·윈도우 둘 다 쓰는 개발자라면 마우스에 돈 아끼지 마세요.
+저가형 마우스 3개 버리고 결국 MX Master 3S로 정착했는데, 
+하루 종일 손목 저림이 사라지고 엑셀/코드 스크롤 시간이 절반으로 줄었습니다.
+
+자석 스크롤 휠로 1초 만에 1000줄 넘기는 쾌감은 써본 사람만 압니다.
+손목 통증 달고 사시는 분들은 무조건 고려해 보세요.
+        </textarea>
+      </div>
+
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-500 uppercase">첫 번째 릴레이 댓글 (쿠팡 파트너스 딥링크 & 심의 문구)</span>
+          <button onclick="copyText('reply-text')" class="text-xs text-indigo-600 font-bold hover:underline">
+            <i class="fa-regular fa-copy"></i> 복사
+          </button>
+        </div>
+        <textarea id="reply-text" rows="3" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-800 leading-relaxed font-sans" readonly>
+📌 오늘 한정 14% 카드 할인 링크: https://link.coupang.com/a/custom-deeplink-mx
+(이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.)
+        </textarea>
+      </div>
+    </div>
+
+    <!-- Tab 2: Instagram Panel -->
+    <div id="panel-instagram" class="hidden space-y-4">
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-pink-600 uppercase">인스타그램 6장 캐러셀 기획안 & 이미지 프롬프트</span>
+          <a href="/cardnews" class="text-xs text-pink-600 font-bold hover:underline">
+            카드뉴스 스튜디오에서 시각화 편집하기 →
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div class="bg-white border border-slate-200 p-3 rounded-lg text-xs space-y-1">
+            <span class="font-bold text-pink-600">슬라이드 1 (표지)</span>
+            <p class="text-slate-800 font-medium">손목 아픈 개발자가 결국 정착한 마우스 끝판왕</p>
+            <p class="text-[10px] text-slate-400 font-mono">Prompt: Sleek ergonomic mouse on dark futuristic desk</p>
+          </div>
+          <div class="bg-white border border-slate-200 p-3 rounded-lg text-xs space-y-1">
+            <span class="font-bold text-purple-600">슬라이드 2 (문제)</span>
+            <p class="text-slate-800 font-medium">왜 일반 마우스는 손목 염증을 부를까?</p>
+            <p class="text-[10px] text-slate-400 font-mono">Prompt: Ergonomic wrist bone angle comparison diagram</p>
+          </div>
+          <div class="bg-white border border-slate-200 p-3 rounded-lg text-xs space-y-1">
+            <span class="font-bold text-indigo-600">슬라이드 3 (해결)</span>
+            <p class="text-slate-800 font-medium">1초에 1,000줄! 자석 휠 스크롤의 충격</p>
+            <p class="text-[10px] text-slate-400 font-mono">Prompt: Metallic precision scroll wheel macro shot</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Blog Panel -->
+    <div id="panel-blog" class="hidden space-y-4">
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-emerald-600 uppercase">SEO 최적화 블로그 원문 (ItemPick24 워드프레스/네이버)</span>
+          <button onclick="copyText('blog-text')" class="text-xs text-emerald-600 font-bold hover:underline">
+            <i class="fa-regular fa-copy"></i> 마크다운 복사
+          </button>
+        </div>
+        <textarea id="blog-text" rows="10" class="w-full bg-white border border-slate-200 rounded-lg p-3 text-xs text-slate-800 leading-relaxed font-mono" readonly>
+# [내돈내산 1년 사용기] 로지텍 MX Master 3S 마우스 솔직 리뷰: 손목 통증 개선과 업무 생산성 비교
+
+## 1. 구매 배경 및 첫인상
+직업 특성상 하루 10시간 이상 코딩과 문서 작업을 진행합니다. 기존 일반 납작 마우스를 쓰다 보니 매일 저녁 손목 통증에 시달렸고, 업무 효율을 극대화하기 위해 인체공학 무선 마우스의 끝판왕으로 불리는 MX Master 3S를 직접 구매했습니다.
+
+## 2. 핵심 특장점 3가지
+- **57도 자연스러운 그립감**: 손목뼈가 꼬이지 않아 터널증후군 예방 효과 탁월
+- **MagSpeed 전자석 휠**: 1초 만에 1,000줄 스크롤, 엑셀 대용량 시트 탐색 극대화
+- **무소음 스위치**: 이전 세대 대비 클릭 소음 90% 차단으로 조용한 사무실에 적합
+
+## 3. 자주 묻는 질문 (FAQ)
+- **Q: 게임용으로도 적합한가요?**  
+  A: 사무/생산성 최적화 제품으로 FPS 게임보다는 업무와 디자인 편집에 적합합니다.
+- **Q: 배터리 지속 시간은?**  
+  A: 완충 시 최대 70일 동안 사용할 수 있어 충전 스트레스가 없습니다.
+
+---
+*이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.*
+        </textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(tab) {
+    ['threads', 'instagram', 'blog'].forEach(t => {
+      document.getElementById(`panel-${t}`).classList.add('hidden');
+      document.getElementById(`tab-${t}-btn`).className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:bg-slate-100';
+    });
+
+    document.getElementById(`panel-${tab}`).classList.remove('hidden');
+    if (tab === 'threads') {
+      document.getElementById(`tab-${tab}-btn`).className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 text-white shadow-sm';
+    } else if (tab === 'instagram') {
+      document.getElementById(`tab-${tab}-btn`).className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-sm';
+    } else {
+      document.getElementById(`tab-${tab}-btn`).className = 'flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition bg-emerald-700 text-white shadow-sm';
+    }
+  }
+
+  function runTripleRepurpose() {
+    showToast("3-Way 멀티유즈 엔진이 3개 채널 콘텐츠를 동시 생성했습니다!");
+  }
+
+  function copyText(id) {
+    const el = document.getElementById(id);
+    navigator.clipboard.writeText(el.value);
+    showToast("클립보드에 복사되었습니다!");
+  }
+</script>
+{% endblock %}

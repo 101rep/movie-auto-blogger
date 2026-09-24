@@ -204,6 +204,78 @@ GEMINI_FUNCTION_DECLARATIONS = [
             },
             "required": ["file_path"]
         }
+    },
+    {
+        "name": "manage_blog_posts",
+        "description": "8대 워드프레스 블로그(특히 2번 영화 블로그 trendspot24.com 등)의 포스팅 목록 조회, 중복 제목 검사 및 자동 휴지통(Trash) 삭제, 특정 글 삭제를 수행합니다.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "action": {
+                    "type": "STRING",
+                    "description": "수행할 작업 ('check_duplicates': 중복 제목 검사, 'delete_duplicates': 중복 글 자동 삭제(최신 1건만 유지), 'trash_post': 특정 글 삭제, 'list': 글 목록 조회)"
+                },
+                "site_id": {
+                    "type": "INTEGER",
+                    "description": "대상 사이트 ID (1: 트래블픽24, 2: 트렌드스팟24 영화, 3: 아이템픽24 등. 기본값: 2)"
+                },
+                "post_id": {
+                    "type": "INTEGER",
+                    "description": "trash_post 작업 시 삭제할 워드프레스 글 ID"
+                },
+                "keyword": {
+                    "type": "STRING",
+                    "description": "글 제목 검색용 키워드 (선택 사항)"
+                }
+            },
+            "required": ["action"]
+        }
+    },
+    {
+        "name": "fix_blog_post_poster",
+        "description": "영화 블로그(trendspot24.com) 등에서 대표 이미지(포스터)가 누락되었거나 깨진 글을 찾아, TMDB/다음 포털에서 고화질 포스터를 자동 검색·다운로드하여 워드프레스 미디어 라이브러리에 업로드하고 대표 이미지 및 본문 상단 히어로 포스터를 수정·보완합니다.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "site_id": {
+                    "type": "INTEGER",
+                    "description": "대상 사이트 ID (기본값: 2)"
+                },
+                "post_id": {
+                    "type": "INTEGER",
+                    "description": "수정할 특정 워드프레스 글 ID (0 또는 생략 시 포스터 누락된 최근 글 자동 검사 및 일괄 수정)"
+                },
+                "movie_title": {
+                    "type": "STRING",
+                    "description": "특정 영화 제목 (선택 사항)"
+                }
+            }
+        }
+    },
+    {
+        "name": "repair_blog_post_content",
+        "description": "워드프레스 8대 블로그(특히 2번 영화 블로그 trendspot24.com 등)의 특정 글 내용이 비어있거나 부족할 때, 또는 사용자가 '내용이 없어', '글 수정해줘', '본문 보완해줘', '글 다시 써줘'라고 요청했을 때 E-E-A-T 고품질 본문 전체를 작성·재생성하여 워드프레스 글을 실제로 즉시 수정·업데이트합니다. 포스터/대표 이미지 누락 시 포스터도 자동 검색하여 함께 등록합니다.",
+        "parameters": {
+            "type": "OBJECT",
+            "properties": {
+                "site_id": {
+                    "type": "INTEGER",
+                    "description": "대상 사이트 ID (1: 트래블픽24, 2: 트렌드스팟24 영화, 3: 아이템픽24 등. 기본값: 2)"
+                },
+                "post_id": {
+                    "type": "INTEGER",
+                    "description": "수정할 워드프레스 글 ID (생략 시 movie_title로 자동 검색)"
+                },
+                "movie_title": {
+                    "type": "STRING",
+                    "description": "수정할 영화 또는 주제 제목 (예: 고스트 인 더 셀)"
+                },
+                "instruction": {
+                    "type": "STRING",
+                    "description": "사용자의 구체적인 수정/보완 요청 내용"
+                }
+            }
+        }
     }
 ]
 
@@ -325,4 +397,40 @@ async def execute_tool_call(tool_name: str, args: Dict[str, Any], user_id: str |
             return res
         return {"status": "error", "message": "Code Modifier adapter not found"}
 
+    elif tool_name == "manage_blog_posts":
+        from adapters.blog_post_manager import manage_blog_posts
+        action = args.get("action", "check_duplicates")
+        site_id = int(args.get("site_id", 2))
+        post_id = args.get("post_id")
+        if post_id is not None:
+            post_id = int(post_id)
+        keyword = args.get("keyword")
+        res = await manage_blog_posts(action=action, site_id=site_id, post_id=post_id, keyword=keyword)
+        audit_logger.log(user_id, "manage_blog_posts", 2, "SUCCESS" if res.get("status") == "success" else "FAILED", args)
+        return res
+
+    elif tool_name == "fix_blog_post_poster":
+        from adapters.blog_post_manager import fix_blog_post_poster
+        site_id = int(args.get("site_id", 2))
+        post_id = args.get("post_id")
+        if post_id is not None:
+            post_id = int(post_id)
+        movie_title = args.get("movie_title")
+        res = await fix_blog_post_poster(site_id=site_id, post_id=post_id, movie_title=movie_title)
+        audit_logger.log(user_id, "fix_blog_post_poster", 2, "SUCCESS" if res.get("status") == "success" else "FAILED", args)
+        return res
+
+    elif tool_name == "repair_blog_post_content":
+        from adapters.blog_post_manager import repair_blog_post_content
+        site_id = int(args.get("site_id", 2))
+        post_id = args.get("post_id")
+        if post_id is not None:
+            post_id = int(post_id)
+        movie_title = args.get("movie_title")
+        instruction = args.get("instruction")
+        res = await repair_blog_post_content(site_id=site_id, post_id=post_id, movie_title=movie_title, instruction=instruction)
+        audit_logger.log(user_id, "repair_blog_post_content", 2, "SUCCESS" if res.get("status") == "success" else "FAILED", args)
+        return res
+
     return {"status": "error", "message": f"Unknown tool: {tool_name}"}
+

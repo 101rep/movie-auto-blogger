@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: movie_auto_blogger_app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - app_data:/app/data
+      - app_logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://mab_user:mab_password@db:5432/mab_db
+
+  db:
+    image: postgres:16-alpine
+    container_name: movie_auto_blogger_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mab_user
+      POSTGRES_PASSWORD: mab_password
+      POSTGRES_DB: mab_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mab_user -d mab_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  app_data:
+  app_logs:
+  postgres_data:

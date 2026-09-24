@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}자동화 실행 이력{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <h2 class="h3 fw-bold mb-0"><i class="bi bi-clock-history me-2 text-primary"></i>자동화 실행 이력 (Runs & Events)</h2>
+        <p class="text-muted small mb-0">스케줄러 또는 수동 실행에 의해 기록된 파이프라인 수행 로그입니다.</p>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="triggerAutomationNow()">
+        <i class="bi bi-play-fill me-1"></i> 지금 즉시 실행
+      </button>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body p-0">
+        {% if runs %}
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 140px;">Run UUID</th>
+                <th style="width: 110px;">상태</th>
+                <th style="width: 100px;">후보 수</th>
+                <th style="width: 100px;">생성 수</th>
+                <th style="width: 100px;">예약 수</th>
+                <th style="width: 100px;">실패 수</th>
+                <th>요약 메시지</th>
+                <th style="width: 150px;">실행 일시</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in runs %}
+              <tr>
+                <td><code class="text-primary">{{ r.run_uuid }}</code></td>
+                <td>
+                  <span class="badge 
+                    {% if r.status == 'completed' %}bg-success
+                    {% elif r.status == 'running' %}bg-primary
+                    {% elif r.status == 'failed' %}bg-danger
+                    {% else %}bg-secondary{% endif %}">
+                    {{ r.status|ko_run_status }}
+                  </span>
+                </td>
+                <td>{{ r.candidate_count or 0 }}</td>
+                <td>{{ r.generated_count or 0 }}</td>
+                <td>{{ r.scheduled_count or 0 }}</td>
+                <td>{{ r.failed_count or 0 }}</td>
+                <td class="small">{{ r.summary or '-' }}</td>
+                <td class="small text-muted">{{ r.started_at.strftime('%Y-%m-%d %H:%M') if r.started_at else '-' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-clock fs-1 mb-2 d-block text-secondary"></i>
+          기록된 자동화 실행 이력이 없습니다.
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function triggerAutomationNow() {
+  if (!confirm("자동화 파이프라인(수집 -> AI 작성 -> 품질 검사 -> 워드프레스 예약)을 지금 즉시 실행하시겠습니까?")) return;
+  alert("자동화 파이프라인 가동을 요청했습니다. 백그라운드에서 실행을 시작합니다.");
+  try {
+    const res = await fetch("/admin/api/trigger-automation", { method: "POST" });
+    const data = await res.json();
+    alert(`실행 완료!\n결과: ${data.summary || data.status}`);
+    location.reload();
+  } catch (err) {
+    alert("실행 요청 중 오류: " + err.message);
+  }
+}
+</script>
+{% endblock %}

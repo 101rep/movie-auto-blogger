@@ -1,0 +1,521 @@
+{% extends "base.html" %}
+
+{% block title %}통합 커맨드 센터 v3{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Super Auto Blogger v3 Command Center Design System */
+  .v3-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #ffffff;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+  }
+  .v3-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    border-color: #cbd5e1;
+  }
+  .v3-site-card {
+    cursor: pointer;
+    text-decoration: none !important;
+    display: block;
+    color: inherit;
+  }
+  .v3-site-card.active {
+    border-color: #3b82f6 !important;
+    background: #f8faff !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5), 0 8px 20px rgba(59, 130, 246, 0.15) !important;
+  }
+  .v3-site-card.active::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+  }
+  .terminal-box {
+    background-color: #090d16;
+    color: #e2e8f0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.8rem;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    border: 1px solid #1e293b;
+    overflow: hidden;
+  }
+  .terminal-header {
+    background-color: #0f172a;
+    border-bottom: 1px solid #1e293b;
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .terminal-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .terminal-dot.red { background-color: #ef4444; }
+  .terminal-dot.yellow { background-color: #f59e0b; }
+  .terminal-dot.green { background-color: #10b981; }
+  .terminal-body {
+    height: 280px;
+    overflow-y: auto;
+    padding: 1rem;
+    line-height: 1.6;
+  }
+  .terminal-body::-webkit-scrollbar {
+    width: 6px;
+  }
+  .terminal-body::-webkit-scrollbar-thumb {
+    background-color: #334155;
+    border-radius: 3px;
+  }
+  .filter-pill {
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    color: #475569;
+  }
+  .filter-pill.active {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+  }
+  .score-badge {
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: -0.5px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-2 px-md-3 py-2 space-y-4">
+
+  <!-- 1. Header Command Bar -->
+  <div class="row g-3 align-items-center mb-3">
+    <div class="col-12 col-xl-7">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <h2 class="h4 fw-bold mb-0 text-slate-900 d-flex align-items-center gap-2">
+          <i class="bi bi-cpu-fill text-primary"></i>
+          SUPER AUTO BLOGGER <span class="badge bg-primary rounded-pill fs-6 px-2.5">v3.0 Command Center</span>
+        </h2>
+        <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2.5 py-1 small fw-semibold">
+          <i class="bi bi-shield-lock-fill me-1"></i> 8개 사이트 전원 연동 & SSL 100% 정상
+        </span>
+      </div>
+      <p class="text-muted small mb-0 mt-1">
+        독립 분리된 8대 전문 블로그를 한곳에서 클릭 한 번으로 선택, 소재 발굴, 기사 생성 및 실시간 로그를 모니터링합니다.
+      </p>
+    </div>
+
+    <!-- Global Controls -->
+    <div class="col-12 col-xl-5">
+      <div class="d-flex justify-content-xl-end align-items-center gap-2 flex-wrap">
+        <button id="btnToggleAuto" class="btn btn-sm fw-bold {% if overview.auto_publish %}btn-success{% else %}btn-outline-danger{% endif %} shadow-sm" onclick="dashboardActions.toggleAutomation()" title="클릭하여 자동발행 모드를 켜거나 끕니다">
+          <i class="bi bi-power me-1"></i> 자동발행: {% if overview.auto_publish %}ON (가동중){% else %}OFF (정지){% endif %}
+        </button>
+
+        <button class="btn btn-warning btn-sm fw-bold shadow-sm" onclick="dashboardActions.triggerAutomation('ALL')" title="전체 사이트 순차 자동발행">
+          <i class="bi bi-lightning-charge-fill me-1"></i> ⚡ 골든타임 전체 자동발행
+        </button>
+
+        {% if focused_site %}
+        <button class="btn btn-primary btn-sm fw-bold shadow-sm" onclick="dashboardActions.triggerSite({{ focused_site.id }}, '{{ focused_site.name }}')">
+          <i class="bi bi-play-circle-fill me-1"></i> [{{ focused_site.name[:6] }}...] 즉시 글 작성
+        </button>
+        {% endif %}
+
+        <a href="/admin/sites" class="btn btn-outline-secondary btn-sm" title="사이트 설정 관리">
+          <i class="bi bi-gear-fill"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Section: 8대 블로그 라이브 상태 카드 그리드 (Threads Style Account Cards) -->
+  <div class="v3-card p-3 p-md-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <h5 class="fw-bold mb-0 text-slate-800 d-flex align-items-center gap-2">
+          <i class="bi bi-grid-fill text-primary"></i>
+          8대 블로그 통합 라이브 모니터
+        </h5>
+        <span class="badge bg-secondary-subtle text-secondary rounded-pill font-monospace small">총 {{ site_cards|length }}개 블로그</span>
+      </div>
+
+      <!-- Hub Filter Pills -->
+      <div class="d-flex gap-2">
+        <span class="filter-pill active" onclick="filterHubCards('ALL', this)">전체 블로그 ({{ site_cards|length }})</span>
+        <span class="filter-pill" onclick="filterHubCards('TRAVEL_HUB', this)">🌐 트래블픽 허브 (5)</span>
+        <span class="filter-pill" onclick="filterHubCards('TREND_HUB', this)">🎬 트렌드스팟 허브 (3)</span>
+      </div>
+    </div>
+
+    <!-- 8 Site Cards Grid -->
+    <div class="row g-3" id="siteCardsContainer">
+      {% for site in site_cards %}
+      <div class="col-12 col-sm-6 col-lg-4 col-xl-3 site-card-col" data-hub="{{ site.hub }}">
+        <a href="/admin/?site_id={{ site.id }}" class="v3-card v3-site-card p-3 h-100 {% if focused_site and focused_site.id == site.id %}active{% endif %}">
+          <!-- Card Header: Icon + Name + Badge -->
+          <div class="d-flex justify-content-between align-items-start gap-1 mb-2">
+            <div class="d-flex align-items-center gap-2 min-w-0">
+              <div class="rounded-3 bg-{{ site.badge_color }}-subtle text-{{ site.badge_color }} p-2 d-flex align-items-center justify-center flex-shrink-0" style="width: 36px; height: 36px;">
+                <i class="bi {{ site.icon }} fs-5"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="fw-bold text-truncate text-slate-900" style="font-size: 0.92rem;" title="{{ site.name }}">{{ site.name }}</div>
+                <div class="d-flex align-items-center gap-1 mt-0.5">
+                  <span class="badge bg-{{ site.badge_color }} text-white py-0 px-1.5 font-semibold text-[10px]">{{ site.vertical_name }}</span>
+                  <span class="badge bg-light text-muted border text-[10px] py-0 px-1.5">{{ site.hub_label }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Indicator Pin -->
+            {% if focused_site and focused_site.id == site.id %}
+            <span class="badge bg-primary text-white rounded-circle p-1" title="현재 선택된 블로그">
+              <i class="bi bi-check-lg"></i>
+            </span>
+            {% endif %}
+          </div>
+
+          <!-- Domain & Direct Link -->
+          <div class="bg-light rounded-2 px-2 py-1 mb-2.5 d-flex justify-content-between align-items-center">
+            <span class="font-monospace text-muted small text-truncate" style="font-size: 0.75rem;">
+              {{ site.clean_domain }}
+            </span>
+            <span onclick="event.stopPropagation(); window.open('{{ site.site_url }}', '_blank');" class="text-primary hover-underline small cursor-pointer" title="실제 웹사이트 열기">
+              <i class="bi bi-box-arrow-up-right"></i>
+            </span>
+          </div>
+
+          <!-- Badges: SSL, AdSense Protection -->
+          <div class="d-flex align-items-center gap-1.5 mb-2.5 flex-wrap">
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill py-0.5 px-2 text-[11px]">
+              <i class="bi bi-lock-fill"></i> SSL 보안
+            </span>
+            {% if site.is_isolated_adsense %}
+            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill py-0.5 px-2 text-[11px]" title="트래블픽24 애드센스 심사 완료 전까지 상호 링크 격리 운영">
+              <i class="bi bi-shield-check"></i> 심사 격리보호
+            </span>
+            {% endif %}
+            <span class="badge bg-light text-secondary border rounded-pill py-0.5 px-2 text-[11px]">Astra 테마</span>
+          </div>
+
+          <!-- Card Stats Footer -->
+          <div class="pt-2 border-top d-flex justify-content-between align-items-center small text-muted">
+            <div>
+              <span>발행: <strong class="text-success">{{ site.published_posts }}</strong></span>
+              <span class="mx-1">·</span>
+              <span>대기: <strong class="text-primary">{{ site.scheduled_posts }}</strong></span>
+            </div>
+            <button class="btn btn-outline-primary btn-sm py-0 px-2 fw-semibold text-[11px]" onclick="event.preventDefault(); event.stopPropagation(); dashboardActions.triggerSite({{ site.id }}, '{{ site.name }}')">
+              <i class="bi bi-play-fill"></i> 즉시생성
+            </button>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- 3. Section: 선택 블로그 독립 제어 콕핏 (Focused Cockpit) -->
+  {% if focused_site %}
+  <div class="v3-card p-3 p-md-4 mb-4" style="border-left: 5px solid var(--bs-primary);">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 pb-2 border-bottom">
+      <div class="d-flex align-items-center gap-2">
+        <div class="rounded-3 bg-{{ focused_site.badge_color }}-subtle text-{{ focused_site.badge_color }} p-2 d-flex align-items-center justify-center" style="width: 40px; height: 40px;">
+          <i class="bi {{ focused_site.icon }} fs-4"></i>
+        </div>
+        <div>
+          <h4 class="fw-bold mb-0 text-slate-900 d-flex align-items-center gap-2">
+            <span>{{ focused_site.name }}</span>
+            <span class="badge bg-{{ focused_site.badge_color }} text-white fs-6 py-0.5 px-2">{{ focused_site.vertical_name }}</span>
+            <span class="badge bg-success-subtle text-success border border-success-subtle fs-6 py-0.5 px-2">
+              <i class="bi bi-link-45deg"></i> 정식 도메인 연결 완료
+            </span>
+          </h4>
+          <p class="text-muted small mb-0 mt-0.5">
+            연결 주소: <a href="{{ focused_site.site_url }}" target="_blank" class="text-primary fw-semibold">{{ focused_site.site_url }} <i class="bi bi-box-arrow-up-right"></i></a>
+          </p>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <a href="{{ focused_site.site_url }}/wp-admin" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-wordpress me-1"></i> 워드프레스 관리자 <i class="bi bi-box-arrow-up-right ms-1"></i>
+        </a>
+        <button class="btn btn-primary btn-sm fw-bold" onclick="dashboardActions.triggerSite({{ focused_site.id }}, '{{ focused_site.name }}')">
+          <i class="bi bi-lightning-charge-fill me-1"></i> 이 블로그 새 글 1편 즉시 생성
+        </button>
+      </div>
+    </div>
+
+    <!-- 2 Columns: Left = Opportunities, Right = Recent Posts -->
+    <div class="row g-4">
+      
+      <!-- Left Column: Opportunities Engine -->
+      <div class="col-12 col-xl-7">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold mb-0 text-slate-800 d-flex align-items-center gap-2">
+            <i class="bi bi-bullseye text-danger"></i>
+            오늘의 발굴 소재 TOP 5 ({{ focused_site.vertical_name }} 전용)
+          </h6>
+          <span class="badge bg-primary-subtle text-primary rounded-pill small">E-E-A-T 검증 탑재</span>
+        </div>
+
+        <div class="space-y-3">
+          {% if focused_opportunities %}
+            {% for opp in focused_opportunities %}
+            <div class="v3-card p-3 border-start border-3 border-primary hover-shadow transition">
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <div class="min-w-0">
+                  <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                    <span class="badge bg-slate-900 text-white font-monospace text-[11px]">TOP {{ loop.index }}</span>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle text-[11px]">{{ opp.badge }}</span>
+                    <h6 class="fw-bold mb-0 text-slate-900">{{ opp.title }}</h6>
+                  </div>
+                  <div class="text-muted small mb-1">{{ opp.subtitle }}</div>
+                  <div class="text-slate-600 text-xs bg-light p-2 rounded-2 mb-2 font-monospace">
+                    {{ opp.breakdown }}
+                  </div>
+                  {% if opp.highlights %}
+                  <div class="d-flex align-items-center gap-1 flex-wrap">
+                    {% for hl in opp.highlights %}
+                    <span class="badge bg-light text-secondary border text-[11px] fw-normal"><i class="bi bi-check-circle-fill text-success me-1"></i>{{ hl }}</span>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+
+                <div class="text-end shrink-0">
+                  <div class="score-badge text-primary">{{ opp.score }}<span class="text-muted fs-6 font-normal">/100</span></div>
+                  <button class="btn btn-outline-primary btn-sm mt-2 fw-semibold text-xs" onclick="dashboardActions.triggerSite({{ focused_site.id }}, '{{ opp.title }}')">
+                    <i class="bi bi-pencil-fill me-1"></i> {{ opp.action_label }}
+                  </button>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-5 text-muted bg-light rounded-3">
+              <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+              현재 발굴된 실시간 추천 소재가 없습니다. [새 글 즉시 생성]을 눌러 자동 수집을 시작하세요.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Right Column: Recent Posts & Queue -->
+      <div class="col-12 col-xl-5">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold mb-0 text-slate-800 d-flex align-items-center gap-2">
+            <i class="bi bi-clock-history text-success"></i>
+            최근 작성 및 예약 타임라인
+          </h6>
+          <a href="/admin/posts" class="small text-decoration-none">전체 보기 &raquo;</a>
+        </div>
+
+        <div class="space-y-2">
+          {% if focused_recent_posts %}
+            {% for p in focused_recent_posts %}
+            <div class="v3-card p-2.5 d-flex justify-content-between align-items-center gap-2">
+              <div class="min-w-0">
+                <div class="d-flex align-items-center gap-1.5 mb-1">
+                  {% if p.status == 'PUBLISHED' %}
+                  <span class="badge bg-success text-white py-0.5 px-1.5 text-[10px]">발행완료</span>
+                  {% elif p.status == 'SCHEDULED' %}
+                  <span class="badge bg-primary text-white py-0.5 px-1.5 text-[10px]">예약대기</span>
+                  {% else %}
+                  <span class="badge bg-secondary text-white py-0.5 px-1.5 text-[10px]">{{ p.status }}</span>
+                  {% endif %}
+                  <span class="text-muted text-[11px] font-monospace">{{ p.created_at.strftime('%m-%d %H:%M') if p.created_at else '' }}</span>
+                </div>
+                <div class="fw-semibold text-slate-900 text-truncate small" style="max-width: 260px;" title="{{ p.title }}">
+                  {{ p.title }}
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center gap-1 shrink-0">
+                {% if p.remote_post_id %}
+                <a href="{{ focused_site.site_url }}/?p={{ p.remote_post_id }}" target="_blank" class="btn btn-light btn-sm py-0.5 px-2 text-primary" title="실제 글 보기">
+                  <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+                {% endif %}
+                <button class="btn btn-light btn-sm py-0.5 px-2 text-danger" onclick="dashboardActions.deletePost({{ p.id }})" title="삭제">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-4 text-muted bg-light rounded-3 small">
+              아직 이 블로그에 생성된 기사가 없습니다.<br>왼쪽 추천 소재에서 첫 기사를 생성해 보세요!
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 4. Section: 실시간 백그라운드 실행 로그 콘솔 (Dark Terminal Console) -->
+  <div class="terminal-box mb-4">
+    <div class="terminal-header">
+      <div class="d-flex align-items-center gap-3">
+        <div class="terminal-dots">
+          <div class="terminal-dot red"></div>
+          <div class="terminal-dot yellow"></div>
+          <div class="terminal-dot green"></div>
+        </div>
+        <span class="fw-bold text-slate-300 small d-flex align-items-center gap-2">
+          <i class="bi bi-terminal-fill text-success"></i>
+          <span>실시간 자동화 파이프라인 실행 로그 (Live Activity Stream)</span>
+          <span class="badge bg-success-subtle text-success py-0 px-2 rounded-pill font-monospace text-[10px]" id="logLiveBadge">
+            ● LIVE
+          </span>
+        </span>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <label class="text-slate-400 small d-flex align-items-center gap-1 cursor-pointer mb-0">
+          <input type="checkbox" id="chkAutoScroll" checked class="form-check-input mt-0" style="width: 14px; height: 14px;">
+          <span style="font-size: 11px;">자동 스크롤</span>
+        </label>
+        <button class="btn btn-outline-secondary btn-sm py-0 px-2 text-slate-300 text-xs" onclick="pollLiveLogs(true)" title="지금 즉시 갱신">
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+        <button class="btn btn-outline-secondary btn-sm py-0 px-2 text-slate-300 text-xs" onclick="clearTerminalLogs()" title="화면 비우기">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Terminal Body -->
+    <div class="terminal-body" id="terminalBody">
+      <div class="text-slate-500">// 실시간 백그라운드 작업 로그를 수신하고 있습니다...</div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="/static/js/dashboard.js"></script>
+<script>
+  // Hub Filter Logic
+  function filterHubCards(hubType, element) {
+    document.querySelectorAll('.filter-pill').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+
+    const cards = document.querySelectorAll('.site-card-col');
+    cards.forEach(card => {
+      if (hubType === 'ALL' || card.getAttribute('data-hub') === hubType) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // Live Terminal Log Polling Engine
+  let logPollingInterval = null;
+
+  async function pollLiveLogs(manual = false) {
+    try {
+      const res = await fetch('/admin/api/logs?lines=60');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.success || !data.logs) return;
+
+      const body = document.getElementById('terminalBody');
+      if (!body) return;
+
+      const formattedHtml = data.logs.map(line => {
+        let colorClass = 'text-slate-300';
+        if (line.includes('[ERROR]') || line.includes('Error') || line.includes('실패')) {
+          colorClass = 'text-rose-400 font-bold';
+        } else if (line.includes('[WARNING]') || line.includes('Warning')) {
+          colorClass = 'text-amber-300';
+        } else if (line.includes('성공') || line.includes('SUCCESS') || line.includes('200')) {
+          colorClass = 'text-emerald-400 font-semibold';
+        } else if (line.includes('WordPress') || line.includes('워드프레스')) {
+          colorClass = 'text-cyan-300';
+        } else if (line.includes('AI') || line.includes('Gemini') || line.includes('OpenAI')) {
+          colorClass = 'text-purple-300';
+        }
+        return `<div class="${colorClass}">${escapeHtml(line)}</div>`;
+      }).join('');
+
+      body.innerHTML = formattedHtml || '<div class="text-slate-500">// 아직 기록된 로그가 없습니다.</div>';
+
+      const autoScroll = document.getElementById('chkAutoScroll');
+      if (autoScroll && autoScroll.checked) {
+        body.scrollTop = body.scrollHeight;
+      }
+    } catch (e) {
+      console.warn("Log poll error:", e);
+    }
+  }
+
+  function clearTerminalLogs() {
+    const body = document.getElementById('terminalBody');
+    if (body) body.innerHTML = '<div class="text-slate-500">// 로그 화면이 초기화되었습니다. 새로운 로그를 기다리는 중...</div>';
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // Extend dashboardActions to support site triggering
+  if (typeof dashboardActions !== 'undefined') {
+    dashboardActions.triggerSite = async function(siteId, siteName) {
+      if (!confirm(`[${siteName}] 블로그의 자동화 파이프라인(소재 발굴 -> 기사 생성 -> 워드프레스 전송)을 지금 즉시 실행하시겠습니까?`)) {
+        return;
+      }
+      try {
+        const btn = event.target;
+        if (btn) btn.disabled = true;
+        const res = await fetch(`/admin/api/trigger-site/${siteId}`, { method: 'POST' });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert(`✅ [${siteName}] 실행 완료!\n${data.summary}`);
+          pollLiveLogs(true);
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          alert(`❌ 실행 실패: ${data.detail || '알 수 없는 오류'}`);
+        }
+      } catch (err) {
+        alert(`❌ 통신 오류: ${err.message}`);
+      } finally {
+        if (event.target) event.target.disabled = false;
+      }
+    };
+  }
+
+  // Start polling
+  document.addEventListener('DOMContentLoaded', () => {
+    pollLiveLogs();
+    logPollingInterval = setInterval(pollLiveLogs, 3000);
+  });
+</script>
+{% endblock %}

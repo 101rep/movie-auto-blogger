@@ -1,0 +1,406 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>안티그래비티 CEO (Antigravity Mobile)</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", Roboto, sans-serif;
+      padding-bottom: 75px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .top-header {
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .bottom-nav {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: 65px;
+    }
+    .nav-btn {
+      color: #94a3b8;
+      font-size: 0.75rem;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 0;
+      transition: color 0.15s;
+    }
+    .nav-btn i { font-size: 1.3rem; margin-bottom: 2px; }
+    .nav-btn.active { color: #38bdf8; font-weight: bold; }
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+    }
+    .badge-neon {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 8px #10b981;
+      animation: blink 2s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .tab-content-panel { display: none; }
+    .tab-content-panel.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-header px-3 py-2 d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-2">
+      <span class="fs-4">👑</span>
+      <div>
+        <div class="fw-bold fs-6 text-white leading-tight">ANTIGRAVITY CEO</div>
+        <div class="small text-secondary" style="font-size: 0.7rem;">
+          <span class="pulse-dot me-1"></span> 13인 AI 조직 가동중
+        </div>
+      </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a href="/admin/master" class="btn btn-sm btn-outline-secondary text-white py-1 px-2" style="font-size: 0.75rem;">
+        <i class="bi bi-display me-1"></i>PC 상황실
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="container px-3 py-3">
+
+    <!-- PWA Install Tip Box -->
+    <div class="glass-card p-3 mb-3 d-flex align-items-center justify-content-between border-primary border-opacity-25">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-phone text-warning fs-4"></i>
+        <div class="small">
+          <strong class="text-white">스마트폰 앱으로 바로 설치</strong><br>
+          <span class="text-secondary" style="font-size: 0.7rem;">브라우저 메뉴 ➔ '홈 화면에 추가'를 누르면 앱 생성!</span>
+        </div>
+      </div>
+      <button class="btn btn-outline-warning btn-sm py-1 px-2" onclick="alert('브라우저 우측 상단/하단 메뉴 [공유/더보기] ➔ [홈 화면에 추가]를 터치하시면 스마트폰 전용 앱으로 바로 설치됩니다!')">
+        설치법
+      </button>
+    </div>
+
+    <!-- ==================== TAB 1: 실시간 상황실 (HQ) ==================== -->
+    <div id="tab-hq" class="tab-content-panel active">
+      
+      <!-- Key Counters Row -->
+      <div class="row g-2 mb-3">
+        <div class="col-6">
+          <div class="glass-card p-3 text-center">
+            <div class="text-secondary small">정예 직원</div>
+            <div class="fs-4 fw-bold text-info">{{ enterprise.stats.total_employees }}명</div>
+            <div class="text-muted" style="font-size: 0.68rem;">4대 본부 풀가동</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="glass-card p-3 text-center">
+            <div class="text-secondary small">AI 크레딧 상태</div>
+            <div class="fs-4 fw-bold text-success"><i class="bi bi-shield-check me-1"></i>정상</div>
+            <div class="text-muted" style="font-size: 0.68rem;">자동 페일오버 대기</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Staff Status List -->
+      <div class="glass-card p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold mb-0 text-white"><i class="bi bi-people-fill text-primary me-2"></i>13인 AI 직원 실시간 상태</h6>
+          <span class="badge badge-neon">실시간 연동</span>
+        </div>
+        <div class="d-flex flex-column gap-2" id="mobileStaffList">
+          {% for emp in enterprise.employees %}
+          <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+              <i class="bi {{ emp.avatar_icon }} text-info fs-5"></i>
+              <div>
+                <div class="fw-semibold text-white small leading-tight">{{ emp.name }}</div>
+                <div class="text-secondary text-truncate" style="font-size: 0.7rem; max-width: 180px;">{{ emp.current_task }}</div>
+              </div>
+            </div>
+            <span class="badge {% if emp.status == 'WORKING' %}bg-primary{% else %}bg-secondary{% endif %}" style="font-size: 0.65rem;">{{ emp.status }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Connected Apps Grid -->
+      <div class="glass-card p-3">
+        <h6 class="fw-bold mb-2 text-white"><i class="bi bi-grid-fill text-warning me-2"></i>연동 플랫폼 (8대 블로그 & SNS & 펫시터)</h6>
+        <div class="row g-2">
+          {% for app in enterprise.apps %}
+          <div class="col-6">
+            <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-25 text-center">
+              <i class="bi {{ app.icon }} text-warning fs-5"></i>
+              <div class="fw-semibold text-white small text-truncate mt-1">{{ app.name }}</div>
+              <div class="text-success" style="font-size: 0.68rem;">● 정상 가동중</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== TAB 2: 신사업 결재함 (R&D) ==================== -->
+    <div id="tab-ideas" class="tab-content-panel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0 text-white"><i class="bi bi-lightbulb-fill text-warning me-2"></i>신사업 기획 결재함</h5>
+        <button class="btn btn-warning btn-sm py-1 px-2 fw-bold" id="mobileBtnBrainstorm">
+          <i class="bi bi-lightning-charge me-1"></i>즉시 회의 소집
+        </button>
+      </div>
+
+      {% for idea in enterprise.ideas %}
+      <div class="glass-card p-3 mb-3 border-warning border-opacity-25">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="badge bg-warning text-dark">{{ idea.category }}</span>
+          <span class="badge {% if idea.status == 'APPROVED' %}bg-success{% else %}bg-secondary{% endif %}">{{ idea.status }}</span>
+        </div>
+        <h6 class="fw-bold text-white mt-2">{{ idea.title }}</h6>
+        <p class="text-secondary small mb-2">{{ idea.summary }}</p>
+
+        <div class="p-2 rounded bg-black bg-opacity-40 border border-secondary border-opacity-25 mb-2 small">
+          <strong class="text-danger"><i class="bi bi-bullseye me-1"></i>타겟 결핍:</strong> {{ idea.pain_point }}
+        </div>
+        <div class="p-2 rounded bg-black bg-opacity-40 border border-secondary border-opacity-25 mb-3 small">
+          <strong class="text-success"><i class="bi bi-cash me-1"></i>수익화 BM:</strong> {{ idea.monetization_bm }}
+        </div>
+
+        <!-- 3-Agent Meeting Preview -->
+        <div class="mb-3">
+          <div class="text-secondary small fw-bold mb-1">💬 R&D 3인 토론 회의록:</div>
+          {% for msg in idea.meeting_transcript %}
+          <div class="p-2 mb-1 rounded bg-secondary bg-opacity-10 small" style="font-size: 0.72rem;">
+            <strong class="text-info">{{ msg.speaker }}:</strong> {{ msg.message }}
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- CEO Approval Buttons -->
+        <div class="d-grid gap-2">
+          <button class="btn btn-success fw-bold py-2" onclick="mobileActionIdea('{{ idea.id }}', 'APPROVED')">
+            <i class="bi bi-check-circle-fill me-1"></i>채택 & 개발 착수 승인
+          </button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm w-50" onclick="mobileActionIdea('{{ idea.id }}', 'IN_PROGRESS')">보완 지시</button>
+            <button class="btn btn-outline-danger btn-sm w-50" onclick="mobileActionIdea('{{ idea.id }}', 'REJECTED')">반려</button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- ==================== TAB 3: 원터치 특명 지시창 (Command) ==================== -->
+    <div id="tab-command" class="tab-content-panel">
+      <div class="glass-card p-3 mb-3">
+        <h5 class="fw-bold text-white mb-2"><i class="bi bi-mic-fill text-danger me-2"></i>사장님 원터치 특명 지시</h5>
+        <p class="text-secondary small mb-3">사장님이 입력하신 지시가 담당 AI 직원에게 즉시 배정되며, 텔레그램을 거치지 않고 바로 작업을 착수합니다.</p>
+
+        <form id="mobileTaskForm">
+          <div class="mb-3">
+            <textarea id="mobileTaskInput" class="form-control bg-dark text-white border-secondary" rows="3" placeholder="예: '이번 주말 여행 블로그에 삿포로 3박4일 코스 2편 발행해', '올영 이 상품 인스타툰으로 제작해'" required></textarea>
+          </div>
+
+          <!-- Quick Template Chips -->
+          <div class="mb-3">
+            <div class="text-secondary small mb-1">⚡ 빠른 특명 템플릿:</div>
+            <div class="d-flex flex-wrap gap-1">
+              <span class="badge bg-secondary bg-opacity-50 py-1 px-2" style="cursor: pointer;" onclick="insertCommand('여행 블로그에 일본 삿포로 3박 4일 자유여행 일정 2편 발행해줘')">✈️ 삿포로 여행기</span>
+              <span class="badge bg-secondary bg-opacity-50 py-1 px-2" style="cursor: pointer;" onclick="insertCommand('반려동물 분리불안 완화 훈련 관련 4컷 인스타툰 제작해줘')">🐾 펫시터 인스타툰</span>
+              <span class="badge bg-secondary bg-opacity-50 py-1 px-2" style="cursor: pointer;" onclick="insertCommand('오늘의집 인기 리빙 상품 후기 비교 카드뉴스 1세트 만들어줘')">🛍️ 상품 카드뉴스</span>
+              <span class="badge bg-secondary bg-opacity-50 py-1 px-2" style="cursor: pointer;" onclick="insertCommand('모든 블로그 글 맞춤법 및 AI 문체 전수 재검수 가동해줘')">🔍 전사 교열 검수</span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 fw-bold py-2">
+            <i class="bi bi-send-fill me-1"></i>특명 즉시 하달
+          </button>
+        </form>
+      </div>
+
+      <!-- Recent Assigned Tasks -->
+      <div class="glass-card p-3">
+        <h6 class="fw-bold text-white mb-2"><i class="bi bi-clock-history text-info me-2"></i>최근 하달된 사장님 특명 이력</h6>
+        <div class="d-flex flex-column gap-2" id="mobileTaskList">
+          {% for t in enterprise.recent_tasks %}
+          <div class="p-2 rounded bg-black bg-opacity-30 border border-secondary border-opacity-25 small">
+            <div class="d-flex justify-content-between text-muted" style="font-size: 0.68rem;">
+              <span>{{ t.assigned_dept }}</span>
+              <span>{{ t.created_at }}</span>
+            </div>
+            <div class="text-white fw-semibold mt-1">{{ t.instruction }}</div>
+            <div class="text-info" style="font-size: 0.7rem;">● 진행 상태: {{ t.status }}</div>
+          </div>
+          {% else %}
+          <div class="text-secondary small text-center py-2">아직 하달된 특명이 없습니다.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB 4: 품질 & 통계 리포트 (QA) ==================== -->
+    <div id="tab-quality" class="tab-content-panel">
+      <div class="glass-card p-3 mb-3">
+        <h5 class="fw-bold text-white mb-2"><i class="bi bi-shield-check text-info me-2"></i>품질 검수실 실시간 보고서</h5>
+        <p class="text-secondary small mb-3">직원 6(교열관)과 직원 7(미디어 QA)이 오늘 수행한 무결점 퀄리티 통과 내역입니다.</p>
+
+        <div class="p-2 rounded bg-black bg-opacity-40 border border-secondary border-opacity-25 mb-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <strong class="text-info small"><i class="bi bi-spellcheck me-1"></i>직원 6 교열 검수관</strong>
+            <span class="badge bg-success">18건 합격</span>
+          </div>
+          <div class="text-secondary small mt-1">오늘 오타 14건 사전 적발 교정, AI 번역투 8문장 정제 완료.</div>
+        </div>
+
+        <div class="p-2 rounded bg-black bg-opacity-40 border border-secondary border-opacity-25">
+          <div class="d-flex justify-content-between align-items-center">
+            <strong class="text-warning small"><i class="bi bi-aspect-ratio me-1"></i>직원 7 미디어 QA관</strong>
+            <span class="badge bg-success">24건 통과</span>
+          </div>
+          <div class="text-secondary small mt-1">모바일 4:5 Safe-zone 검사 완료, 워터마크 노출 제로.</div>
+        </div>
+      </div>
+
+      <div class="glass-card p-3 text-center">
+        <div class="text-secondary small mb-1">사장님 전담 총괄 텔레그램 연동</div>
+        <div class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i>Chat ID: 6290024230 연동 완료</div>
+        <div class="text-muted small mt-1" style="font-size: 0.7rem;">긴급 비상 사태 발생 시 텔레그램으로도 동시 타종됩니다.</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="bottom-nav d-flex justify-content-around align-items-center">
+    <a href="#" class="nav-btn active" onclick="switchTab('hq', this)">
+      <i class="bi bi-speedometer2"></i>
+      <span>상황실</span>
+    </a>
+    <a href="#" class="nav-btn" onclick="switchTab('ideas', this)">
+      <i class="bi bi-lightbulb"></i>
+      <span>신사업 결재</span>
+    </a>
+    <a href="#" class="nav-btn" onclick="switchTab('command', this)">
+      <i class="bi bi-mic"></i>
+      <span>특명 지시</span>
+    </a>
+    <a href="#" class="nav-btn" onclick="switchTab('quality', this)">
+      <i class="bi bi-shield-check"></i>
+      <span>품질 리포트</span>
+    </a>
+  </nav>
+
+  <script>
+    function switchTab(tabId, el) {
+      document.querySelectorAll('.tab-content-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + tabId).classList.add('active');
+      el.classList.add('active');
+      window.scrollTo(0, 0);
+    }
+
+    function insertCommand(text) {
+      document.getElementById('mobileTaskInput').value = text;
+    }
+
+    async function mobileActionIdea(ideaId, action) {
+      try {
+        const res = await fetch("/admin/api/enterprise/idea/action", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idea_id: ideaId, action: action })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("✅ " + data.message);
+          location.reload();
+        }
+      } catch (err) {
+        alert("오류: " + err.message);
+      }
+    }
+
+    document.getElementById("mobileBtnBrainstorm").addEventListener("click", async () => {
+      const btn = document.getElementById("mobileBtnBrainstorm");
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> 회의중...';
+      try {
+        const res = await fetch("/admin/api/enterprise/run-brainstorm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topic: "1인 가구 및 반려동물 생활 밀착형 솔루션" })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("🎉 " + data.message);
+          location.reload();
+        }
+      } catch (err) {
+        alert("오류: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-lightning-charge me-1"></i>즉시 회의 소집';
+      }
+    });
+
+    document.getElementById("mobileTaskForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = document.getElementById("mobileTaskInput");
+      const instruction = input.value.trim();
+      if (!instruction) return;
+
+      try {
+        const res = await fetch("/admin/api/enterprise/task", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ instruction: instruction })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("🚀 사장님 특명이 담당 AI 직원에게 하달되었습니다!");
+          input.value = "";
+          location.reload();
+        }
+      } catch (err) {
+        alert("오류: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

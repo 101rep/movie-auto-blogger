@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}게시글 미리보기 - {{ post.title }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <h2 class="h3 fw-bold mb-0"><i class="bi bi-eye me-2 text-primary"></i>게시글 미리보기</h2>
+        <p class="text-muted small mb-0">{{ post.title }}</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="/admin/posts" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left me-1"></i> 목록으로 돌아가기
+        </a>
+        <button class="btn btn-outline-primary btn-sm" id="btnRefreshPost" onclick="refreshPostContent({{ post.id }})" title="네이버 최신 평점 및 템플릿을 본문에 즉시 동기화">
+          <i class="bi bi-arrow-repeat me-1"></i> 평점/본문 새로고침
+        </button>
+        {% if post.status != 'PUBLISHED' %}
+        <button class="btn btn-outline-success btn-sm" onclick="publishNow({{ post.id }})">
+          <i class="bi bi-upload me-1"></i> 즉시 발행
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Metadata Summary -->
+  <div class="col-lg-4">
+    {% if post.movie and post.movie.poster_reference %}
+    <div class="card shadow-sm border-0 mb-4 overflow-hidden text-center">
+      <img src="{{ post.movie.poster_reference }}" class="img-fluid rounded-top" alt="{{ post.movie.title }} 포스터" style="max-height: 380px; object-fit: cover; width: 100%;">
+      <div class="card-footer bg-white text-muted small py-2">
+        <i class="bi bi-image me-1 text-primary"></i> <strong>TMDB 공식 포스터</strong>
+      </div>
+    </div>
+    {% endif %}
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-white py-3">
+        <h5 class="card-title mb-0 fw-bold">게시글 정보</h5>
+      </div>
+      <div class="card-body p-3">
+        <ul class="list-group list-group-flush small">
+          <li class="list-group-item d-flex justify-content-between">
+            <span>영화명</span>
+            <span class="fw-bold">{{ post.movie.title if post.movie else '-' }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>슬러그(Slug)</span>
+            <span class="text-muted font-monospace">{{ post.slug }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>상태</span>
+            <span class="badge bg-primary">{{ post.status|ko_status }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>품질 판정</span>
+            <span class="badge bg-info">{{ post.quality_status|ko_quality }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>엔진 버전</span>
+            <span class="badge bg-secondary font-monospace">{{ post.generator_version or '1.0' }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>품질 프로필</span>
+            <span class="badge bg-light text-dark border">{{ post.quality_profile or post.vertical or 'default' }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>경험 취재 그라운딩</span>
+            <span class="badge {% if post.experience_grounding_status == 'PASS' %}bg-success{% elif post.experience_grounding_status == 'REVIEW' %}bg-warning text-dark{% else %}bg-light text-muted border{% endif %}">
+              {{ post.experience_grounding_status or 'N/A (오토파일럿)' }}
+            </span>
+          </li>
+
+          <li class="list-group-item d-flex justify-content-between">
+            <span>작성 AI 엔진</span>
+            <span class="fw-semibold">{{ post.ai_used_provider or '-' }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>워드프레스 Post ID</span>
+            <span>{{ post.wordpress_post_id or '미발행' }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span>예약/발행 일시</span>
+            <span>{{ post.scheduled_at or post.published_at or '-' }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- HTML Content Preview -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0 fw-bold">본문 미리보기 (HTML 렌더링)</h5>
+      </div>
+      <div class="card-body p-4 bg-white" style="line-height: 1.8;">
+        <h1 class="h2 fw-bold mb-3">{{ post.title }}</h1>
+        <hr class="my-4">
+        <div class="article-rendered-content">
+          {{ post.rendered_content | safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+async function refreshPostContent(postId) {
+  const btn = document.getElementById('btnRefreshPost');
+  if (btn) btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> 갱신 중...';
+  try {
+    const res = await fetch(`/admin/api/posts/${postId}/refresh`, { method: "POST" });
+    const data = await res.json();
+    if (data.success) {
+      location.reload();
+    } else {
+      alert(`갱신 실패: ${data.error || "오류"}`);
+      if (btn) btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 평점/본문 새로고침';
+    }
+  } catch (err) {
+    alert("오류: " + err.message);
+    if (btn) btn.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> 평점/본문 새로고침';
+  }
+}
+
+async function publishNow(postId) {
+  if (!confirm("이 글을 워드프레스에 즉시 공개 발행하시겠습니까?")) return;
+  try {
+    const res = await fetch(`/admin/api/publish-now/${postId}`, { method: "POST" });
+    const data = await res.json();
+    if (data.success) {
+      alert(`발행 완료! (WP ID: ${data.remote_post_id})`);
+      location.reload();
+    } else {
+      alert(`발행 실패: ${data.error_message || "오류"}`);
+    }
+  } catch (err) {
+    alert("오류: " + err.message);
+  }
+}
+</script>
+{% endblock %}

@@ -49,6 +49,19 @@ class IntentRouter:
                     f"⏳ <i>E-E-A-T 구매 가이드 엔진과 16:9 정비율 고화질 썸네일로 지금 즉시 작성 중입니다.\n완료되면 발행 결과를 알려드립니다! 🎨</i>"
                 )
                 return msg, None
+            elif res.get("status") == "REJECTED_DUPLICATE":
+                dup_info = res.get("existing", {})
+                msg = (
+                    f"⚠️ <b>[아이템픽24 등록 거절 안내]</b>\n\n"
+                    f"제출하신 상품은 기존 게시글과 중복되어 등록이 거절되었습니다.\n\n"
+                    f"• <b>거절 사유:</b> {res.get('reason')}\n"
+                    f"• <b>요청 URL:</b> <code>{res.get('url', '')[:60]}...</code>\n"
+                    f"• <b>기존 등록 글:</b> <b>{dup_info.get('title', '기존 등록 상품')}</b> (ID: #{dup_info.get('id', '-')})\n"
+                    f"• <b>기존 글 링크:</b> {dup_info.get('link', '-')}\n"
+                    f"• <b>기존 등록일:</b> {dup_info.get('date', '-')}\n\n"
+                    f"<i>※ 중복 발행 및 검색 패널티를 방지하기 위해 신규 글 작성이 차단되었습니다.</i>"
+                )
+                return msg, None
             else:
                 return f"❌ <b>[발행 실패]</b>\n{res.get('message', '알 수 없는 오류')}", None
 
@@ -168,6 +181,12 @@ class IntentRouter:
             from monitor.daily_reporter import daily_reporter
             report = await daily_reporter.generate_evening_traffic_report()
             audit_logger.log(user_id, "fast_traffic_report", 1, "SUCCESS")
+            return report, None
+
+        elif low in ("/schedule", "/sched", "예약일정", "발행일정", "예약현황", "예약발행"):
+            from monitor.daily_reporter import daily_reporter
+            report = await daily_reporter.generate_schedule_report()
+            audit_logger.log(user_id, "fast_schedule_report", 1, "SUCCESS")
             return report, None
 
         elif low in ("/backup", "백업", "db백업", "스냅샷"):
@@ -642,6 +661,7 @@ class IntentRouter:
             "현재 서버에 배포된 Cloudways 리눅스 서버(139.59.125.237), 8대 워드프레스 블로그 자동화, Threads x 쿠팡 파트너스 자동화 및 전체 프로젝트 소스 코드를 "
             "완벽히 총괄하고 있습니다. 사장님의 질문이나 요청에 대해 친절하고 명확하며 격조 있는 한국어 경어체로 답변하세요.\n"
             "• 상태 확인, 서버 점검, 블로그 글 조회/발행, 서비스 재시작, DB 백업, 검색엔진 핑 등이 필요하면 제공된 도구(Tools)를 적극 활용하세요.\n"
+            "• 블로그 포스팅의 내용 누락, 본문 수정/보완, 글 재작성 요청이 오면 반드시 repair_blog_post_content 도구를 호출하여 워드프레스 본문 전체를 E-E-A-T 고품질로 실제 업데이트하세요.\n"
             "• 사장님이 코드 수정, UI 디자인/문구 변경, 설정값 변경 등을 요청하시면:\n"
             "  1. search_code_files나 read_code_file로 관련 파일과 교체 대상 코드를 먼저 확인하세요.\n"
             "  2. modify_code_file을 호출하여 정확한 target_snippet을 replacement_snippet으로 안전하게 교체하세요.\n"

@@ -1,0 +1,20 @@
+{# Reusable Post Action Buttons Component
+  Accepts: 'post' (Post model instance)
+#}
+{% set target_post = post if post is defined else p %}
+<div class="btn-group btn-group-sm">
+  <a href="/admin/posts/{{ target_post.id }}/preview" class="btn btn-outline-primary" title="미리보기">
+    <i class="bi bi-eye"></i>
+  </a>
+  {% if target_post.status != 'PUBLISHED' %}
+  <button class="btn btn-outline-secondary" onclick="postActions.sendDraft({{ target_post.id }})" title="워드프레스 초안 전송">
+    <i class="bi bi-pencil-square"></i> 초안
+  </button>
+  <button class="btn btn-outline-success" onclick="postActions.publishNow({{ target_post.id }})" title="워드프레스 즉시 발행">
+    <i class="bi bi-upload"></i> 즉시발행
+  </button>
+  {% endif %}
+  <button class="btn btn-outline-danger" onclick="postActions.deletePost({{ target_post.id }})" title="삭제">
+    <i class="bi bi-trash"></i>
+  </button>
+</div>

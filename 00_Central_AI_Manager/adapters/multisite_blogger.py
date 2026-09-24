@@ -17,15 +17,18 @@ class MultisiteBloggerAdapter(BaseProgramAdapter):
         return "8대 워드프레스 블로그 통합 자동 예약 및 발행 시스템 (트래블픽24, 트렌드스팟24, 아이템픽24 등)"
 
     def _get_active_url(self) -> str:
-        # Prefer remote 24/7 server, fallback to local
-        return settings.BLOGGER_REMOTE_URL
+        import os
+        # On Cloudways server, port 8000 is localhost only (external IP is firewalled)
+        if os.path.exists("/home/master"):
+            return settings.BLOGGER_LOCAL_URL
+        return settings.BLOGGER_LOCAL_URL
 
     async def get_status(self) -> ProgramStatus:
         target_url = self._get_active_url()
         is_healthy = False
         health_data = {}
         
-        async with httpx.AsyncClient(timeout=1.0) as client:
+        async with httpx.AsyncClient(timeout=3.0) as client:
             try:
                 res = await client.get(f"{target_url}/health")
                 if res.status_code == 200:
@@ -151,4 +154,24 @@ class MultisiteBloggerAdapter(BaseProgramAdapter):
             except Exception as e:
                 return {"success": False, "error": str(e)}
 
+        elif action_name in ("manage_posts", "manage_blog_posts"):
+            from adapters.blog_post_manager import manage_blog_posts
+            action = params.get("action", "check_duplicates")
+            site_id = int(params.get("site_id", 2))
+            post_id = params.get("post_id")
+            if post_id is not None:
+                post_id = int(post_id)
+            keyword = params.get("keyword")
+            return await manage_blog_posts(action=action, site_id=site_id, post_id=post_id, keyword=keyword)
+
+        elif action_name in ("fix_posters", "fix_blog_post_poster"):
+            from adapters.blog_post_manager import fix_blog_post_poster
+            site_id = int(params.get("site_id", 2))
+            post_id = params.get("post_id")
+            if post_id is not None:
+                post_id = int(post_id)
+            movie_title = params.get("movie_title")
+            return await fix_blog_post_poster(site_id=site_id, post_id=post_id, movie_title=movie_title)
+
         return {"success": False, "error": f"Unknown action: {action_name}"}
+

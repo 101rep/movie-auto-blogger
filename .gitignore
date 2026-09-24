@@ -3,6 +3,8 @@
 *.env
 .env.*
 secrets.json
+*.key
+*.pem
 
 # Python 캐시
 __pycache__/
@@ -24,13 +26,17 @@ logs/
 
 # SQLite DB (로컬 메모리 DB)
 *.db
+*.db*
 *.sqlite
 *.sqlite3
+*.backup*
+*.bak
 
 # OS 파일
 .DS_Store
 Thumbs.db
 desktop.ini
+.git_submodule_backup/
 
 # IDE
 .vscode/
@@ -48,10 +54,21 @@ build/
 scratch/
 browser_sessions/
 data/
+test_out.txt
+*.tmp
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # 대용량 바이너리 파일 (GitHub 100MB 제한)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+# 압축 파일 및 바로가기
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+*.lnk
+*.iso
 
 # 실행 파일
 *.exe

@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}환경설정{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-12">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div>
+        <h2 class="h3 fw-bold mb-0"><i class="bi bi-gear me-2 text-primary"></i>운영 환경설정</h2>
+        <p class="text-muted small mb-0">발행 스케줄, 수집 풀 크기 및 AI 엔진 우선순위를 설정합니다.</p>
+      </div>
+      <a href="/admin" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> 대시보드로 돌아가기
+      </a>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0">
+      <div class="card-header bg-white py-3">
+        <h5 class="card-title mb-0 fw-bold">운영 파라미터 구성</h5>
+      </div>
+      <div class="card-body p-4">
+        <form method="POST" action="/admin/settings">
+          <div class="row g-3">
+            <!-- Daily Post Count -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">하루 목표 게시 수 (1~10편)</label>
+              <input type="number" class="form-control" name="daily_post_count" min="1" max="10" value="{{ settings.daily_post_count }}" required>
+              <div class="form-text">자동화 1회 실행당 생성 및 예약할 영화 수 (기본: 4)</div>
+            </div>
+
+            <!-- Candidate Pool Size -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">후보군 수집 풀 크기 (5~50편)</label>
+              <input type="number" class="form-control" name="candidate_pool_size" min="5" max="50" value="{{ settings.candidate_pool_size }}" required>
+              <div class="form-text">점수 산정 및 중복 필터링을 거칠 후보군 크기 (기본: 30)</div>
+            </div>
+
+            <!-- Publish Time 1 -->
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">1차 발행 (아침)</label>
+              <input type="text" class="form-control" name="publish_time_1" pattern="^([01]\d|2[0-3]):[0-5]\d$" value="{{ settings.publish_time_1 }}" placeholder="08:00" required>
+              <div class="form-text">한국 시간 08:00 (KST)</div>
+            </div>
+
+            <!-- Publish Time 2 -->
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">2차 발행 (점심)</label>
+              <input type="text" class="form-control" name="publish_time_2" pattern="^([01]\d|2[0-3]):[0-5]\d$" value="{{ settings.publish_time_2 }}" placeholder="12:30" required>
+              <div class="form-text">한국 시간 12:30 (KST)</div>
+            </div>
+
+            <!-- Publish Time 3 -->
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">3차 발행 (저녁)</label>
+              <input type="text" class="form-control" name="publish_time_3" pattern="^([01]\d|2[0-3]):[0-5]\d$" value="{{ settings.publish_time_3 }}" placeholder="18:00" required>
+              <div class="form-text">한국 시간 18:00 (KST)</div>
+            </div>
+
+            <!-- Publish Time 4 -->
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">4차 발행 (심야)</label>
+              <input type="text" class="form-control" name="publish_time_4" pattern="^([01]\d|2[0-3]):[0-5]\d$" value="{{ settings.publish_time_4 }}" placeholder="22:00" required>
+              <div class="form-text">한국 시간 22:00 (KST)</div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Primary AI -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">기본 AI 제공자 (Primary)</label>
+              <select class="form-select" name="primary_ai">
+                <option value="openai" {% if settings.primary_ai == 'openai' %}selected{% endif %}>OpenAI</option>
+                <option value="gemini" {% if settings.primary_ai == 'gemini' %}selected{% endif %}>Google Gemini</option>
+              </select>
+              <div class="form-text">기사 작성 시 1차로 시도할 AI 모델</div>
+            </div>
+
+            <!-- Fallback AI -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">예비 AI 제공자 (Fallback)</label>
+              <select class="form-select" name="fallback_ai">
+                <option value="gemini" {% if settings.fallback_ai == 'gemini' %}selected{% endif %}>Google Gemini</option>
+                <option value="openai" {% if settings.fallback_ai == 'openai' %}selected{% endif %}>OpenAI</option>
+              </select>
+              <div class="form-text">기본 AI 장애 시 자동 전환될 대체 모델</div>
+            </div>
+
+            <!-- OpenAI Model -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">OpenAI 모델명</label>
+              <input type="text" class="form-control" name="openai_model" value="{{ settings.openai_model }}">
+              <div class="form-text">기본: gpt-4o-mini</div>
+            </div>
+
+            <!-- Gemini Model -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Gemini 모델명</label>
+              <input type="text" class="form-control" name="gemini_model" value="{{ settings.gemini_model }}">
+              <div class="form-text">기본: gemini-1.5-flash</div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- WordPress Integration Settings -->
+            <div class="col-12">
+              <h6 class="fw-bold text-dark mb-1"><i class="bi bi-wordpress me-2 text-primary"></i>워드프레스 (WordPress) 연동 설정</h6>
+              <p class="text-muted small mb-3">개설된 워드프레스 사이트의 URL, 관리자 ID, 애플리케이션 비밀번호를 입력하면 바로 연동됩니다.</p>
+            </div>
+
+            <!-- WordPress URL -->
+            <div class="col-md-12">
+              <label class="form-label fw-semibold">워드프레스 사이트 URL</label>
+              <input type="url" class="form-control" name="wordpress_url" value="{{ settings.wordpress_url }}" placeholder="https://your-domain.com">
+              <div class="form-text">프로토콜(https://)을 포함한 블로그 주소 (끝 슬래시 제외)</div>
+            </div>
+
+            <!-- WordPress Username -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">워드프레스 관리자 계정 (Username)</label>
+              <input type="text" class="form-control" name="wordpress_username" value="{{ settings.wordpress_username }}" placeholder="wp_admin">
+              <div class="form-text">워드프레스 로그인 아이디</div>
+            </div>
+
+            <!-- WordPress Application Password -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">애플리케이션 비밀번호 (Application Password)</label>
+              <input type="password" class="form-control" name="wordpress_app_password" placeholder="{% if settings.has_wordpress_app_password %}●●●●●●●● (설정됨 - 변경 시에만 입력){% else %}xxxx xxxx xxxx xxxx xxxx xxxx{% endif %}">
+              <div class="form-text">워드프레스 관리자 &gt; 사용자 &gt; 프로필 하단 '애플리케이션 비밀번호'에서 생성한 키</div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Telegram Notification Settings -->
+            <div class="col-12">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h6 class="fw-bold text-dark mb-0"><i class="bi bi-telegram me-2 text-info"></i>텔레그램 실시간 알림 봇 연동 (Telegram Alerts)</h6>
+                <span class="badge {% if settings.telegram_bot_token and settings.telegram_chat_id %}bg-success{% elif settings.telegram_bot_token %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                  {% if settings.telegram_bot_token and settings.telegram_chat_id %}연동 활성{% elif settings.telegram_bot_token %}토큰 입력됨(Chat ID 필요){% else %}미설정{% endif %}
+                </span>
+              </div>
+              <p class="text-muted small mb-3">AI 잔액 부족(HTTP 402), 페일오버 자동 전환, 블로그 글 자동 발행 시 내 스마트폰 텔레그램으로 즉각 안내합니다.</p>
+            </div>
+
+            <!-- Telegram Bot Token -->
+            <div class="col-md-7">
+              <label class="form-label fw-semibold">텔레그램 봇 토큰 (Bot Token)</label>
+              <input type="text" class="form-control font-monospace" id="telegramBotToken" name="telegram_bot_token" value="{{ settings.telegram_bot_token }}" placeholder="8932770710:AAFtKYRBUwmz9-VZVxgn2TJenA8_k_B6BKs">
+              <div class="form-text">@BotFather 에서 발급받은 API 토큰 (안전하게 암호화 보관)</div>
+            </div>
+
+            <!-- Telegram Chat ID -->
+            <div class="col-md-5">
+              <label class="form-label fw-semibold">내 텔레그램 Chat ID</label>
+              <div class="input-group">
+                <input type="text" class="form-control font-monospace" id="telegramChatId" name="telegram_chat_id" value="{{ settings.telegram_chat_id }}" placeholder="숫자 Chat ID">
+                <button class="btn btn-outline-primary btn-sm" type="button" id="btnDetectChatId" title="봇에게 메시지 보낸 후 누르면 자동 입력">
+                  <i class="bi bi-magic me-1"></i>Chat ID 감지
+                </button>
+              </div>
+              <div class="form-text">봇에게 <code>/start</code> 보낸 뒤 'Chat ID 감지'를 누르면 자동 입력됩니다.</div>
+            </div>
+
+            <div class="col-12">
+              <div class="d-flex flex-wrap align-items-center gap-2 pt-1">
+                <button type="button" class="btn btn-outline-success btn-sm" id="btnTestTelegram">
+                  <i class="bi bi-send me-1"></i> 텔레그램 테스트 메시지 발송
+                </button>
+                <div id="telegramStatusMsg" class="small fw-semibold"></div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Checkboxes -->
+            <div class="col-12">
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="autoPublishSwitch" name="auto_publish" value="true" {% if settings.auto_publish %}checked{% endif %}>
+                <label class="form-check-label fw-semibold" for="autoPublishSwitch">자동 예약 발행 활성화 (AUTO_PUBLISH)</label>
+                <div class="form-text text-muted">체크 해제 시 워드프레스 자동 예약이 중단되고 초안(Draft) 또는 수동 검토 상태로 대기합니다.</div>
+              </div>
+
+              <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="mediaUploadSwitch" name="media_upload_enabled" value="true" {% if settings.media_upload_enabled %}checked{% endif %}>
+                <label class="form-check-label fw-semibold" for="mediaUploadSwitch">포스터 미디어 자동 업로드 (Featured Image)</label>
+                <div class="form-text text-muted">TMDB 공식 포스터를 다운로드하여 워드프레스 미디어 라이브러리에 자동 등록합니다.</div>
+              </div>
+            </div>
+
+            <div class="col-12 pt-3">
+              <button type="submit" class="btn btn-primary px-4">
+                <i class="bi bi-save me-1"></i> 설정 저장
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Side Security Panel -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-white py-3">
+        <h5 class="card-title mb-0 fw-bold"><i class="bi bi-shield-lock me-2 text-primary"></i>API 인증 정보 상태</h5>
+      </div>
+      <div class="card-body p-3">
+        <p class="small text-muted mb-3">보안을 위해 API 키 및 비밀번호 원문은 브라우저에 노출되지 않으며 서버 .env 환경변수를 통해서만 안전하게 구성됩니다.</p>
+        <ul class="list-group list-group-flush small">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>TMDB API Token</span>
+            <span class="badge {% if overview.movie_api == '설정됨' %}bg-success{% else %}bg-secondary{% endif %}">{{ overview.movie_api }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>OpenAI API Key</span>
+            <span class="badge {% if overview.openai == '설정됨' %}bg-success{% else %}bg-secondary{% endif %}">{{ overview.openai }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>Gemini API Key</span>
+            <span class="badge {% if overview.gemini == '설정됨' %}bg-success{% else %}bg-secondary{% endif %}">{{ overview.gemini }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>YouTube Trailer Service</span>
+            <span class="badge {% if overview.youtube == '설정됨' %}bg-success{% else %}bg-info text-dark{% endif %}">{% if overview.youtube == '설정됨' %}설정됨 (API+TMDB){% else %}TMDB 자동 연동{% endif %}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>WordPress URL</span>
+            <span class="badge {% if overview.wordpress == '설정됨' %}bg-success{% else %}bg-secondary{% endif %}">{{ overview.wordpress }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>Telegram Alert Bot</span>
+            <span class="badge {% if overview.telegram == '연동 완료' %}bg-success{% elif '토큰' in overview.telegram %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ overview.telegram }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- WordPress Quick Links Card -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-white py-3">
+        <h5 class="card-title mb-0 fw-bold"><i class="bi bi-wordpress me-2 text-info"></i>워드프레스 바로가기</h5>
+      </div>
+      <div class="card-body p-3">
+        <div class="d-grid gap-2">
+          <a href="https://trendspot24.com/wp-admin" target="_blank" rel="noopener noreferrer" class="btn btn-outline-dark btn-sm text-start">
+            <i class="bi bi-box-arrow-up-right me-1"></i> <strong>워드프레스 관리자 홈</strong>
+          </a>
+          <a href="https://trendspot24.com/wp-admin/customize.php?autofocus[section]=custom_css" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary btn-sm text-start">
+            <i class="bi bi-palette me-1"></i> <strong>추가 CSS 편집기 바로가기</strong>
+          </a>
+          <a href="https://trendspot24.com/wp-admin/edit.php" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm text-start">
+            <i class="bi bi-file-earmark-richtext me-1"></i> <strong>발행된 글 목록 관리</strong>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const tokenInput = document.getElementById("telegramBotToken");
+  const chatIdInput = document.getElementById("telegramChatId");
+  const statusMsg = document.getElementById("telegramStatusMsg");
+  const btnDetect = document.getElementById("btnDetectChatId");
+  const btnTest = document.getElementById("btnTestTelegram");
+
+  if (btnDetect) {
+    btnDetect.addEventListener("click", async function () {
+      const token = (tokenInput.value || "").trim();
+      if (!token) {
+        alert("먼저 텔레그램 봇 토큰을 입력해주세요.");
+        return;
+      }
+      btnDetect.disabled = true;
+      btnDetect.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>조회 중...';
+      statusMsg.innerHTML = '<span class="text-muted">텔레그램 수신 메시지 확인 중...</span>';
+
+      try {
+        const res = await fetch("/admin/api/detect-telegram-chat-id", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bot_token: token })
+        });
+        const data = await res.json();
+        if (data.success && data.chat_id) {
+          chatIdInput.value = data.chat_id;
+          statusMsg.innerHTML = `<span class="text-success"><i class="bi bi-check-circle me-1"></i>${data.message}</span>`;
+        } else {
+          statusMsg.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>${data.message || "감지 실패"}</span>`;
+        }
+      } catch (err) {
+        statusMsg.innerHTML = `<span class="text-danger">네트워크 오류: ${err.message}</span>`;
+      } finally {
+        btnDetect.disabled = false;
+        btnDetect.innerHTML = '<i class="bi bi-magic me-1"></i>Chat ID 감지';
+      }
+    });
+  }
+
+  if (btnTest) {
+    btnTest.addEventListener("click", async function () {
+      const token = (tokenInput.value || "").trim();
+      const chatId = (chatIdInput.value || "").trim();
+      if (!token || !chatId) {
+        alert("봇 토큰과 Chat ID를 모두 입력해주세요.");
+        return;
+      }
+      btnTest.disabled = true;
+      btnTest.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>발송 중...';
+      statusMsg.innerHTML = '<span class="text-muted">테스트 메시지 발송 중...</span>';
+
+      try {
+        const res = await fetch("/admin/api/test-telegram", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bot_token: token, chat_id: chatId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          statusMsg.innerHTML = `<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i>${data.message}</span>`;
+        } else {
+          statusMsg.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-circle-fill me-1"></i>${data.message || "발송 실패"}</span>`;
+        }
+      } catch (err) {
+        statusMsg.innerHTML = `<span class="text-danger">오류 발생: ${err.message}</span>`;
+      } finally {
+        btnTest.disabled = false;
+        btnTest.innerHTML = '<i class="bi bi-send me-1"></i> 텔레그램 테스트 메시지 발송';
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

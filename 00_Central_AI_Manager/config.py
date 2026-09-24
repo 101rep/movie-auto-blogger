@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     CLOUDWAYS_USER: str = "master_amtfargkbx"
     CLOUDWAYS_PASS: str = "bN6TUBm5VAVC"
 
+    DATA_GO_KR_API_KEY: str = "14130ed23528ed357f222ef5f43b087401ff3e24e4de8f7332c69ae11aeff06e"
+
     THREADS_LOCAL_URL: str = "http://127.0.0.1:8080"
     THREADS_REMOTE_URL: str = "http://139.59.125.237:9000"
 

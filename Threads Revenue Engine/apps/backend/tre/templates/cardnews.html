@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+
+{% block title %}Instagram 카드뉴스 스튜디오 - AI Content Commerce OS{% endblock %}
+{% block header_title %}Instagram 카드뉴스 스튜디오{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <!-- Top Banner / Guide -->
+  <div class="bg-gradient-to-r from-pink-600/10 via-purple-600/10 to-indigo-600/10 border border-pink-500/20 rounded-2xl p-6 relative overflow-hidden backdrop-blur-sm">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gradient-to-r from-pink-500 to-purple-500 text-white">INSTAGRAM V3</span>
+          <h3 class="text-xl font-bold text-slate-800">5~7장 캐러셀 서사 & 이미지 프롬프트 자동화 엔진</h3>
+        </div>
+        <p class="text-sm text-slate-600">
+          표지 ➔ 문제 공감 ➔ 핵심 솔루션(1~3) ➔ 저장·공유 유도 CTA 슬라이드 구성 및 DALL-E/Midjourney 1:1 이미지 프롬프트를 1초 만에 생성합니다.
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="bg-white/80 border border-slate-200 px-4 py-2 rounded-xl text-center shadow-sm">
+          <p class="text-xs text-slate-500 font-medium">연동 인스타 계정</p>
+          <p class="text-lg font-bold text-pink-600">7개 브랜드</p>
+        </div>
+        <div class="bg-white/80 border border-slate-200 px-4 py-2 rounded-xl text-center shadow-sm">
+          <p class="text-xs text-slate-500 font-medium">최적 화면비</p>
+          <p class="text-lg font-bold text-indigo-600">1:1 Square</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Studio Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <!-- Left Configuration Column (5 cols) -->
+    <div class="lg:col-span-5 space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+        <h4 class="font-bold text-slate-800 flex items-center gap-2 text-base">
+          <i class="fa-solid fa-wand-magic-sparkles text-pink-500"></i>
+          카드뉴스 기획 및 생성 파라미터
+        </h4>
+
+        <!-- Target Brand Account -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-2">발행 타깃 브랜드 계정</label>
+          <select id="cardnews-account" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-pink-500 focus:outline-none">
+            <option value="1" selected>💻 [IT/테크] 스레드 1호기 (@kth.101rep)</option>
+            <option value="2">🧸 [팬시/캐릭터] 스레드 2호기 (@toontoooon)</option>
+            <option value="3">💄 [뷰티/관리] 스레드 3호기 (@lookatmeai)</option>
+            <option value="4">🏕️ [라이프/캠핑] 스레드 4호기 (@taechi.tube)</option>
+            <option value="5">🔥 [가성비/핫딜] 스레드 5호기 (@101rep80)</option>
+            <option value="6">🍳 [살림/리빙] 스레드 6호기 (@yr170425)</option>
+            <option value="7">💼 [직장인/생존] 스레드 7호기 (@ktaehoon80)</option>
+          </select>
+        </div>
+
+        <!-- Topic or Product Source -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-2">소재 / 상품 선택</label>
+          <div class="flex gap-2 mb-2">
+            <button type="button" onclick="setSourceType('product')" id="btn-src-product" class="flex-1 py-1.5 text-xs font-bold rounded-lg border border-pink-500 bg-pink-50 text-pink-700">쿠팡 등록 상품</button>
+            <button type="button" onclick="setSourceType('custom')" id="btn-src-custom" class="flex-1 py-1.5 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">직접 주제 입력</button>
+          </div>
+          <select id="cardnews-product" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 font-medium focus:ring-2 focus:ring-pink-500 focus:outline-none">
+            {% for p in products %}
+            <option value="{{ p.id }}">{{ p.name }} ({{ "{:,}".format(p.price|int) }}원)</option>
+            {% else %}
+            <option value="1">스탠리 퀜처 H2.0 플로우스테이트 텀블러 887ml</option>
+            <option value="2">다이슨 에어랩 멀티 스타일러 앤 드라이어 컴플리트 롱</option>
+            <option value="3">로지텍 MX Master 3S 무선 무소음 마우스 페일그레이</option>
+            <option value="4">일리 Y3.3 캡슐 커피머신 화이트</option>
+            {% endfor %}
+          </select>
+          <textarea id="cardnews-custom-topic" class="hidden w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm text-slate-800 focus:ring-2 focus:ring-pink-500 focus:outline-none" rows="3" placeholder="예: 직장인 거북목 탈출을 위한 3분 모니터 세팅 꿀팁"></textarea>
+        </div>
+
+        <!-- Narrative Template -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-2">서사 템플릿 & 디자인 무드</label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="cursor-pointer border border-pink-500 bg-pink-50/50 rounded-xl p-3 flex flex-col gap-1 transition">
+              <input type="radio" name="template" value="modern_dark" checked class="hidden">
+              <span class="text-xs font-bold text-slate-800">🌌 Modern Dark</span>
+              <span class="text-[11px] text-slate-500">다크 모드 + 네온 하이라이트</span>
+            </label>
+            <label class="cursor-pointer border border-slate-200 hover:border-slate-300 rounded-xl p-3 flex flex-col gap-1 transition">
+              <input type="radio" name="template" value="pastel" class="hidden">
+              <span class="text-xs font-bold text-slate-800">🌸 Pastel Minimal</span>
+              <span class="text-[11px] text-slate-500">따뜻하고 감성적인 파스텔톤</span>
+            </label>
+            <label class="cursor-pointer border border-slate-200 hover:border-slate-300 rounded-xl p-3 flex flex-col gap-1 transition">
+              <input type="radio" name="template" value="clean_white" class="hidden">
+              <span class="text-xs font-bold text-slate-800">⚪ Clean White</span>
+              <span class="text-[11px] text-slate-500">정보 전달 극대화 깔끔 레이아웃</span>
+            </label>
+            <label class="cursor-pointer border border-slate-200 hover:border-slate-300 rounded-xl p-3 flex flex-col gap-1 transition">
+              <input type="radio" name="template" value="vibrant_pop" class="hidden">
+              <span class="text-xs font-bold text-slate-800">⚡ Vibrant Pop</span>
+              <span class="text-[11px] text-slate-500">클릭률 중심 고대비 팝스타일</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- AI Engine Model -->
+        <div>
+          <label class="block text-xs font-bold text-slate-600 uppercase mb-2">AG Gateway 오케스트레이션 모델</label>
+          <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="font-bold text-slate-700">Claude 3.5 Sonnet</span>
+            <span class="text-slate-400">|</span>
+            <span class="text-slate-500">Fallback: Gemini 2.5 Flash</span>
+            <span class="ml-auto text-[10px] bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-md">자동 최적화</span>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button type="button" onclick="generateLiveCardnews()" class="w-full bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-95 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm transform hover:-translate-y-0.5 active:translate-y-0">
+          <i class="fa-solid fa-sparkles"></i>
+          <span>카드뉴스 6장 즉시 생성하기</span>
+        </button>
+      </div>
+
+      <!-- Quick Actions / Tips -->
+      <div class="bg-slate-900 text-white rounded-2xl p-5 shadow-sm space-y-3">
+        <h5 class="text-xs font-bold text-pink-400 uppercase tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-lightbulb"></i> 인스타그램 캐러셀 알고리즘 공략 팁
+        </h5>
+        <ul class="text-xs text-slate-300 space-y-2 list-disc list-inside">
+          <li><strong>1장(표지)</strong>: 3초 안에 스크롤을 멈추게 하는 충격적인 수치나 공감 질문</li>
+          <li><strong>2장~4장</strong>: 1장당 1개 핵심 정보만 짧고 굵게 전달</li>
+          <li><strong>마지막 장(CTA)</strong>: "두고두고 보시려면 오른쪽 아래 깃발(저장)을 눌러주세요"</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Right Live Preview Column (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div>
+            <h4 class="font-bold text-slate-800 text-base">인터랙티브 라이브 캐러셀 뷰어</h4>
+            <p class="text-xs text-slate-500">생성된 슬라이드를 좌우로 넘겨보고 이미지 프롬프트를 확인하세요.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="current-slide-badge" class="text-xs font-black bg-pink-100 text-pink-700 px-3 py-1 rounded-full">
+              슬라이드 1 / 6
+            </span>
+          </div>
+        </div>
+
+        <!-- 1:1 Square Cardnews Preview Box -->
+        <div class="flex justify-center">
+          <div id="carousel-card" class="w-full max-w-[440px] aspect-square rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white p-8 flex flex-col justify-between shadow-2xl border border-slate-800 relative transition-all duration-300">
+            <!-- Top Card Header -->
+            <div class="flex items-center justify-between">
+              <span id="slide-type-tag" class="text-[11px] font-black tracking-widest uppercase bg-pink-500/20 text-pink-400 border border-pink-500/30 px-2.5 py-1 rounded-full">
+                COVER (표지)
+              </span>
+              <span class="text-xs font-semibold text-slate-400 flex items-center gap-1">
+                <i class="fa-brands fa-instagram text-pink-400"></i> @kth.101rep
+              </span>
+            </div>
+
+            <!-- Middle Headline Content -->
+            <div class="space-y-4 my-auto">
+              <p id="slide-subhead" class="text-xs font-bold text-pink-400 tracking-wider uppercase">
+                개발자 5년차가 직접 검증한
+              </p>
+              <h2 id="slide-title" class="text-2xl font-black leading-snug tracking-tight text-white">
+                "왜 진작 안 샀을까?"<br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300">책상 위 생산성 3배</span> 올려준 종결템
+              </h2>
+              <p id="slide-body" class="text-sm text-slate-300 leading-relaxed font-normal">
+                손목 터널증후군과 역방향 스크롤 지옥에서 탈출시켜 준 단 하나의 디바이스 이야기.
+              </p>
+            </div>
+
+            <!-- Bottom Swipe Indicator -->
+            <div class="flex items-center justify-between border-t border-slate-800/80 pt-4 text-xs text-slate-400">
+              <span id="slide-indicator-text">👉 옆으로 넘겨서 솔루션 확인</span>
+              <div class="flex gap-1.5" id="slide-dots">
+                <span class="w-2 h-2 rounded-full bg-pink-500"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+                <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slider Navigation Controls -->
+        <div class="flex items-center justify-center gap-4">
+          <button type="button" onclick="prevSlide()" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center transition">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span id="slider-nav-text" class="text-xs font-semibold text-slate-600">1 / 6</span>
+          <button type="button" onclick="nextSlide()" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center transition">
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- AI Image Generation Prompt Box (1:1 Ratio) -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <h5 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <i class="fa-solid fa-image text-purple-600"></i>
+              <span>현재 슬라이드 1:1 이미지 생성 프롬프트 (Midjourney / DALL-E)</span>
+            </h5>
+            <button onclick="copyImagePrompt()" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+              <i class="fa-regular fa-copy"></i> 복사
+            </button>
+          </div>
+          <p id="slide-image-prompt" class="text-xs font-mono text-slate-600 bg-white p-3 rounded-lg border border-slate-200 break-all select-all">
+            Ultra-minimalist modern desk setup with mechanical keyboard and sleek ergonomic wireless mouse, soft cinematic rim lighting, 8k resolution, clean pastel aesthetic, photorealistic, square aspect ratio --ar 1:1
+          </p>
+        </div>
+
+        <!-- Caption & Hashtags -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h5 class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <i class="fa-brands fa-instagram text-pink-600"></i>
+              <span>인스타그램 게시용 캡션 및 자동 해시태그</span>
+            </h5>
+            <button onclick="copyCaption()" class="text-xs font-bold text-pink-600 hover:text-pink-800 flex items-center gap-1">
+              <i class="fa-regular fa-copy"></i> 캡션 전체 복사
+            </button>
+          </div>
+          <textarea id="instagram-caption" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 font-sans focus:outline-none focus:ring-2 focus:ring-pink-500 leading-relaxed" readonly>
+퇴근 후 손목 찌릿한 분들 꼭 보세요 ⚠️
+하루 8시간 넘게 일하면서 마우스 하나 바꿨을 뿐인데
+손목 통증도 사라지고 작업 속도가 2배 빨라졌습니다.
+
+옆으로 넘겨서 어떤 기능 때문에 정착했는지 확인해 보세요!
+필요할 때 다시 보시려면 오른쪽 아래 [저장] 꾹 눌러두세요 📌
+
+#데스크셋업 #생산성템 #직장인꿀팁 #IT테크 #로지텍 #내돈내산리뷰 #홈오피스
+          </textarea>
+        </div>
+
+        <!-- Bottom Action Buttons -->
+        <div class="flex items-center gap-3 pt-2">
+          <button onclick="publishToInstagram()" class="flex-1 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold py-3 rounded-xl shadow transition flex items-center justify-center gap-2 text-xs">
+            <i class="fa-brands fa-instagram"></i>
+            <span>인스타그램 즉시 발행 (Meta Graph API)</span>
+          </button>
+          <button onclick="scheduleCardnews()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 text-xs">
+            <i class="fa-regular fa-clock"></i>
+            <span>캘린더 골든타임 예약</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentSlideIndex = 0;
+  const sampleSlides = [
+    {
+      type: "COVER (표지)",
+      subhead: "개발자 5년차가 직접 검증한",
+      title: "\"왜 진작 안 샀을까?\"<br><span class=\"text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300\">책상 위 생산성 3배</span> 올려준 종결템",
+      body: "손목 터널증후군과 역방향 스크롤 지옥에서 탈출시켜 준 단 하나의 디바이스 이야기.",
+      prompt: "Ultra-minimalist modern desk setup with mechanical keyboard and sleek ergonomic wireless mouse, soft cinematic rim lighting, 8k resolution, clean pastel aesthetic, photorealistic, square aspect ratio --ar 1:1",
+      indicator: "👉 옆으로 넘겨서 솔루션 확인"
+    },
+    {
+      type: "POINT 1 (문제 제기)",
+      subhead: "하루 8시간 마우스 잡는 직장인의 현실",
+      title: "퇴근할 때마다 욱신거리던 손목,<br><span class=\"text-pink-400\">그냥 버티고 계셨나요?</span>",
+      body: "일반 마우스는 손목뼈가 꼬인 채로 유지되어 염증을 유발합니다. 자세를 교정해주는 57도 인체공학 각도가 필수적입니다.",
+      prompt: "Close up ergonomic angle diagram of human wrist using a vertical mouse versus traditional flat mouse, scientific visualization, clean slate background --ar 1:1",
+      indicator: "👉 옆으로 넘겨서 솔루션 2"
+    },
+    {
+      type: "POINT 2 (핵심 특징)",
+      subhead: "1초에 1,000줄 초고속 스크롤",
+      title: "긴 엑셀과 코드 창도<br><span class=\"text-purple-300\">단 1초 만에 최하단으로</span>",
+      body: "자석 스크롤 휠(MagSpeed)이 손가락 피로도를 90% 이상 덜어줍니다. 휠 한 번 굴리면 필요한 위치로 순간이동!",
+      prompt: "Macro close up shot of a metallic precision scroll wheel on a high tech wireless mouse, shallow depth of field, blue and purple studio ambient lighting --ar 1:1",
+      indicator: "👉 옆으로 넘겨서 솔루션 3"
+    },
+    {
+      type: "POINT 3 (무소음 클릭)",
+      subhead: "조용한 사무실·도서관에서도 안심",
+      title: "딸깍거리는 소음 없이<br><span class=\"text-indigo-300\">클릭감은 100% 그대로</span>",
+      body: "조용한 회의실이나 독서실에서도 주변 눈치 볼 필요 없는 90% 소음 차단 콰이어트 클릭 탑재.",
+      prompt: "Quiet modern library atmosphere with a laptop and matte finished sleek mouse, peaceful mood, warm aesthetic --ar 1:1",
+      indicator: "👉 옆으로 넘겨서 최종 요약"
+    },
+    {
+      type: "SUMMARY (비교 요약)",
+      subhead: "한눈에 비교하는 추천 포인트",
+      title: "커피 몇 잔 값으로<br><span class=\"text-pink-400\">손목 건강 + 하루 1시간 절약</span>",
+      body: "✔️ 손목 편안함: 5.0/5.0<br>✔️ 스크롤 편의성: 5.0/5.0<br>✔️ 배터리 수명: 1회 충전 시 70일 지속",
+      prompt: "Clean minimal scorecard graphic layout on dark sleek glass background with checkmarks and stars, professional design --ar 1:1",
+      indicator: "👉 마지막 장 저장 혜택"
+    },
+    {
+      type: "CTA (저장 유도)",
+      subhead: "나중에 찾으려면 꼭 저장해두세요!",
+      title: "다음에 마우스 바꿀 때<br><span class=\"text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-amber-300\">오른쪽 아래 [저장 📌]</span> 눌러두기",
+      body: "프로필 링크에서 14일 최저가 및 추가 할인 쿠폰을 바로 확인하실 수 있습니다.",
+      prompt: "Vibrant call to action badge with bookmark save icon on Instagram UI style, glowing neon edges, dark premium background --ar 1:1",
+      indicator: "끝 (감사합니다!)"
+    }
+  ];
+
+  function renderSlide(index) {
+    const s = sampleSlides[index];
+    document.getElementById('slide-type-tag').innerText = s.type;
+    document.getElementById('slide-subhead').innerText = s.subhead;
+    document.getElementById('slide-title').innerHTML = s.title;
+    document.getElementById('slide-body').innerHTML = s.body;
+    document.getElementById('slide-image-prompt').innerText = s.prompt;
+    document.getElementById('slide-indicator-text').innerText = s.indicator;
+    document.getElementById('current-slide-badge').innerText = `슬라이드 ${index + 1} / ${sampleSlides.length}`;
+    document.getElementById('slider-nav-text').innerText = `${index + 1} / ${sampleSlides.length}`;
+
+    // Update dots
+    const dotsContainer = document.getElementById('slide-dots');
+    dotsContainer.innerHTML = '';
+    sampleSlides.forEach((_, i) => {
+      const dot = document.createElement('span');
+      dot.className = `w-2 h-2 rounded-full transition-all ${i === index ? 'bg-pink-500 w-4' : 'bg-slate-700'}`;
+      dotsContainer.appendChild(dot);
+    });
+  }
+
+  function nextSlide() {
+    currentSlideIndex = (currentSlideIndex + 1) % sampleSlides.length;
+    renderSlide(currentSlideIndex);
+  }
+
+  function prevSlide() {
+    currentSlideIndex = (currentSlideIndex - 1 + sampleSlides.length) % sampleSlides.length;
+    renderSlide(currentSlideIndex);
+  }
+
+  function copyImagePrompt() {
+    const promptText = document.getElementById('slide-image-prompt').innerText;
+    navigator.clipboard.writeText(promptText);
+    showToast("1:1 이미지 생성 프롬프트가 복사되었습니다!");
+  }
+
+  function copyCaption() {
+    const caption = document.getElementById('instagram-caption').value;
+    navigator.clipboard.writeText(caption);
+    showToast("인스타그램 캡션 및 해시태그가 복사되었습니다!");
+  }
+
+  function setSourceType(type) {
+    if (type === 'product') {
+      document.getElementById('btn-src-product').className = 'flex-1 py-1.5 text-xs font-bold rounded-lg border border-pink-500 bg-pink-50 text-pink-700';
+      document.getElementById('btn-src-custom').className = 'flex-1 py-1.5 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50';
+      document.getElementById('cardnews-product').classList.remove('hidden');
+      document.getElementById('cardnews-custom-topic').classList.add('hidden');
+    } else {
+      document.getElementById('btn-src-product').className = 'flex-1 py-1.5 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50';
+      document.getElementById('btn-src-custom').className = 'flex-1 py-1.5 text-xs font-bold rounded-lg border border-pink-500 bg-pink-50 text-pink-700';
+      document.getElementById('cardnews-product').classList.add('hidden');
+      document.getElementById('cardnews-custom-topic').classList.remove('hidden');
+    }
+  }
+
+  function generateLiveCardnews() {
+    showToast("AG Gateway AI가 카드뉴스 6장을 생성하고 있습니다...", "info");
+    setTimeout(() => {
+      currentSlideIndex = 0;
+      renderSlide(0);
+      showToast("카드뉴스 6장 및 이미지 프롬프트 생성이 완료되었습니다!");
+    }, 1200);
+  }
+
+  function publishToInstagram() {
+    showToast("Meta Instagram Graph API v21.0 발행 큐에 등록되었습니다!");
+  }
+
+  function scheduleCardnews() {
+    showToast("인스타그램 저녁 골든타임(20:30)으로 예약 등록되었습니다!");
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderSlide(0);
+  });
+</script>
+{% endblock %}

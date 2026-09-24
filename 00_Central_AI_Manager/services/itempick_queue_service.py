@@ -20,6 +20,9 @@ import sys
 import json
 import time
 import io
+import ssl
+import base64
+import html
 import logging
 import asyncio
 import urllib.parse
@@ -29,6 +32,11 @@ from typing import Dict, Any, Optional, List, Tuple
 import requests
 from requests.auth import HTTPBasicAuth
 from PIL import Image, ImageDraw
+
+# Windows SSL verification bypass (handles local clock offset)
+_SSL_CONTEXT = ssl.create_default_context()
+_SSL_CONTEXT.check_hostname = False
+_SSL_CONTEXT.verify_mode = ssl.CERT_NONE
 
 try:
     from curl_cffi import requests as c_requests
@@ -43,7 +51,7 @@ QUEUE_FILE = os.path.join(BASE_DIR, "data", "itempick_queue.json")
 WP_URL = "https://item.travelpick24.com"
 WP_API_BASE = f"{WP_URL}/wp-json/wp/v2"
 WP_USER = "ktaehoon80@gmail.com"
-WP_APP_PW = "UWhDnkd8OLpGQ91f8dSx0avk"
+WP_APP_PW = "ZGeEcLKGwGxtwgIB3O4Yd0NY"
 
 CATEGORY_MAP = {
     "coupang": 14,      # 쿠팡 핫딜 & 가전/디지털
@@ -152,18 +160,153 @@ class ItemPickQueueService:
             cleaned = cleaned.replace(tag, "").strip()
         return cleaned
 
+    def normalize_url(self, raw_url: str) -> str:
+        """Strips dynamic tracking query params to find canonical product URL."""
+        if not raw_url:
+            return ""
+        try:
+            parsed = urllib.parse.urlparse(raw_url.strip())
+            qs = urllib.parse.parse_qs(parsed.query)
+            tracking_keys = [
+                "utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term",
+                "subid", "subId", "trackingCode", "click_id", "ref", "affiliate",
+                "src", "spec", "lptag", "share"
+            ]
+            filtered_qs = {k: v for k, v in qs.items() if k not in tracking_keys}
+            new_query = urllib.parse.urlencode(filtered_qs, doseq=True)
+            return urllib.parse.urlunparse((
+                parsed.scheme, parsed.netloc.lower(), parsed.path.rstrip("/"),
+                parsed.params, new_query, ""
+            ))
+        except Exception:
+            return raw_url.strip().lower()
+
+    def _normalize_title_for_cmp(self, raw_title: str) -> str:
+        """Normalizes titles for strict duplicate comparison."""
+        t = html.unescape(raw_title or "")
+        t = re.sub(r"<[^>]+>", "", t)
+        t = re.sub(r"\[.*?\]|\(.*?\)", "", t)
+        t = re.sub(r"구매\s*가이드|실사용\s*솔직\s*리뷰|가격비교|리뷰분석|핫딜|추천", "", t)
+        t = re.sub(r"[^\w\s가-힣a-zA-Z0-9]", "", t)
+        return " ".join(t.split()).strip().lower()
+
+    def check_duplicate(self, url: str, title_hint: str = "", exclude_item_id: str = "") -> Tuple[bool, Optional[Dict[str, Any]]]:
+        """
+        Compares incoming URL and product title against:
+          1. Local queue history (data/itempick_queue.json)
+          2. WordPress live posts on item.travelpick24.com
+        Returns (is_duplicate, duplicate_info_dict).
+        """
+        clean_input_url = self.normalize_url(url)
+        norm_hint = self._normalize_title_for_cmp(title_hint) if title_hint else ""
+
+        # 1. Check local queue history
+        queue = self._load_queue()
+        for item in queue:
+            if exclude_item_id and item.get("id") == exclude_item_id:
+                continue
+            if item.get("status") in ("completed", "pending", "processing"):
+                q_url = self.normalize_url(item.get("url", ""))
+                q_title = item.get("title") or item.get("title_hint") or ""
+
+                # Compare URL
+                if q_url and (q_url == clean_input_url or url == item.get("url")):
+                    return True, {
+                        "reason": "동일 제휴 URL이 이미 등록되어 있습니다.",
+                        "match_type": "URL",
+                        "title": q_title or "기존 등록 상품",
+                        "id": item.get("post_id") or item.get("id"),
+                        "link": item.get("post_url") or f"{WP_URL}/",
+                        "date": item.get("created_at") or "최근"
+                    }
+
+                # Compare Title if hint provided
+                if norm_hint and len(norm_hint) >= 4 and q_title:
+                    q_norm = self._normalize_title_for_cmp(q_title)
+                    if (norm_hint in q_norm or q_norm in norm_hint) and len(q_norm) >= 4:
+                        return True, {
+                            "reason": "동일 상품 제목(모델)이 이미 등록되어 있습니다.",
+                            "match_type": "TITLE",
+                            "title": q_title,
+                            "id": item.get("post_id") or item.get("id"),
+                            "link": item.get("post_url") or f"{WP_URL}/",
+                            "date": item.get("created_at") or "최근"
+                        }
+
+        # 2. Check live WordPress posts on item.travelpick24.com
+        try:
+            auth_token = base64.b64encode(f"{WP_USER}:{WP_APP_PW.replace(' ', '')}".encode("utf-8")).decode("utf-8")
+            headers = {"Authorization": f"Basic {auth_token}", "User-Agent": "ItemPickVerifier/1.0"}
+            req_url = f"{WP_API_BASE}/posts?per_page=50&_fields=id,title,content,link,date"
+            req = urllib.request.Request(req_url, headers=headers)
+            with urllib.request.urlopen(req, timeout=10, context=_SSL_CONTEXT) as resp:
+                posts = json.loads(resp.read().decode("utf-8"))
+                for p in posts:
+                    p_id = p["id"]
+                    p_title = p.get("title", {}).get("rendered", "")
+                    p_link = p.get("link", "")
+                    p_date = p.get("date", "")[:10]
+                    p_content = p.get("content", {}).get("rendered", "")
+
+                    # Check if incoming URL or canonical URL is inside post content
+                    if url in p_content or (clean_input_url and clean_input_url in p_content):
+                        return True, {
+                            "reason": "동일 제휴 URL이 이미 등록되어 있습니다.",
+                            "match_type": "URL",
+                            "title": p_title,
+                            "id": p_id,
+                            "link": p_link,
+                            "date": p_date
+                        }
+
+                    # Check if normalized title matches
+                    if norm_hint and len(norm_hint) >= 4:
+                        p_norm = self._normalize_title_for_cmp(p_title)
+                        if (norm_hint in p_norm or p_norm in norm_hint) and len(p_norm) >= 4:
+                            return True, {
+                                "reason": "동일 상품 제목(모델)이 이미 등록되어 있습니다.",
+                                "match_type": "TITLE",
+                                "title": p_title,
+                                "id": p_id,
+                                "link": p_link,
+                                "date": p_date
+                            }
+        except Exception as e:
+            logger.warning(f"[DuplicateCheck] WordPress live lookup error: {e}")
+
+        return False, None
+
     def add_to_queue(self, raw_text: str, user_id: str = "6290024230") -> Dict[str, Any]:
+        """자동 예약은 사용자 요청에 의해 영구 비활성화되었습니다."""
+        return {
+            "status": "DISABLED",
+            "message": "아이템픽24는 자동 예약이 영구 해제되어 있으며, 링크 전송 즉시 실시간 단발성으로 발행됩니다."
+        }
+
+    def add_and_publish_now(self, raw_text: str, user_id: str = "6290024230") -> Dict[str, Any]:
+        """텔레그램 URL 수신 시 중복 검증 후 큐 예약 없이 즉시 발행 처리 (자동예약 해제 대응)"""
         url_match = re.search(r"https?://[^\s]+", raw_text)
         if not url_match:
             return {"status": "ERROR", "message": "유효한 웹 링크(URL)를 찾을 수 없습니다."}
-        
+
         url = url_match.group(0)
         title_hint = self.clean_title_hint(raw_text, url)
         platform = self.detect_platform(url)
         mode, mode_name = self.parse_mode(raw_text, platform)
-        scheduled_at, position = self.calculate_next_schedule()
-        
-        item_id = f"item_{int(time.time())}_{position}"
+
+        # 1. Deduplication Guard: Check URL and title before creating
+        is_dup, dup_info = self.check_duplicate(url, title_hint)
+        if is_dup and dup_info:
+            logger.info(f"[DuplicateRejected] Rejecting URL {url}: {dup_info['reason']} (Matched: {dup_info['title']})")
+            return {
+                "status": "REJECTED_DUPLICATE",
+                "reason": dup_info["reason"],
+                "url": url,
+                "existing": dup_info,
+                "message": f"동일한 {dup_info['reason']}이(가) 이미 존재합니다."
+            }
+
+        item_id = f"item_{int(time.time())}_now"
         new_item = {
             "id": item_id,
             "url": url,
@@ -172,28 +315,18 @@ class ItemPickQueueService:
             "mode": mode,
             "mode_name": mode_name,
             "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "scheduled_at": scheduled_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "scheduled_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # 즉시 발행 (예약 해제)
             "status": "pending",
             "user_id": str(user_id),
             "post_id": None,
             "post_url": None,
             "error": None
         }
-        
+
         queue = self._load_queue()
         queue.append(new_item)
         self._save_queue(queue)
-        
-        diff_seconds = max(0, int((scheduled_at - datetime.now()).total_seconds()))
-        diff_minutes = diff_seconds // 60
-        hours = diff_minutes // 60
-        mins = diff_minutes % 60
-        
-        time_str = ""
-        if hours > 0:
-            time_str += f"{hours}시간 "
-        time_str += f"{mins}분"
-        
+
         platform_names = {
             "coupang": "쿠팡 파트너스 🛒",
             "ohou": "오늘의집 인테리어 🏠",
@@ -201,7 +334,18 @@ class ItemPickQueueService:
             "toss": "토스 쇼핑 파트너스 ⚡",
             "default": "쇼핑몰 제휴 🔍"
         }
-        
+
+        # 즉시 발행 태스크 스케줄 (비동기 백그라운드)
+        import asyncio
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.create_task(self.execute_item(item_id))
+            else:
+                loop.run_until_complete(self.execute_item(item_id))
+        except Exception as e:
+            logger.error(f"[ImmediatePublish] Failed to schedule execute_item: {e}")
+
         return {
             "status": "SUCCESS",
             "item_id": item_id,
@@ -209,10 +353,6 @@ class ItemPickQueueService:
             "platform_name": platform_names.get(platform, "쇼핑몰 제휴"),
             "mode": mode,
             "mode_name": mode_name,
-            "position": position,
-            "scheduled_at": scheduled_at.strftime("%H:%M"),
-            "scheduled_at_full": scheduled_at.strftime("%Y-%m-%d %H:%M:%S"),
-            "wait_time_text": time_str,
             "title_hint": title_hint,
             "url": url
         }
@@ -708,6 +848,37 @@ CONTENT:
         prod_info = self.resolve_product_info(target_item)
         logger.info(f"Resolved product: {prod_info['title']} ({prod_info['platform']})")
 
+        # Double-check duplicate after product title resolution
+        is_dup, dup_info = self.check_duplicate(target_item["url"], prod_info["title"], exclude_item_id=item_id)
+        if is_dup and dup_info:
+            logger.info(f"[DuplicateRejected] Worker resolved duplicate: {dup_info['reason']} for {prod_info['title']}")
+            queue = self._load_queue()
+            for item in queue:
+                if item["id"] == item_id:
+                    item["status"] = "rejected_duplicate"
+                    item["error"] = dup_info["reason"]
+                    break
+            self._save_queue(queue)
+
+            user_id = target_item.get("user_id", "6290024230")
+            rej_msg = (
+                f"⚠️ <b>[아이템픽24 등록 거절 안내]</b>\n\n"
+                f"상품 정보 분석 결과, 기존 게시글과 동일한 상품(제목/URL)이 이미 등록되어 있어 발행이 거절되었습니다.\n\n"
+                f"• <b>거절 사유:</b> {dup_info['reason']}\n"
+                f"• <b>인식된 상품명:</b> <b>{prod_info['title']}</b>\n"
+                f"• <b>요청 URL:</b> <code>{target_item['url'][:60]}...</code>\n"
+                f"• <b>기존 등록 글:</b> <b>{dup_info['title']}</b> (ID: #{dup_info['id']})\n"
+                f"• <b>기존 글 링크:</b> {dup_info['link']}\n"
+                f"• <b>기존 등록일:</b> {dup_info['date']}\n\n"
+                f"<i>※ 중복 발행 및 검색 패널티를 방지하기 위해 신규 글 작성이 차단되었습니다.</i>"
+            )
+            try:
+                from telegram_bot.bot import telegram_bot
+                await telegram_bot.send_message(user_id, rej_msg)
+            except Exception as e:
+                logger.warning(f"Telegram rejection notification error: {e}")
+            return {"status": "REJECTED_DUPLICATE", "message": dup_info["reason"]}
+
         # 16:9 Thumbnail generation & Media upload
         img_bytes = self.create_16_9_thumbnail(prod_info.get("image_url", ""), prod_info["title"], prod_info["platform"])
         media_id, media_url = None, None
@@ -733,14 +904,12 @@ CONTENT:
 
         if pub_res.get("status") == "SUCCESS":
             user_id = target_item.get("user_id", "6290024230")
-            pending_count = len([i for i in queue if i.get("status") == "pending"])
-            
             completion_msg = (
                 f"🎉 <b>[아이템픽24 포스팅 발행 완료]</b>\n\n"
                 f"• <b>게시글 제목:</b> {pub_res.get('title')}\n"
                 f"• <b>작성 모드:</b> {target_item.get('mode_name', '구매 가이드')}\n"
                 f"• <b>블로그 링크:</b>\n{pub_res.get('post_url')}\n\n"
-                f"⏰ <b>남은 예약 대기:</b> {pending_count}건"
+                f"⚡ <b>발행 상태:</b> 즉시 실시간 발행 완료 (단발성 수동 모드)"
             )
             try:
                 from telegram_bot.bot import telegram_bot
@@ -751,33 +920,13 @@ CONTENT:
         return pub_res
 
     async def check_and_run_due_items(self) -> None:
-        now = datetime.now()
-        queue = self._load_queue()
-        
-        due_items = []
-        for item in queue:
-            if item.get("status") == "pending":
-                try:
-                    sched = datetime.strptime(item["scheduled_at"], "%Y-%m-%d %H:%M:%S")
-                    if sched <= now:
-                        due_items.append(item["id"])
-                except Exception:
-                    pass
-
-        for item_id in due_items:
-            await self.execute_item(item_id)
+        """아이템픽24 자동 예약 비활성화: 스케줄러 실행을 영구 차단합니다."""
+        return
 
     async def start_worker(self) -> None:
-        self.is_worker_running = True
-        logger.info("[ItemPickQueue] Background scheduler worker started (interval: 15s)")
-        while self.is_worker_running:
-            try:
-                await self.check_and_run_due_items()
-            except asyncio.CancelledError:
-                break
-            except Exception as e:
-                logger.error(f"[ItemPickQueue Worker Error] {e}")
-            await asyncio.sleep(15)
+        """아이템픽24 자동 예약 비활성화: 워커 가동을 중단합니다."""
+        self.is_worker_running = False
+        logger.info("[ItemPickQueue] Automatic scheduling permanently DISABLED per user direction.")
 
     def stop_worker(self) -> None:
         self.is_worker_running = False

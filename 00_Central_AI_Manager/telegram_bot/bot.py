@@ -50,10 +50,13 @@ class TelegramControlBot:
                 ],
                 [
                     {"text": "☀️ 일일 브리핑", "callback_data": "/report"},
-                    {"text": "📈 방문자 보고 (/traffic)", "callback_data": "/traffic"}
+                    {"text": "📈 방문자+예약일정 (/traffic)", "callback_data": "/traffic"}
                 ],
                 [
-                    {"text": "💾 DB 백업", "callback_data": "/backup"},
+                    {"text": "⏰ 7대블로그 예약일정", "callback_data": "/schedule"},
+                    {"text": "💾 DB 백업", "callback_data": "/backup"}
+                ],
+                [
                     {"text": "🔄 서비스 재시작", "callback_data": "/restart_all"}
                 ],
                 [

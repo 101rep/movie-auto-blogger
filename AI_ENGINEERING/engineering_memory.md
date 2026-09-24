@@ -125,6 +125,18 @@
   5. **텔레그램 중앙 관제 Tier 1.5 자연어 인터프리터 탑재**:
      - `/audit_today`, `/heal_failed`, `/check_schedule`, `/check_duplicate`, `/system_report` 긴급 커맨드 지원 및 "오늘 엔터픽24 발행 확인해줘"와 같은 한국어 자연어 명령을 즉각 실행한다.
 
+### ADR-013: 엔터픽24 순수 글로벌 OTT 전문 상업화 엔진 구축 및 완전 리셋 (TVmaze & Fanart.tv 연동)
+- **결정:**
+  1. **엔터픽24 포스트 완전 초기화 (Clean Reset)**:
+     - 기존 일반 연예/영화 더미 포스트 4건(ID 14, 13, 11, 10)을 워드프레스 REST API(`force=True`)로 영구 삭제하고, 엔터픽24를 순수 글로벌 OTT(넷플릭스, 디즈니+, 애플TV+, HBO Max 등) 전문 매거진으로 전환한다.
+  2. **TVmaze & Fanart.tv API 듀얼 파이프라인 결합 (`core/ott_engine/`)**:
+     - TVmaze API: 80,000+ TV 시리즈의 실시간 방영일정, 차기 에피소드 D-Day 카운트다운, 에피소드별 평점, 출연진 메타데이터 추출.
+     - Fanart.tv API: TheTVDB ID를 브릿지로 활용하여 투명 배경 공식 타이틀 로고(`hdtvlogo`), 등장인물 누끼 컷아웃(`hdclearart`), 1920x1080 이상의 초고해상도 백드롭(`showbackground`)을 동적 수집.
+  3. **트렌드스팟24 Netflix Dark Magazine E-E-A-T 템플릿 100% 이식**:
+     - `.mab-article-container`, Pretendard 웹폰트, 글래스모피즘 스펙 시트, 20,000바이트 이상의 압도적인 장문 비평, 주말 몰아보기(Binge-Watch) 필수 회차 치트시트, Schema.org `TVSeries` JSON-LD를 표준 탑재한다.
+  4. **상업적 수익화 3대 블록 내장**:
+     - 1) 공식 플랫폼 구독 혜택 링크, 2) 해외 미공개작 고단가 스트리밍 VPN 제휴 가이드, 3) 4K TV/사운드바 홈시네마 추천 기기(쿠팡 파트너스) 블록을 모든 아티클에 의무 렌더링한다.
+
 ---
 
 ## 4. 운영 가이드 및 복리 규칙

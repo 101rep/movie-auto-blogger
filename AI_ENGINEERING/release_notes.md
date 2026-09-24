@@ -1,5 +1,31 @@
 # Release Notes (Engineering Changelog)
 
+## [v2.2.0] - 2026-09-25 : EnterPick24 Pure OTT Commercial Engine & Clean Reset (TVmaze & Fanart.tv Integration)
+### Added
+- **엔터픽24(`enter.trendspot24.com`) 기존 일반 더미 포스트 전면 영구 삭제 (Clean Reset):**
+  - 기존 연예/영화 더미 포스트(ID 14, 13, 11, 10)를 워드프레스 REST API(`force=True`)를 통해 완전히 삭제 완료하여 무결점 백지상태로 리셋.
+- **TVmaze & Fanart.tv API 기반 초고화질 글로벌 OTT 자동화 엔진 (`core/ott_engine/`):**
+  - **TVmaze REST API 클라이언트 (`tvmaze_client.py`)**: 80,000+ TV 시리즈의 실시간 방영일정, 차기 에피소드 D-Day 카운트다운, 에피소드별 평점, 출연진, TheTVDB 및 IMDb 외부 ID 연동.
+  - **Fanart.tv REST API 클라이언트 (`fanart_client.py`)**: TheTVDB ID 기반 배경 투명 공식 HD 로고(`hdtvlogo`), 등장인물 누끼 컷아웃 아트(`hdclearart`), 1920x1080 이상의 초고해상도 백드롭(`showbackground`) 선별 엔진.
+  - **Netflix Dark Magazine E-E-A-T 템플릿 렌더러 (`template_renderer.py`)**:
+    - 트렌드스팟24의 럭셔리 다크 매거진 스타일 100% 동일 이식 (`.mab-article-container`, Pretendard, Noto Sans KR).
+    - Fanart 4K 백드롭 + 투명 HD 타이틀 로고 + 상태 배지(`NETFLIX`, `D-DAY`, `4K HDR`) 결합 히어로 헤더.
+    - TVmaze 실시간 메타데이터 글래스모피즘 스펙 시트 (플랫폼, 평점, 방영일, 회차 수).
+    - 스포일러 방지 핵심 줄거리 & 세계관, 제목의 의미와 상징성 분석.
+    - 주말 몰아보기(Binge-Watch) 필수 회차 치트시트 ("스킵 가능 vs 필수 떡밥 회차").
+    - 주요 인물 갈등 구도 및 심리전 분석 그리드.
+    - Schema.org `TVSeries` JSON-LD 검색엔진 리치 스니펫 내장.
+- **상업적 수익화(Commercial Monetization) 3대 파이프라인 탑재:**
+  - 1) OTT 공식 스트리밍 플랫폼 바로가기 및 구독 프로모션 카드.
+  - 2) 한국 미공개작 안전 시청 가이드 (고단가 글로벌 스트리밍 VPN 제휴 박스).
+  - 3) 4K TV / 돌비 애트모스 사운드바 홈시네마 추천 기기 (쿠팡 파트너스 연계 박스).
+- **자동 발행기 (`publisher.py`) 및 CLI (`cli.py`):**
+  - Fanart 초고화질 백드롭의 워드프레스 미디어 라이브러리 자동 업로드 및 Featured Media 매핑.
+  - 1호 프리미어 포스트 **'Stranger Things'** 실발행 성공 (Post ID #27, 분량 20,183 bytes, Quality Gate 100점).
+- **테스트 및 검증:**
+  - OTT 엔진 전용 4종 테스트 100% 통과 (`tests/test_ott_engine.py`).
+  - 전체 워크스페이스 회귀 테스트 27종 전원 PASS (`27 passed in 43.02s`).
+
 ## [v2.1.0] - 2026-09-25 : Antigravity Automation OS Production Reliability + AG Gateway Upgrade PRD v2.0
 ### Added
 - **Production Publishing Reliability Audit & Zero-Failure Queue Architecture (`core/reliability/`):**
@@ -233,3 +259,14 @@
 - **Summary:** Jitter distribution bounds dynamically normalized to prevent rate limits.
 - **QA Score:** 10.0/10.0
 - **Checked Files:** orchestrator.py
+
+## [v2.4.2] - 2026-09-25
+### Changed & Fixed
+- **8대 블로그 전역 한국어 완벽 로컬라이징 적용**:
+  - WordPress 코어 언어팩 및 Astra 테마 한국어팩 8대 사이트 일괄 설치/활성화.
+  - 전 사이트 무중단 mu-plugin (wp-content/mu-plugins/korean-localization.php) 배포로 싱글 포스트 하단 '이전 글 / 다음 글' 내비게이션 및 댓글 폼('댓글 남기기', '댓글 등록', '댓글을 입력하세요...', 브라우저 저장 동의 문구 등) 100% 한글화 완료.
+  - 8대 도메인 라이브 포스트 자동화 검수 완료 (잔여 영문 0건).
+
+- **트렌드스팟24 넷플릭스 다크 시네마 댓글창 & 푸터 정돈 완료**:
+  - 사이트 전역 푸터에서 중복 노출되던 TMDB 불릿 텍스트 제거 (포스팅 본문 내 고화질 공식 TMDB 라이선스 카드로 일원화).
+  - 눈부신 순백색 댓글창을 넷플릭스 다크 시네마 무드(#111827)로 전면 개편: 넷플릭스 레드 악센트, 다크 옵시디언 입력창, 넷플릭스 레드 '댓글 등록' 버튼, '이전/다음 글' 내비게이션 다크 카드 일체화 완료.

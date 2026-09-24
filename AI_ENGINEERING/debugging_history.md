@@ -208,3 +208,26 @@
 - **테스트 결과 (Test Results):** PASS
 
 ---
+
+
+### [RCA-012] 8대 블로그 전역 댓글 폼 및 이전/다음 글 내비게이션 영문 노출 이슈
+- **발생 일시:** 2026-09-25
+- **현상:** 8대 블로그 전 사이트의 싱글 포스트 하단에서 'Leave a Comment', 'Your email address will not be published.', 'Type here..', 'Name*', 'Email*', 'Website', 'Post Comment', '← PREVIOUS', 'NEXT →' 등 댓글 폼과 이전/다음 글 내비게이션 요소가 영문으로 노출됨.
+- **근본 원인 (Root Cause):**
+  1. WordPress 인스턴스 7개의 WPLANG 옵션이 비어 있어 영문 기본값(en_US)으로 구동 중이었음.
+  2. Astra 테마의 한국어 번역팩(astra ko_KR)이 설치되지 않아 테마 전용 문자열이 영문으로 폴백됨.
+- **조치 내역 (Fix):**
+  1. WP-CLI를 통해 8대 전 사이트에 워드프레스 코어 한국어팩 및 Astra 테마 한국어팩 일괄 설치 및 활성화.
+  2. 전 사이트에 wp-content/mu-plugins/korean-localization.php를 배포하여 astra_default_strings, comment_form_defaults, gettext 3중 필터로 완벽 한글화.
+  3. 전 사이트 캐시 초기화 후 8대 도메인 라이브 포스트 자동화 검증 완료 (모든 사이트 한글화율 100%, 잔여 영문 0건).
+- **재발 방지 대책 (Future Prevention):**
+  - 테마 업데이트나 워드프레스 코어 변경에도 번역이 유실되지 않도록 mu-plugins 시스템 레벨 필터로 고정하여 영구 보존.
+
+### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 06:30:51 KST
+- **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
+- **원인 (Root Cause):** Application Password capability restriction on non-admin user
+- **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings
+- **변경 파일 (Changed Files):** core/reliability/queue_manager.py
+- **테스트 결과 (Test Results):** PASS
+
+---

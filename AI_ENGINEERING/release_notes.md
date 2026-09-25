@@ -1,5 +1,36 @@
 # Release Notes (Engineering Changelog)
 
+## [v2.4.0] - 2026-09-25 : EnterPick24 Movie & OTT Content Engine V4 Master (Dark Editorial & 4-Level Duplicate Prevention)
+### Added
+- **일일 4슬롯 지능형 콘텐츠 플래너 (`DailyContentPlanner`, `content_planner.py`):**
+  - Slot 1: Discovery (발견/트렌드 TOP 5, 08:00 KST)
+  - Slot 2: Deep Dive (화제작 단일 심층 리뷰, 12:30 KST)
+  - Slot 3: Theme (테마/정주행 큐레이션, 18:00 KST)
+  - Slot 4: Streaming (시청 플랫폼/요금제 실전 가이드, 21:30 KST)
+  - 동일 엔터티 중복 차단 및 슬롯 간 검색 의도(Informational, Evaluative, Thematic, Commercial) 상호 배타성 보장.
+- **4단계 다중 레이어 중복 방지 엔진 (`DuplicateEngine`, `duplicate_engine.py`):**
+  - Level 1: 제목 완전 일치(Exact Match, Jaccard >= 0.85)
+  - Level 2: 엔터티 쿨다운(심층 단독 30일 / 큐레이션 포함 14일)
+  - Level 3: 동일 엔터티 + 동일 검색 의도 조합 차단
+  - Level 4: TF-IDF 시맨틱 유사도 분석(임계치 >= 0.88)
+  - 중복 위험도 점수(Duplicate Risk Score, 0~100) 산출 및 위험도 70 초과 시 발행 원천 차단.
+- **포스터 자동 주입 및 라이선스 관리자 (`PosterManager`, `poster_manager.py`):**
+  - 개별 작품 제목 상단 세로형 공식 포스터 자동 렌더링 (최대 너비 340px, 2:3 종횡비, 은은한 그림자 및 라운딩).
+  - 대표 썸네일(가로 16:9 히어로 백드롭)과 본문 영화 포스터(세로 2:3)의 명확한 역할 분리.
+  - 상업적 라이선스 추적(`VERIFIED`, `UNKNOWN`, `RESTRICTED`), 미디어 라이브러리 캐싱, 한국어 ALT 태그 자동 생성.
+- **다크 네이비 에디토리얼 테마 & Gutenberg HTML 블록 기반 댓글 완전 래핑 (`styles.py`):**
+  - 본문 카드, 평점 배지, 비교표를 넘어 워드프레스 테마 순정 댓글창(`#comments`, `textarea#comment`, 인풋 필드, 전송 버튼)까지 `#0f172a` 및 `#070a12`로 일체화.
+  - WordPress REST API KSES 필터링을 완벽 우회하는 `<!-- wp:html --> <style> ... </style> <!-- /wp:html -->` 아키텍처 적용.
+  - 모바일(320px~430px) 가로 스크롤/오버플로우 0px 완전 달성 (`overflow-x: auto` 내장 테이블).
+- **V4 100점 품질 게이트 (`V4QualityEvaluator`, `quality_evaluator.py`):**
+  - 8대 품질 축(팩트 정확성 20, 중복 안전성 20, 검색 의도 충족 15, 독창성 15, 한국 사용자 적합성 10, OTT 정보 구체성 10, 모바일 UX 5, 이미지 품질 5) 평가.
+  - 90점 이상만 자동 예약/발행 허가, 70점 미만 즉시 반려.
+- **기존 발행 글 감사 서비스 (`ExistingPostAuditor`, `audit_service.py`):**
+  - 기 발행된 워드프레스 포스트 전수 분석 및 지문 생성.
+  - `KEEP`, `MERGE_CANDIDATE`, `CANONICAL_CANDIDATE` 3단계 분류 (임의 자동 삭제 없는 안전 진단).
+- **한국어 전용 카테고리 개편 및 미분류(Uncategorized) 영구 제거:**
+  - `영화` (ID: 33), `OTT` (ID: 34), `넷플릭스` (ID: 35), `추천·큐레이션` (ID: 36) 신설 및 자동 매핑.
+
 ## [v2.3.0] - 2026-09-25 : EnterPick24 Movie & OTT Content Skills 4-Pack Integration (Master Prompt)
 ### Added
 - **엔터픽24(`enter.trendspot24.com`, Site ID 4) 전용 영화·OTT 글쓰기 스킬 4종 독립 구축 (`movie-content-skills/` & `.agents/skills/`):**

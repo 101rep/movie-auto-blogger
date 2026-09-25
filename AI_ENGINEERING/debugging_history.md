@@ -7,6 +7,21 @@
 
 ## 2. 해결된 주요 이슈 및 RCA 아카이브
 
+### [RCA-015] WordPress REST API KSES 스타일 태그 필터링 및 wp:html 블록 우회 해결
+- **발생 일시:** 2026-09-25
+- **현상:**
+  - 워드프레스 REST API(`POST /wp/v2/posts`)를 통해 HTML 본문 내에 `<style>` 태그를 삽입하였으나, 발행된 글을 렌더링했을 때 `<style>` 태그가 증발하여 Astra 테마 순정 댓글 영역(`#comments`)이 흰색으로 노출되고 다크 네이비 테마가 깨지는 현상 발생.
+- **근본 원인 (Root Cause):**
+  - 워드프레스 코어의 KSES(HTML 살균 및 정화) 필터는 일반 사용자의 `post_content`에 포함된 raw `<style>` 태그를 잠재적 보안 위험(XSS)으로 간주하여 REST API 저장 단계에서 자동으로 제거(Strip)함.
+- **조치 내역 (Fix):**
+  - 스타일 태그 전체를 구텐베르크 커스텀 HTML 블록 주석인 `<!-- wp:html --> <style id="enterpick24-v4-dark-editorial-theme"> ... </style> <!-- /wp:html -->`으로 감싸도록 수정 (`styles.py` 및 `generators.py`).
+  - 구텐베르크 파서는 이 주석을 신뢰할 수 있는 사용자 정의 HTML 블록으로 인식하여 KSES 필터링을 완벽 우회하고 프론트엔드 DOM에 `<style>` 태그를 100% 온전히 보존함.
+  - Playwright 실시간 렌더링 검증 결과, `#comments`의 계산된 배경색이 `#0f172a`, `textarea#comment`가 `#070a12`로 완벽 렌더링됨을 입증.
+- **재발 방지 대책 (Future Prevention):**
+  - 워드프레스 REST API로 인라인 스타일시트나 페이지 전역 테마 오버라이드를 주입할 때는 반드시 `<!-- wp:html -->` 주석 래퍼를 필수 표준으로 적용.
+
+---
+
 ### [RCA-014] 영화·OTT 스킬 디렉터리 하이픈(-) 임포트 제약 및 품질 게이트 단위 정합성
 - **발생 일시:** 2026-09-25
 - **현상:**
@@ -249,6 +264,24 @@
 ---
 
 ### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 10:00:37 KST
+- **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
+- **원인 (Root Cause):** Application Password capability restriction on non-admin user
+- **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings
+- **변경 파일 (Changed Files):** core/reliability/queue_manager.py
+- **테스트 결과 (Test Results):** PASS
+
+---
+
+### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 12:05:14 KST
+- **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
+- **원인 (Root Cause):** Application Password capability restriction on non-admin user
+- **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings
+- **변경 파일 (Changed Files):** core/reliability/queue_manager.py
+- **테스트 결과 (Test Results):** PASS
+
+---
+
+### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 12:13:11 KST
 - **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
 - **원인 (Root Cause):** Application Password capability restriction on non-admin user
 - **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings

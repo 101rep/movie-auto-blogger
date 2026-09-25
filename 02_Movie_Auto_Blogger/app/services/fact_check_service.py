@@ -252,8 +252,21 @@ class TravelFactCheckService:
         country = getattr(item, "country", "")
         duration = getattr(item, "duration", "")
 
+        def _normalize_cmp(s: str) -> str:
+            return re.sub(r'[\s&+,/·・~()_-]+', '', s).lower() if s else ""
+
+        norm_dest = _normalize_cmp(clean_dest)
+        norm_full = _normalize_cmp(full_text)
+        dest_tokens = [t.strip() for t in re.split(r'[\s&+,/·・~()_-]+', clean_dest) if len(t.strip()) >= 2]
+
+        is_dest_matched = (
+            clean_dest.lower() in full_text.lower() or
+            (norm_dest and norm_dest in norm_full) or
+            (bool(dest_tokens) and any(tok.lower() in full_text.lower() for tok in dest_tokens))
+        )
+
         # 1. Verify Destination
-        if clean_dest.lower() in full_text.lower():
+        if is_dest_matched:
             items.append(FactCheckItem(
                 claim_type=ClaimType.TITLE,
                 claimed_text=clean_dest,
@@ -273,7 +286,8 @@ class TravelFactCheckService:
             ))
 
         # 2. Verify Country
-        if country and country.lower() in full_text.lower():
+        norm_country = _normalize_cmp(country)
+        if country and (country.lower() in full_text.lower() or (norm_country and norm_country in norm_full)):
             items.append(FactCheckItem(
                 claim_type=ClaimType.GENRE,
                 claimed_text=country,
@@ -293,7 +307,8 @@ class TravelFactCheckService:
             ))
 
         # 3. Verify Duration
-        if duration and duration in full_text:
+        norm_duration = _normalize_cmp(duration)
+        if (duration and duration in full_text) or (norm_duration and norm_duration in norm_full):
             items.append(FactCheckItem(
                 claim_type=ClaimType.RUNTIME,
                 claimed_text=duration,

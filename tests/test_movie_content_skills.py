@@ -29,7 +29,8 @@ def test_02_data_adapter():
     adapter = VerifiedOTTDataAdapter()
     show = adapter.search_title("Stranger Things")
     assert show is not None
-    assert show["title"] == "Stranger Things"
+    assert show["original_title"] == "Stranger Things"
+    assert show["title"] in ["Stranger Things", "기묘한 이야기"]
     assert show["has_commercial_license"] is True
     assert show["backdrop_url"] is not None
 

@@ -73,7 +73,7 @@ async def run_travel_automation_pipeline(db: Session, force: bool = False) -> Au
 
         # 2. Collect destination candidates
         post_target_count = min(max(settings.DAILY_POST_COUNT, 1), 10)
-        candidates = await travel_mod.collect_candidates(db, limit=30)
+        candidates = await travel_mod.collect_candidates(db, limit=1500)
         run.candidate_count = len(candidates)
         log_event("collector", "DISCOVERY_COMPLETED", f"여행 후보지 {len(candidates)}곳 수집 완료")
 

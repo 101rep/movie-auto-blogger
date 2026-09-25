@@ -547,6 +547,27 @@ CORE_TRAVEL_CATALOG: List[Dict[str, Any]] = [
 
 ]
 
+import os
+import json
+
+CATALOG_1000_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+    "data",
+    "travel_catalog_1000.json"
+)
+
+def get_expanded_travel_catalog() -> List[Dict[str, Any]]:
+    """Loads 1,000-destination catalog from JSON if available, otherwise falls back to CORE_TRAVEL_CATALOG."""
+    if os.path.exists(CATALOG_1000_PATH):
+        try:
+            with open(CATALOG_1000_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list) and len(data) >= 50:
+                    return data
+        except Exception as e:
+            logger.warning("Failed to load travel catalog from %s: %s", CATALOG_1000_PATH, e)
+    return CORE_TRAVEL_CATALOG
+
 
 class TravelCollector:
     """Collector handling discovery and normalization of trending travel destinations."""
@@ -556,23 +577,26 @@ class TravelCollector:
 
     async def health_check(self) -> Dict[str, Any]:
         """Verify travel collector data availability."""
+        catalog = get_expanded_travel_catalog()
         return {
             "success": True,
-            "catalog_count": len(CORE_TRAVEL_CATALOG),
-            "source": "TOUR_API_GLOBAL",
-            "message": "글로벌/국내 여행 데이터 수집기 가동 중"
+            "catalog_count": len(catalog),
+            "source": "TOUR_API_GLOBAL_1000",
+            "message": f"글로벌/국내 {len(catalog)}선 대규모 여행 데이터 수집기 가동 중"
         }
 
-    async def discover_popular_destinations(self, limit: int = 10) -> List[TravelCandidateItem]:
+    async def discover_popular_destinations(self, limit: int = 1500) -> List[TravelCandidateItem]:
         """Discover curated trending travel destinations."""
+        catalog = get_expanded_travel_catalog()
         items: List[TravelCandidateItem] = []
-        for raw in CORE_TRAVEL_CATALOG[:min(limit, len(CORE_TRAVEL_CATALOG))]:
+        for raw in catalog[:min(limit, len(catalog))]:
             items.append(TravelCandidateItem(**raw))
         return items
 
     async def get_destination_by_id(self, destination_id: str) -> Optional[TravelCandidateItem]:
         """Retrieve destination details by unique ID."""
-        for raw in CORE_TRAVEL_CATALOG:
+        catalog = get_expanded_travel_catalog()
+        for raw in catalog:
             if raw["destination_id"] == destination_id:
                 return TravelCandidateItem(**raw)
         return None
@@ -581,8 +605,9 @@ class TravelCollector:
         """Live fallback search using open travel sources or matching catalog."""
         query_clean = query.strip().lower()
         matched: List[TravelCandidateItem] = []
+        catalog = get_expanded_travel_catalog()
 
-        for raw in CORE_TRAVEL_CATALOG:
+        for raw in catalog:
             if query_clean in raw["destination"].lower() or query_clean in raw["country"].lower():
                 matched.append(TravelCandidateItem(**raw))
 

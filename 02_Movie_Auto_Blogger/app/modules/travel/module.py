@@ -52,7 +52,7 @@ class TravelModule(BaseContentModule):
             "message": "여행 & 명소 가이드 모듈 정상 가동 중"
         }
 
-    async def collect_candidates(self, db: Session, limit: int = 10) -> List[CandidateItem]:
+    async def collect_candidates(self, db: Session, limit: int = 1500) -> List[CandidateItem]:
         """Discover, score, and normalize travel destinations."""
         logger.info("TravelModule: Collecting top travel destinations...")
         destinations = await self.collector.discover_popular_destinations(limit=limit)

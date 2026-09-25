@@ -1,0 +1,32 @@
+<!-- EnterPick24 Movie TOP 5 / Recommendation Template -->
+<div class="mab-article-container notranslate" translate="no" lang="ko" style="font-family: 'Pretendard', sans-serif; color: #f8fafc; background: #0b0f19; line-height: 1.9; max-width: 860px; margin: 0 auto; padding: 24px; border-radius: 18px; border: 1px solid #1e293b;">
+  <!-- Hero Section -->
+  <div style="position: relative; border-radius: 14px; overflow: hidden; background: linear-gradient(180deg, rgba(11,15,25,0.2) 0%, rgba(11,15,25,0.9) 70%, #0b0f19 100%), url('{{FEATURED_IMAGE}}') center/cover; padding: 60px 24px 24px 24px; min-height: 280px; display: flex; flex-direction: column; justify-content: flex-end;">
+    <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+      <span style="background: #e50914; color: #ffffff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 16px;">{{PLATFORM_BADGE}}</span>
+      <span style="background: #3b82f6; color: #ffffff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 16px;">추천 큐레이션</span>
+    </div>
+    <h1 style="font-size: 24px; font-weight: 800; color: #ffffff; margin: 0 0 10px 0; text-shadow: 0 2px 6px rgba(0,0,0,0.8);">{{TITLE}}</h1>
+    <p style="font-size: 14px; color: #cbd5e1; margin: 0;">{{INTRO_HOOK}}</p>
+  </div>
+
+  <!-- Movie Cards Loop -->
+  {{MOVIE_CARDS}}
+
+  <!-- Comparison Matrix Table -->
+  <div style="margin-top: 36px; background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; border-radius: 12px; padding: 20px; overflow-x: auto;">
+    <h2 style="font-size: 19px; font-weight: 800; color: #38bdf8; margin: 0 0 16px 0;">📊 추천 작품 비교 매트릭스</h2>
+    {{COMPARISON_TABLE}}
+  </div>
+
+  <!-- Persona Selection Guide -->
+  <div style="margin-top: 36px; padding: 22px; background: rgba(15, 23, 42, 0.7); border-left: 4px solid #10b981; border-radius: 8px 12px 12px 8px;">
+    <h2 style="font-size: 19px; font-weight: 800; color: #10b981; margin: 0 0 12px 0;">🎯 나의 취향에 맞는 작품 고르기</h2>
+    {{PERSONA_GUIDE}}
+  </div>
+
+  <!-- Verification Notice -->
+  <div style="margin-top: 30px; font-size: 12px; color: #64748b; text-align: center;">
+    본 추천 리스트는 공인 평점(IMDb, Rotten Tomatoes, TVmaze)과 스트리밍 현황을 기준으로 작성되었습니다. (확인 기준일: {{VERIFIED_DATE}})
+  </div>
+</div>

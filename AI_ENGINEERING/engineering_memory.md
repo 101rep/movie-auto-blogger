@@ -139,6 +139,20 @@
 
 ---
 
+### ADR-014: EnterPick24 4대 영화·OTT 전용 스킬 설치 및 절대 격리 아키텍처
+- **결정:**
+  1. **스킬 4종 독립 구축 (movie-content-skills/ & .agents/skills/)**:
+     - movie-top5-writer, ott-movie-review, ott-theme-curator, ott-streaming-guide 4개 스킬을 독립 구성.
+     - 각 스킬 폴더에 SKILL.md(에이전트 지침), 	emplate.html(다크 매거진 템플릿), 
+ules.json(품질 및 필수 섹션 규칙)을 완전 분리 보존.
+  2. **절대 격리 가드 (EnterPickIsolationGuard)**:
+     - 타 7개 블로그(트래블픽, 트렌드스팟, 복지픽 3채널 등)의 스케줄러, DB, 파이프라인 수정을 일체 금지하고, Site ID != 4 또는 도메인 != enter.trendspot24.com 호출 시 즉각 PermissionError를 발생시켜 타 사이트 오염을 방지한다.
+  3. **일일 4회 슬롯 자동화 파이프라인 (EnterPickContentPipeline)**:
+     - 하루 4회(08:00 TOP 5 -> 12:30 심층리뷰 -> 18:00 테마큐레이션 -> 21:30 스트리밍가이드) 스케줄 매핑.
+     - 사전 중복 검사(Duplicate Check) 및 5단계 Quality Gate 통과를 거쳐 워드프레스 REST API로 안전 발행(테스트 시 draft 모드 강제).
+
+---
+
 ## 4. 운영 가이드 및 복리 규칙
 1. **문제 해결 후 필수 절차:** 이슈 해결 시 `debugging_history.md`에 Root Cause Analysis(RCA)를 즉시 추가하고, 향후 방지 수칙을 이 파일에 반영한다.
 2. **품질 검증 의무화:** 새로운 기능을 릴리즈하기 전 반드시 QA Agent의 8대 체크리스트와 자동화 테스트 스크립트를 통과해야 한다.

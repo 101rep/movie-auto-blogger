@@ -1,5 +1,32 @@
 # Release Notes (Engineering Changelog)
 
+## [v2.3.0] - 2026-09-25 : EnterPick24 Movie & OTT Content Skills 4-Pack Integration (Master Prompt)
+### Added
+- **엔터픽24(`enter.trendspot24.com`, Site ID 4) 전용 영화·OTT 글쓰기 스킬 4종 독립 구축 (`movie-content-skills/` & `.agents/skills/`):**
+  - **SKILL 01: Movie TOP 5 Writer (`movie-top5-writer`)**:
+    - 3~5편 엄선작 비교 분석, 스포일러 배제 핵심 줄거리, 몰입 포인트, 공식 평점/러닝타임/개봉년도/플랫폼 비교표, 취향별 1순위 추천 가이드.
+  - **SKILL 02: OTT Movie Review (`ott-movie-review`)**:
+    - 단일 작품 심층 비평, 미장센/사운드/카메라 워크 연출 분석, 인물 간 심리 대립 갈등 구도, 유사 명작 비교 매트릭스, 국내 공식 스트리밍 제공 여부.
+  - **SKILL 03: OTT Theme Curator (`ott-theme-curator`)**:
+    - 장르/테마별 큐레이션(반전 스릴러, 웰메이드 한국영화, 정주행 시리즈 등), 작품별 분위기 톤앤매너 비교표, 플랫폼별 시청 전략 가이드.
+  - **SKILL 04: OTT Streaming Guide (`ott-streaming-guide`)**:
+    - 국내 주요 OTT(넷플릭스, 티빙, 웨이브, 디즈니+, 왓챠, 쿠팡플레이) 실시간 스트리밍 제공 현황, 월정액(SVOD) vs 단건 대여/구매(TVOD) 가격 분석, 검증 일자 명시, 스트리밍 FAQ.
+  - 각 스킬별 `SKILL.md`(에이전트 지침), `template.html`(CSS 내장 반응형 다크 매거진 템플릿), `rules.json`(검증 규칙 및 필수 섹션) 100% 완비.
+- **TVmaze & Fanart.tv 데이터 어댑터 분리 및 상업용 라이선스 검증 (`movie_content_skills/data_adapter.py`):**
+  - TVmaze API 및 Fanart.tv 4K 공식 에셋 연동과 함께 `has_commercial_license` 검증 로직 및 검증 일자(`verified_date`) 필드 자동 주입.
+- **엔터픽24 절대 격리 가드 (`EnterPickIsolationGuard`):**
+  - Site ID != 4 또는 URL != `enter.trendspot24.com` 호출 시 `PermissionError`를 즉시 발생시켜 타 7개 블로그에 영향이 전혀 없도록 원천 차단.
+- **일일 4슬롯 예약 발행 파이프라인 (`EnterPickContentPipeline`):**
+  - 08:00, 12:30, 18:00, 21:30 KST 4회 스케줄 및 4대 스킬 자동 매핑.
+  - WordPress REST API 연동 및 사전 중복 검사(Duplicate Check), Quality Gate(5단계 품질 검증) 통과 의무화.
+  - 텔레그램 관제 보고서 자동 포맷터 (`format_telegram_report`) 탑재.
+- **라이브 워드프레스 드래프트 검증 (EnterPick24):**
+  - 안전 모드(`status="draft"`)로 4대 스킬 테스트 포스트 4건 전량 성공 발행:
+    - Slot 1 (`movie-top5-writer`): Post ID `#29` (`https://enter.trendspot24.com/?p=29`)
+    - Slot 2 (`ott-movie-review`): Post ID `#31` (`https://enter.trendspot24.com/?p=31`)
+    - Slot 3 (`ott-theme-curator`): Post ID `#33` (`https://enter.trendspot24.com/?p=33`)
+    - Slot 4 (`ott-streaming-guide`): Post ID `#35` (`https://enter.trendspot24.com/?p=35`)
+
 ## [v2.2.0] - 2026-09-25 : EnterPick24 Pure OTT Commercial Engine & Clean Reset (TVmaze & Fanart.tv Integration)
 ### Added
 - **엔터픽24(`enter.trendspot24.com`) 기존 일반 더미 포스트 전면 영구 삭제 (Clean Reset):**

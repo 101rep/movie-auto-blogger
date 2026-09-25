@@ -1,0 +1,22 @@
+{
+  "skill_name": "ott-streaming-guide",
+  "min_character_count": 1800,
+  "forbidden_cliches": [
+    "현대 사회에서",
+    "알아보겠습니다",
+    "살펴보겠습니다",
+    "중요한 역할을 합니다",
+    "아마도 여기서 볼 수 있을 것입니다"
+  ],
+  "required_sections": [
+    "시청 방법 요약",
+    "작품 기본 정보",
+    "플랫폼별 제공 현황표",
+    "이용 조건 및 가격 비교",
+    "시청 단계 안내",
+    "FAQ",
+    "확인 기준일"
+  ],
+  "prohibit_price_hallucination": true,
+  "require_verification_date": true
+}

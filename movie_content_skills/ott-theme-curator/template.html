@@ -1,0 +1,32 @@
+<!-- EnterPick24 OTT Theme Curator Template -->
+<div class="mab-article-container notranslate" translate="no" lang="ko" style="font-family: 'Pretendard', sans-serif; color: #f8fafc; background: #0b0f19; line-height: 1.95; max-width: 860px; margin: 0 auto; padding: 24px; border-radius: 18px; border: 1px solid #1e293b;">
+  <!-- Hero Section -->
+  <div style="position: relative; border-radius: 14px; overflow: hidden; background: linear-gradient(180deg, rgba(11,15,25,0.2) 0%, rgba(11,15,25,0.88) 70%, #0b0f19 100%), url('{{BACKDROP_URL}}') center/cover; padding: 60px 24px 24px 24px; min-height: 280px; display: flex; flex-direction: column; justify-content: flex-end;">
+    <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+      <span style="background: #8b5cf6; color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 16px;">THEME CURATION</span>
+      <span style="background: #3b82f6; color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 16px;">{{THEME_BADGE}}</span>
+    </div>
+    <h1 style="font-size: 25px; font-weight: 800; color: #ffffff; margin: 0 0 10px 0;">{{TITLE}}</h1>
+    <p style="font-size: 14px; color: #cbd5e1; margin: 0;">{{THEME_INTRO}}</p>
+  </div>
+
+  <!-- Curation Cards Loop -->
+  {{CURATION_ITEMS}}
+
+  <!-- Mood & Tone Comparison Table -->
+  <div style="margin-top: 36px; background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; border-radius: 12px; padding: 20px;">
+    <h2 style="font-size: 19px; font-weight: 800; color: #a78bfa; margin: 0 0 14px 0;">🎭 테마 작품별 분위기 & 템포 비교표</h2>
+    {{MOOD_TABLE}}
+  </div>
+
+  <!-- Taste-based Selection Guide -->
+  <div style="margin-top: 36px; padding: 22px; background: rgba(15, 23, 42, 0.7); border-left: 4px solid #a78bfa; border-radius: 8px 12px 12px 8px;">
+    <h2 style="font-size: 19px; font-weight: 800; color: #a78bfa; margin: 0 0 12px 0;">🎯 독자 성향별 원픽 가이드</h2>
+    {{SELECTION_GUIDE}}
+  </div>
+
+  <!-- Verification Note -->
+  <div style="margin-top: 30px; font-size: 12px; color: #64748b; text-align: center;">
+    * 본 큐레이션에 수록된 작품은 국내 정식 서비스 여부를 확인한 후 선별되었습니다. (확인일자: {{VERIFIED_DATE}})
+  </div>
+</div>

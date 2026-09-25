@@ -1,0 +1,27 @@
+{
+  "skill_name": "movie-top5-writer",
+  "min_items": 3,
+  "max_items": 5,
+  "min_character_count": 2000,
+  "forbidden_cliches": [
+    "현대 사회에서",
+    "알아보겠습니다",
+    "살펴보겠습니다",
+    "중요한 역할을 합니다",
+    "지금부터 알아보겠습니다",
+    "함께 살펴보겠습니다",
+    "매우 유용한 정보가 될 것입니다",
+    "이번 포스팅에서는"
+  ],
+  "required_sections": [
+    "도입부",
+    "작품 리스트",
+    "기본 정보",
+    "스포일러 없는 줄거리",
+    "관람 포인트",
+    "작품 간 비교표",
+    "취향별 맞춤 가이드"
+  ],
+  "disallow_fabricated_experience": true,
+  "require_commercial_image_license": true
+}

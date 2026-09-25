@@ -1,0 +1,23 @@
+{
+  "skill_name": "ott-theme-curator",
+  "min_items": 3,
+  "max_items": 5,
+  "min_character_count": 2000,
+  "forbidden_cliches": [
+    "현대 사회에서",
+    "알아보겠습니다",
+    "살펴보겠습니다",
+    "중요한 역할을 합니다",
+    "꼭 봐야 할 인생작"
+  ],
+  "required_sections": [
+    "테마 소개",
+    "추천 작품 리스트",
+    "작품별 기본 정보",
+    "작품별 감상 포인트",
+    "분위기 비교표",
+    "취향별 선택 가이드"
+  ],
+  "verify_domestic_ott": true,
+  "require_commercial_image_license": true
+}

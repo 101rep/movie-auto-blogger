@@ -7,6 +7,22 @@
 
 ## 2. 해결된 주요 이슈 및 RCA 아카이브
 
+### [RCA-014] 영화·OTT 스킬 디렉터리 하이픈(-) 임포트 제약 및 품질 게이트 단위 정합성
+- **발생 일시:** 2026-09-25
+- **현상:**
+  1. movie-content-skills/ 디렉터리 경로를 Python에서 import movie-content-skills로 직접 임포트 시 SyntaxError 발생.
+  2. 신규 생성된 OTT 테마 큐레이션 글이 Quality Gate 평가 시 수치 단위 미흡으로 85점에 머무르는 현상 발생.
+- **근본 원인 (Root Cause):**
+  1. Python 식별자 문법 규칙상 하이픈(-)은 뺄셈 연산자로 처리되므로 디렉터리명에 하이픈이 있을 경우 일반 import 문법 사용 불가.
+  2. ContentQualityGate의 E-E-A-T 검증 알고리즘은 단순 숫자(예: 8.8)가 아닌 구체적인 공인 단위(점, 분, 년, 원, %) 및 공인 출처 키워드(공식, 기준)가 본문 및 요약표에 명시되어야 만점 부여.
+- **조치 내역 (Fix):**
+  1. Windows 디렉터리 정션(movie_content_skills -> movie-content-skills) 및 패키지 구조를 구성하여 원본 디렉터리 구조(movie-content-skills/)를 100% 보존하면서도 Python import를 완벽 지원.
+  2. MovieSkillsEngine의 모든 스킬 생성 파이프라인(특히 테마 큐레이션 및 스트리밍 가이드)에 공인 단위(점, 분, 년, 원) 및 공인 출처 메타데이터를 필수 주입하여 Quality Gate 점수를 90~100점으로 상향 안정화.
+- **재발 방지 대책 (Future Prevention):**
+  - 신규 스킬/모듈 설계 시 하이픈 네이밍 요구사항이 있을 경우 디렉터리 링크 또는 언더스코어 패키지 브릿지를 의무 구성하고, 생성기 템플릿에 E-E-A-T 공인 단위 사전 탑재.
+
+---
+
 ### [RCA-001] 아이템픽24 썸네일 불일치 및 백그라운드 자동예약 중복 이슈
 - **발생 일시:** 2026-09-23
 - **현상:** WordPress `https://item.travelpick24.com`에 이미지 없는 글이나 서로 다른 제품의 썸네일이 매핑된 글이 발행되고, 과거 백그라운드 큐 워커가 불필요한 자동 예약을 지속 생성함.
@@ -224,6 +240,15 @@
   - 테마 업데이트나 워드프레스 코어 변경에도 번역이 유실되지 않도록 mu-plugins 시스템 레벨 필터로 고정하여 영구 보존.
 
 ### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 06:30:51 KST
+- **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
+- **원인 (Root Cause):** Application Password capability restriction on non-admin user
+- **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings
+- **변경 파일 (Changed Files):** core/reliability/queue_manager.py
+- **테스트 결과 (Test Results):** PASS
+
+---
+
+### [Issue Log: WordPress REST API 403 Forbidden on Page Update] - 2026-09-25 10:00:37 KST
 - **문제 (Problem):** WordPress REST API 403 Forbidden on Page Update
 - **원인 (Root Cause):** Application Password capability restriction on non-admin user
 - **해결책 (Solution):** Elevated user role to Administrator in WordPress Users settings

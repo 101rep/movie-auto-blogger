@@ -1,0 +1,24 @@
+{
+  "skill_name": "ott-movie-review",
+  "min_character_count": 2200,
+  "forbidden_cliches": [
+    "현대 사회에서",
+    "알아보겠습니다",
+    "살펴보겠습니다",
+    "중요한 역할을 합니다",
+    "제가 직접 감상해보니",
+    "한 번쯤 꼭 보시길 추천합니다"
+  ],
+  "required_sections": [
+    "작품 기본 정보",
+    "스포일러 없는 줄거리",
+    "주요 등장인물",
+    "연출 특징",
+    "관람 포인트",
+    "유사 작품과의 차이점",
+    "국내 OTT 시청 가능 여부",
+    "총평"
+  ],
+  "disallow_fabricated_experience": true,
+  "require_commercial_image_license": true
+}

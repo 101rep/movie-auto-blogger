@@ -1,0 +1,59 @@
+<!-- EnterPick24 OTT Movie Review Template -->
+<div class="mab-article-container notranslate" translate="no" lang="ko" style="font-family: 'Pretendard', sans-serif; color: #f8fafc; background: #0b0f19; line-height: 1.95; max-width: 860px; margin: 0 auto; padding: 24px; border-radius: 18px; border: 1px solid #1e293b;">
+  <!-- Hero Header -->
+  <div style="position: relative; border-radius: 14px; overflow: hidden; background: linear-gradient(180deg, rgba(11,15,25,0.15) 0%, rgba(11,15,25,0.85) 65%, #0b0f19 100%), url('{{BACKDROP_URL}}') center/cover; padding: 70px 28px 28px 28px; min-height: 320px; display: flex; flex-direction: column; justify-content: flex-end;">
+    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+      <span style="background: {{PLATFORM_COLOR}}; color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px;">{{PLATFORM_BADGE}}</span>
+      <span style="background: rgba(59, 130, 246, 0.9); color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px;">심층 비평</span>
+      <span style="background: rgba(16, 185, 129, 0.9); color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px;">4K HDR</span>
+    </div>
+    {{LOGO_TAG}}
+    <h1 style="font-size: 26px; font-weight: 800; color: #ffffff; margin: 0 0 10px 0;">{{TITLE}}</h1>
+    <p style="font-size: 14px; color: #cbd5e1; margin: 0;">{{HOOK_LEAD}}</p>
+  </div>
+
+  <!-- Spec Sheet -->
+  <div style="margin-top: 24px; background: rgba(30, 41, 59, 0.65); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; text-align: center;">
+    <div><span style="font-size: 11px; color: #94a3b8;">스트리밍 플랫폼</span><div style="font-size: 14px; font-weight: 800; color: #38bdf8; margin-top: 4px;">{{PLATFORM}}</div></div>
+    <div><span style="font-size: 11px; color: #94a3b8;">공인 평점</span><div style="font-size: 14px; font-weight: 800; color: #fbbf24; margin-top: 4px;">★ {{RATING}} / 10</div></div>
+    <div><span style="font-size: 11px; color: #94a3b8;">러닝타임 / 회차</span><div style="font-size: 14px; font-weight: 800; color: #f43f5e; margin-top: 4px;">{{RUNTIME}}</div></div>
+    <div><span style="font-size: 11px; color: #94a3b8;">국내 시청 상태</span><div style="font-size: 14px; font-weight: 800; color: #4ade80; margin-top: 4px;">{{STREAMING_STATUS}}</div></div>
+  </div>
+
+  <!-- Core Synopsis -->
+  <div style="margin-top: 36px;">
+    <h2 style="font-size: 20px; font-weight: 800; color: #fff; border-bottom: 2px solid #334155; padding-bottom: 8px;">🎬 스포일러 없는 줄거리</h2>
+    {{SYNOPSIS}}
+  </div>
+
+  <!-- Key Characters & Cast -->
+  <div style="margin-top: 36px;">
+    <h2 style="font-size: 20px; font-weight: 800; color: #fff; border-bottom: 2px solid #334155; padding-bottom: 8px;">🎭 주요 등장인물 및 출연진</h2>
+    {{CAST_SECTION}}
+  </div>
+
+  <!-- Directorial Style & Mise-en-scène -->
+  <div style="margin-top: 36px; padding: 20px; background: rgba(15, 23, 42, 0.6); border-left: 4px solid #38bdf8; border-radius: 8px;">
+    <h2 style="font-size: 18px; font-weight: 700; color: #38bdf8; margin: 0 0 10px 0;">💡 핵심 소재와 연출 특징</h2>
+    {{STYLE_SECTION}}
+  </div>
+
+  <!-- Key Viewing Points -->
+  <div style="margin-top: 36px;">
+    <h2 style="font-size: 20px; font-weight: 800; color: #fff; border-bottom: 2px solid #334155; padding-bottom: 8px;">🔍 놓치면 안 될 관람 포인트</h2>
+    {{POINTS_SECTION}}
+  </div>
+
+  <!-- Differentiation Matrix -->
+  <div style="margin-top: 36px; background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; border-radius: 12px; padding: 20px;">
+    <h2 style="font-size: 18px; font-weight: 700; color: #f1f5f9; margin: 0 0 10px 0;">⚖️ 유사 작품과의 차별화 포인트</h2>
+    {{COMPARISON_SECTION}}
+  </div>
+
+  <!-- Streaming Availability & Verification Date -->
+  <div style="margin-top: 36px; background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(15, 23, 42, 0.8) 100%); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 12px; padding: 20px;">
+    <h3 style="font-size: 16px; font-weight: 800; color: #ffffff; margin: 0 0 8px 0;">📺 국내 시청 안내 및 서비스 정보</h3>
+    <p style="font-size: 13px; color: #cbd5e1; margin: 0 0 10px 0;">{{STREAMING_GUIDE_TEXT}}</p>
+    <div style="font-size: 11px; color: #94a3b8;">* 스트리밍 라이선스 현황 확인 기준일: {{VERIFIED_DATE}}</div>
+  </div>
+</div>

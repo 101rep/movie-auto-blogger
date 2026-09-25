@@ -1,5 +1,23 @@
 # Release Notes (Engineering Changelog)
 
+## [v2.4.1] - 2026-09-25 : EnterPick24 100% Korean Emotional Localization & Astra Footer Persona Upgrade
+### Added
+- **한국 정서 기반 영화·OTT 감각적 서사 로컬라이저 (`korean_localizer.py`):**
+  - TVmaze 영문 원문 줄거리를 한국 시청자 정서에 맞춘 감각적이고 몰입도 높은 한글 스토리텔링으로 전면 교체.
+  - 주요 30+ 시리즈/영화의 E-E-A-T 특화 한국어 줄거리 리포지토리 구축 및 장르 기반 한국어 서사 합성기 탑재.
+- **출연진 및 배역명 100% 한글화:**
+  - 주요 글로벌 및 국내 배우명(`Winona Ryder` -> `위노나 라이더`, `Finn Wolfhard` -> `핀 울프하드`, `Bryan Cranston` -> `브라이언 크랜스턴` 등)과 배역명(`조이스 바이어스 역`, `월터 화이트 역` 등) 완벽 한국어 표기.
+- **장르 및 플랫폼 메타데이터 한국어 표준화:**
+  - `Drama, Thriller, Mystery, Crime, Horror, Science-Fiction` -> `드라마, 스릴러, 미스터리, 범죄, 공포·호러, SF` 완전 변환.
+  - `Netflix, AMC, HBO, Disney+` -> `넷플릭스 (Netflix)`, `AMC (국내 넷플릭스 제공)` 등 공인 국내 OTT 표기 통일.
+- **워드프레스 Astra 테마 푸터 카피라이트 페르소나 업그레이드:**
+  - Cloudways 서버 WP-CLI를 통해 `astra-settings`의 `footer-copyright-editor` 옵션 영구 갱신.
+  - 기존 `제공처: 아스트라 워드프레스 테마`를 `Copyright © 2026 엔터픽24 (EnterPick24). All rights reserved. | 대한민국 No.1 프리미엄 영화 & OTT 에디토리얼 매거진 · 실시간 스트리밍 가이드`로 전격 교체.
+  - `styles.py`에 푸터 전용 다크 에디토리얼 CSS(`#colophon`, `footer.site-footer`, `.site-below-footer-wrap`) 주입.
+  - Cloudways Varnish 및 Breeze 전체 캐시 플러시로 사이트 전역 즉시 반영.
+- **라이브 포스트 5건 전면 재발행 검증:**
+  - Post #29, #31, #33, #35, #42 모두 100% 한글 줄거리, 한글 출연진, 한글 장르, 다크 푸터로 업데이트 완료.
+
 ## [v2.4.0] - 2026-09-25 : EnterPick24 Movie & OTT Content Engine V4 Master (Dark Editorial & 4-Level Duplicate Prevention)
 ### Added
 - **일일 4슬롯 지능형 콘텐츠 플래너 (`DailyContentPlanner`, `content_planner.py`):**
@@ -328,3 +346,23 @@
 - **트렌드스팟24 넷플릭스 다크 시네마 댓글창 & 푸터 정돈 완료**:
   - 사이트 전역 푸터에서 중복 노출되던 TMDB 불릿 텍스트 제거 (포스팅 본문 내 고화질 공식 TMDB 라이선스 카드로 일원화).
   - 눈부신 순백색 댓글창을 넷플릭스 다크 시네마 무드(#111827)로 전면 개편: 넷플릭스 레드 악센트, 다크 옵시디언 입력창, 넷플릭스 레드 '댓글 등록' 버튼, '이전/다음 글' 내비게이션 다크 카드 일체화 완료.
+
+## [v2.5.0] - 2026-09-25 : TravelPick24 1,000-Destination Catalog Expansion & Multi-Year Publishing Engine
+### Added & Enhanced
+- **1,000개 고유 여행지 카탈로그(	ravel_catalog_1000.json) 구축 및 배포**:
+  - 국내 500선 + 해외 500선 등 총 1,000개의 100% 완전 고유 여행지 데이터베이스(1.2MB) 구축.
+  - 국내와 해외를 교차(Interleaving) 배치하여 매일 국내 2건, 해외 2건이 황금 비율로 다채롭게 자동 순환되도록 설계.
+  - 일 4건 포스팅 기준 최소 250일간 완전 무중복, 시즌/테마 변형 시 수년 치 자동 포스팅 보장.
+- **팩트체크 엔진 특수문자 및 유연 퍼지 매칭 적용 (act_check_service.py)**:
+  - &, ,, /, - 등 특수문자 및 띄어쓰기 차이로 인해 발생하던 허위 치명적 충돌(Fatal Conflict False Alarm) 제거.
+  - 토큰 단위 교집합 분석으로 여행지와 일정 일치 여부를 자연스럽고 정확하게 판정.
+- **워드프레스 중복 판정 과잉 매칭 버그 수정 (wordpress.py)**:
+  - 앞 2단어(core_words[:2], 예: '제주 애월') 일치 시 기존 글을 덮어쓰던 버그를 제거하고, 슬러그 또는 완전 일치 정규화 제목(
+orm_req == norm_c)일 때만 중복으로 판정하도록 개편.
+- **트래블픽24 누락 포스트 재발행 및 실시간 라이브 검증 완료**:
+  - **즉시 라이브 발행 (1건)**: [제주 애월·한림 2박 3일 여행 코스: 에메랄드빛 해변 드라이브 가이드] (WordPress ID: 97, https://travelpick24.com/travel-travel-dom-0001-7cdc13/ HTTP 200 정상 서비스 중).
+  - **당일/명일 순차 예약 (3건)**:
+    - 2호: [제주 중문관광단지 2박 3일: 특급 리조트 호캉스와 주상절리 힐링] (WordPress ID: 101, 오늘 17:54 예약)
+    - 3호: [도쿄 3박 4일: 전통의 아사쿠사와 럭셔리 긴자 완전 정복] (WordPress ID: 103, 오늘 21:01 예약)
+    - 4호: [도쿄 신주쿠 시부야 3박 4일: 완벽 여행 코스 및 시부야 스카이 꿀팁] (WordPress ID: 99, 내일 11:49 예약)
+  - Varnish 및 Breeze 캐시 완전 초기화 완료.

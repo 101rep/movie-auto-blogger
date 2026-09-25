@@ -280,6 +280,45 @@ ENTERPICK24_DARK_EDITORIAL_CSS = """
     max-width: 280px !important;
   }
 }
+
+/* ==========================================================================
+   PART 23: ENTERPICK24 SITE FOOTER DARK EDITORIAL STYLING
+   ========================================================================== */
+footer.site-footer,
+#colophon {
+  background-color: #070a12 !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.12) !important;
+}
+
+.site-below-footer-wrap {
+  background-color: #070a12 !important;
+  border-top: 1px solid rgba(148, 163, 184, 0.08) !important;
+  padding: 24px 0 !important;
+}
+
+.ast-footer-copyright {
+  text-align: center !important;
+}
+
+.ast-footer-copyright p {
+  color: #94a3b8 !important;
+  font-size: 13px !important;
+  line-height: 1.8 !important;
+  margin: 0 !important;
+  letter-spacing: -0.01em !important;
+}
+
+.ast-footer-copyright a {
+  color: #60a5fa !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  transition: color 0.2s ease !important;
+}
+
+.ast-footer-copyright a:hover {
+  color: #93c5fd !important;
+  text-decoration: underline !important;
+}
 </style>
 <!-- /wp:html -->
 """

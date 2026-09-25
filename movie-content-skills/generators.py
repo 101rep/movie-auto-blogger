@@ -14,6 +14,23 @@ from movie_content_skills.data_adapter import VerifiedOTTDataAdapter
 from movie_content_skills.poster_manager import PosterManager
 from movie_content_skills.styles import ENTERPICK24_DARK_EDITORIAL_CSS
 
+try:
+    from movie_content_skills.korean_localizer import (
+        localize_genres,
+        localize_platform,
+        localize_actor,
+        localize_character,
+        localize_synopsis,
+    )
+except ImportError:
+    from korean_localizer import (
+        localize_genres,
+        localize_platform,
+        localize_actor,
+        localize_character,
+        localize_synopsis,
+    )
+
 logger = logging.getLogger("movie_skill_generators")
 
 
@@ -56,7 +73,9 @@ class MovieSkillsEngine:
             m_runtime = m.get("runtime") or 115
             m_year = m.get("premiered", "2024")[:4] if m.get("premiered") else "2024년"
             m_rating = m.get("rating", 8.0)
-            m_platform = m.get("platform", "넷플릭스")
+            m_platform = localize_platform(m.get("platform", "넷플릭스"))
+            m_genres = localize_genres(m.get("genres", [theme_keyword]))
+            m_summary = localize_synopsis(title, m.get("summary", ""), m_genres)
 
             # 1. Poster Asset & HTML (PART 7 & PART 9)
             poster_asset = self.poster_manager.create_or_get_poster(
@@ -83,7 +102,7 @@ class MovieSkillsEngine:
     <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--ep-border); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: var(--ep-text-muted); display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px;">
       <span>📅 <strong>개봉:</strong> {m_year}년</span>
       <span>⏱️ <strong>러닝타임:</strong> {m_runtime}분</span>
-      <span>🎬 <strong>장르:</strong> {', '.join(m.get('genres', [theme_keyword]))}</span>
+      <span>🎬 <strong>장르:</strong> {', '.join(m_genres)}</span>
       <span>📺 <strong>플랫폼:</strong> {m_platform}</span>
     </div>
 
@@ -91,7 +110,7 @@ class MovieSkillsEngine:
     <div style="margin-bottom: 14px;">
       <h4 style="font-size: 15px; font-weight: 700; color: #93c5fd; margin: 0 0 6px 0;">📖 어떤 이야기인가요?</h4>
       <p style="margin: 0; font-size: 14px; color: #cbd5e1; line-height: 1.85;">
-        {m['summary'][:320]}... 초반부터 형성되는 밀도 높은 긴장감이 사건의 실체에 다가갈수록 증폭되는 웰메이드 작품입니다.
+        {m_summary}
       </p>
     </div>
 
@@ -249,9 +268,11 @@ class MovieSkillsEngine:
         title = info["title"]
         orig_title = info.get("original_title", "")
         orig_display = f" ({orig_title})" if orig_title and orig_title != title else ""
-        platform = info["platform"]
+        platform = localize_platform(info.get("platform", "넷플릭스"))
         rating = info["rating"]
         runtime = info.get("runtime", 60)
+        genres = localize_genres(info.get("genres", ["드라마"]))
+        summary = localize_synopsis(title, info.get("summary", ""), genres)
         post_title = f"{platform} 화제작 '{title}'{orig_display} 심층 비평: 줄거리·출연진·핵심 연출과 국내 시청 가이드"
 
         # Poster asset
@@ -265,13 +286,15 @@ class MovieSkillsEngine:
         )
         poster_html = self.poster_manager.render_poster_html(poster_asset)
 
-        # Cast blocks
+        # Cast blocks with 100% Korean localization
         cast_html = "<div style='display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 12px;'>"
         for c in info.get("cast", [])[:4]:
+            actor_name = localize_actor(c.get('person_name', ''))
+            char_name = localize_character(c.get('character_name', ''))
             cast_html += f"""
       <div style="background: var(--ep-surface-secondary); border: 1px solid var(--ep-border); border-radius: 8px; padding: 10px; text-align: center;">
-        <div style="font-size: 13px; font-weight: 700; color: #fff;">{c.get('person_name')}</div>
-        <div style="font-size: 12px; color: var(--ep-text-muted);">{c.get('character_name')} 역</div>
+        <div style="font-size: 13px; font-weight: 700; color: #fff;">{actor_name}</div>
+        <div style="font-size: 12px; color: var(--ep-text-muted);">{char_name} 역</div>
       </div>"""
         cast_html += "</div>"
 
@@ -300,16 +323,16 @@ class MovieSkillsEngine:
 
     <!-- Spec Sheet -->
     <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--ep-border); border-radius: 10px; padding: 14px 18px; margin-bottom: 18px; font-size: 13px; color: var(--ep-text-muted); display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
-      <div>🎬 <strong>장르:</strong> {', '.join(info.get('genres', ['드라마']))}</div>
+      <div>🎬 <strong>장르:</strong> {', '.join(genres)}</div>
       <div>⏱️ <strong>러닝타임:</strong> 회당 약 {runtime}분</div>
-      <div>⭐ <strong>IMDb/TVmaze:</strong> {rating}점 (공식 집계)</div>
-      <div>📺 <strong>스트리밍:</strong> {platform} 전편 독점 제공</div>
+      <div>⭐ <strong>공식 평점:</strong> {rating}점 (10점 만점)</div>
+      <div>📺 <strong>스트리밍:</strong> {platform} 전편 제공</div>
     </div>
 
     <!-- Synopsis -->
     <h3 style="font-size: 16px; font-weight: 700; color: #93c5fd; margin: 18px 0 8px 0;">📖 스포일러 없는 줄거리 및 서사적 배경</h3>
     <p style="font-size: 14px; color: #cbd5e1; line-height: 1.85; margin: 0 0 16px 0;">
-      {info['summary']} 정교하게 짜인 세계관과 예측을 뒤엎는 전개가 시청자를 단숨에 몰입시킵니다.
+      {summary}
     </p>
 
     <!-- Cast -->
@@ -361,7 +384,9 @@ class MovieSkillsEngine:
             m_rating = m.get("rating", 8.2)
             m_runtime = m.get("runtime", 55)
             m_year = m.get("premiered", "2024")[:4] if m.get("premiered") else "2024년"
-            m_platform = m.get("platform", "넷플릭스")
+            m_platform = localize_platform(m.get("platform", "넷플릭스"))
+            m_genres = localize_genres(m.get("genres", ["범죄", "스릴러"]))
+            m_summary = localize_synopsis(title, m.get("summary", ""), m_genres)
 
             poster_asset = self.poster_manager.create_or_get_poster(
                 movie_id=f"cur_{idx}",
@@ -390,7 +415,7 @@ class MovieSkillsEngine:
     </div>
 
     <p style="font-size: 14px; color: #cbd5e1; line-height: 1.85; margin: 0 0 12px 0;">
-      {m['summary'][:300]}... 치밀한 수사 기법과 범죄자의 심리를 파고드는 프로파일링이 압권입니다.
+      {m_summary}
     </p>
 
     <div style="font-size: 13px; color: #94a3b8;">

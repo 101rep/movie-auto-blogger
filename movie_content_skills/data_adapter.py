@@ -13,39 +13,24 @@ from core.ott_engine.fanart_client import FanartClient
 
 logger = logging.getLogger("movie_data_adapter")
 
-# Korean Localization Dictionary for Major Global Titles
-KOREAN_TITLE_MAP = {
-    "Stranger Things": "기묘한 이야기",
-    "Mindhunter": "마인드헌터",
-    "Ozark": "오자크",
-    "Dark": "다크",
-    "Narcos": "나르코스",
-    "Squid Game": "오징어 게임",
-    "The Glory": "더 글로리",
-    "Kingdom": "킹덤",
-    "All of Us Are Dead": "지금 우리 학교는",
-    "Gyeongseong Creature": "경성크리처",
-    "Breaking Bad": "브레이킹 배드",
-    "Better Call Saul": "베터 콜 사울",
-    "Peaky Blinders": "피키 블라인더스",
-    "Fargo": "파고",
-    "The Wire": "더 와이어",
-    "Wednesday": "웬즈데이",
-    "Avatar: The Last Airbender": "아바타: 아앙의 전설",
-    "Lost in Space": "로스트 인 스페이스",
-    "One Piece": "원피스",
-    "Sweet Tooth": "스위트 투스",
-    "3 Body Problem": "삼체",
-    "Severance": "세브란스 (단절)",
-    "Manifest": "매니페스트",
-    "1899": "1899",
-    "Archive 81": "아카이브 81",
-    "Parasite": "기생충",
-    "Oldboy": "올드보이",
-    "Memories of Murder": "살인의 추억",
-    "Decision to Leave": "헤어질 결심",
-    "The Man from Nowhere": "아저씨",
-}
+try:
+    from movie_content_skills.korean_localizer import (
+        KOREAN_TITLE_MAP,
+        localize_genres,
+        localize_platform,
+        localize_actor,
+        localize_character,
+        localize_synopsis,
+    )
+except ImportError:
+    from korean_localizer import (
+        KOREAN_TITLE_MAP,
+        localize_genres,
+        localize_platform,
+        localize_actor,
+        localize_character,
+        localize_synopsis,
+    )
 
 
 class MovieDataCollectorBase(ABC):
@@ -88,7 +73,7 @@ class VerifiedOTTDataAdapter(MovieDataCollectorBase):
                 "rating": 8.5,
                 "runtime": 120,
                 "premiered": "2020-01-01",
-                "summary": f"{korean_name}은 예측 불허의 전개와 압도적인 서스펜스로 관객과 평단을 사로잡은 수작입니다.",
+                "summary": localize_synopsis(korean_name, "", ["스릴러", "드라마"]),
                 "cast": [{"person_name": "주연 배우진", "character_name": "핵심 인물"}],
                 "episodes": [],
                 "backdrop_url": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1200&auto=format&fit=crop&q=80",
@@ -113,16 +98,33 @@ class VerifiedOTTDataAdapter(MovieDataCollectorBase):
         orig_name = show.get("name", query)
         korean_name = KOREAN_TITLE_MAP.get(orig_name, KOREAN_TITLE_MAP.get(query, orig_name))
 
+        # 100% Korean Localization
+        raw_genres = show.get("genres", [])
+        korean_genres = localize_genres(raw_genres)
+        raw_platform = show.get("platform", "Netflix")
+        korean_platform = localize_platform(raw_platform)
+        korean_summary = localize_synopsis(korean_name, show.get("summary", ""), korean_genres)
+
+        korean_cast = []
+        for c in show.get("cast", []):
+            korean_cast.append({
+                "person_name": localize_actor(c.get("person_name", "")),
+                "original_person_name": c.get("person_name", ""),
+                "character_name": localize_character(c.get("character_name", "")),
+                "original_character_name": c.get("character_name", ""),
+                "person_image": c.get("person_image")
+            })
+
         return {
             "title": korean_name,
             "original_title": orig_name,
-            "platform": show.get("platform", "Netflix"),
-            "genres": show.get("genres", []),
+            "platform": korean_platform,
+            "genres": korean_genres,
             "rating": show.get("rating", 8.0),
             "runtime": show.get("runtime", 60),
             "premiered": show.get("premiered", ""),
-            "summary": show.get("summary", ""),
-            "cast": show.get("cast", []),
+            "summary": korean_summary,
+            "cast": korean_cast,
             "episodes": show.get("episodes", []),
             "backdrop_url": backdrop,
             "poster_url": poster,

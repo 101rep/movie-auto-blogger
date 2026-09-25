@@ -282,10 +282,10 @@ class WordPressPublisher(BasePublisher):
                             c_title = html.unescape(c.get("title", {}).get("rendered", "")).strip()
                             norm_req = "".join(clean_req_title.split()).lower()
                             norm_c = "".join(c_title.split()).lower()
-                            if norm_req == norm_c or (core_words and all(w.lower() in norm_c for w in core_words[:2])):
+                            if norm_req == norm_c:
                                 existing_post_id = c.get("id")
                                 logger.warning(
-                                    "Detected duplicate WordPress post by title '%s' matches existing ID %d ('%s'). Updating existing post to prevent duplicate publication!",
+                                    "Detected duplicate WordPress post by exact title '%s' matches existing ID %d ('%s'). Updating existing post to prevent duplicate publication!",
                                     clean_req_title, existing_post_id, c_title
                                 )
                                 break

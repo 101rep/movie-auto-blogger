@@ -103,9 +103,14 @@ async def run_travel_automation_pipeline(db: Session, force: bool = False) -> Au
 
         publishing_service = PublishingService()
         selected_candidates = []
+        seen_destinations_in_batch = set()
 
-        # Filter out already published/scheduled destinations
+        # Filter out already published/scheduled destinations and enforce batch diversity
         for cand in candidates:
+            cand_dest = (cand.raw_data or {}).get("destination", cand.title)
+            if cand_dest in seen_destinations_in_batch:
+                continue
+
             already_done = db.query(Post).filter(
                 Post.vertical == "TRAVEL",
                 Post.external_id == cand.external_id,
@@ -113,12 +118,20 @@ async def run_travel_automation_pipeline(db: Session, force: bool = False) -> Au
             ).first()
             if not already_done:
                 selected_candidates.append(cand)
+                seen_destinations_in_batch.add(cand_dest)
+
             if len(selected_candidates) >= post_target_count:
                 break
 
-        # Fallback if catalog fully exhausted: allow all candidates
+        # Fallback if catalog fully exhausted: allow distinct candidates
         if not selected_candidates:
-            selected_candidates = candidates[:post_target_count]
+            for cand in candidates:
+                cand_dest = (cand.raw_data or {}).get("destination", cand.title)
+                if cand_dest not in seen_destinations_in_batch:
+                    selected_candidates.append(cand)
+                    seen_destinations_in_batch.add(cand_dest)
+                if len(selected_candidates) >= post_target_count:
+                    break
 
         run.eligible_count = len(selected_candidates)
 
@@ -180,21 +193,33 @@ async def run_travel_automation_pipeline(db: Session, force: bool = False) -> Au
                 db.refresh(post)
                 run.generated_count += 1
 
-                # Schedule on WordPress only if quality PASS
+                # Schedule or publish on WordPress only if quality PASS
                 if quality_status == QualityStatusEnum.PASS:
+                    # In force mode (re-publishing / catch-up), publish the first post immediately and schedule the rest
+                    is_immediate = force and (idx == 0)
+                    target_pub_status = PostStatus.PUBLISH if is_immediate else PostStatus.FUTURE
+                    scheduled_dt = None if is_immediate else target_time
+
                     pub_res = await publishing_service.publish_article(
                         db,
                         post,
-                        target_status=PostStatus.FUTURE,
-                        scheduled_time=target_time
+                        target_status=target_pub_status,
+                        scheduled_time=scheduled_dt
                     )
 
                     if pub_res.success:
-                        run.scheduled_count += 1
-                        log_event("publisher", "POST_SCHEDULED", f"[{cand.external_id}] '{title}' 워드프레스 예약 발행 성공 (원격 ID: {pub_res.remote_post_id}, 예약시각: {target_time})", entity_type="post", entity_id=post.id)
+                        if is_immediate:
+                            run.published_count = (run.published_count or 0) + 1
+                            post.status = PostStatusEnum.PUBLISHED.value
+                            post.published_at = utc_now()
+                            db.commit()
+                            log_event("publisher", "POST_PUBLISHED", f"[{cand.external_id}] '{title}' 워드프레스 즉시 발행 성공 (원격 ID: {pub_res.remote_post_id})", entity_type="post", entity_id=post.id)
+                        else:
+                            run.scheduled_count += 1
+                            log_event("publisher", "POST_SCHEDULED", f"[{cand.external_id}] '{title}' 워드프레스 예약 발행 성공 (원격 ID: {pub_res.remote_post_id}, 예약시각: {target_time})", entity_type="post", entity_id=post.id)
                     else:
                         run.failed_count += 1
-                        log_event("publisher", "POST_SCHEDULE_FAILED", f"[{cand.external_id}] '{title}' 예약 실패: {pub_res.error_message}", severity="error", entity_type="post", entity_id=post.id)
+                        log_event("publisher", "POST_SCHEDULE_FAILED", f"[{cand.external_id}] '{title}' 발행/예약 실패: {pub_res.error_message}", severity="error", entity_type="post", entity_id=post.id)
                 else:
                     log_event("quality", "POST_HELD_FOR_REVIEW", f"[{cand.external_id}] '{title}' 품질 게이트 미달로 자동 예약 보류 (상태: {quality_status.value}, 사유: {', '.join(quality_issues)})", severity="warning", entity_type="post", entity_id=post.id)
 

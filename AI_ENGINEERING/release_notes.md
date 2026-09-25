@@ -1,5 +1,30 @@
 # Release Notes (Engineering Changelog)
 
+## [v2.4.2] - 2026-09-25 : EnterPick24 Daily 3-Slot Schedule, Exact Timestamp Sync, & Luxury Editorial About Page
+### Added
+- **엔터픽24 일일 3슬롯 정시 편성 체제 전환 (`content_planner.py`):**
+  - 사용자 지시에 따라 `ott-streaming-guide` 스킬을 일일 정규 편성에서 완전 제외(Retired).
+  - 하루 3회 고정 슬롯으로 정밀 재편성:
+    - **Slot 1 (09:00 KST)**: 오늘의 추천 컬렉션 (`movie-top5-writer`, 추천·큐레이션 ID: 36)
+    - **Slot 2 (14:00 KST)**: 화제작 심층 비평 (`ott-movie-review`, OTT ID: 34)
+    - **Slot 3 (20:00 KST)**: 테마 몰아보기 큐레이션 (`ott-theme-curator`, 추천·큐레이션 ID: 36)
+  - `core/reliability/daily_limit_engine.py`의 엔터픽24(Site ID 4) 일일 발행 한도를 3개로 엄격 동기화.
+- **예약 시간-발행 시간 1초 단위 절대 일치 동기화 (`enterpick_adapter.py`):**
+  - WordPress REST API의 시간대 왜곡 방지를 위해 `date`(KST ISO: `YYYY-MM-DDTHH:MM:SS`)와 `date_gmt`(UTC ISO: -9시간)를 파이프라인에서 정밀 계산하여 동시 전송.
+  - Cloudways 서버 Crontab 전수 점검 완료: `/home/master/run_wp_cron_all.sh`가 2분 간격으로 `thdvnrcwkr`(엔터픽24)의 `wp-cron.php`를 자동 실행하여 예약 시각 도달 즉시 오차 없이 발행되도록 보장.
+  - 예약 시각이 이미 지난 당일 슬롯은 익일(Tomorrow) 동일 정시 슬롯으로 자동 안전 롤오버.
+- **프리미엄 다크 네이비 에디토리얼 소개(About) 페이지 론칭 (`about_page_template.html` & Page ID 15):**
+  - 기존 핑크색 기본 템플릿(Page ID 15, `https://enter.trendspot24.com/sample-page/`) 전면 리뉴얼.
+  - 상단 내비게이션 '소개' 메뉴와 직결된 프리미엄 다크 네이비 에디토리얼 UI 구축:
+    - 히어로 섹션 (80,000+ 글로벌 메타데이터, 100% 무스포일러 큐레이션 통계)
+    - 3대 핵심 가치 (무스포일러 큐레이션, 실시간 합법 스트리밍 매핑, 고해상도 시각 예술)
+    - Google E-E-A-T 4대 에디토리얼 기준 (Experience, Expertise, Authoritativeness, Trustworthiness)
+    - 일일 3회 정시 편성표 (09:00, 14:00, 20:00 KST)
+    - 공인 데이터 파트너십 (TVmaze, Fanart.tv, IMDb 등) & 에디터 데스크 문의처
+  - Cloudways Breeze 및 Object Cache 플러시로 전 세계 방문자에게 즉각 서빙.
+- **포스트 #42 404 접근 불가 오류 즉각 해소:**
+  - 사용자 화면 캡처에서 확인된 포스트 42번의 상태를 `draft`에서 `publish`로 전환하여 404 Not Found 제거 및 200 OK 공개 완료.
+
 ## [v2.4.1] - 2026-09-25 : EnterPick24 100% Korean Emotional Localization & Astra Footer Persona Upgrade
 ### Added
 - **한국 정서 기반 영화·OTT 감각적 서사 로컬라이저 (`korean_localizer.py`):**

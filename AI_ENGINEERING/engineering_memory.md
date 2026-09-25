@@ -195,3 +195,16 @@ orm_req == norm_c)일 때만 중복 업데이트로 처리한다. 이를 통해 
   2. **Astra 테마 푸터 카피라이트 페르소나 일체화**:
      - Cloudways 서버 WP-CLI를 통해 `astra-settings`의 `footer-copyright-editor` 옵션을 영구 업데이트하여 `제공처: 아스트라 워드프레스 테마` 문구를 제거하고 `Copyright © [current_year] [site_title]. All rights reserved. | 대한민국 No.1 프리미엄 영화 & OTT 에디토리얼 매거진 · 실시간 스트리밍 가이드`로 영구 고정한다.
      - `styles.py`에 푸터 영역(`#colophon`, `.site-below-footer-wrap`) 다크 에디토리얼 CSS를 주입하고, Varnish 및 Breeze 캐시를 플러시하여 사이트 전역에 즉시 일체화한다.
+
+### ADR-018: EnterPick24 일일 3슬롯 정시 편성, 예약-발행 시각 1초 동기화, 및 다크 에디토리얼 소개 페이지 아키텍처
+- **결정:**
+  1. **일일 3슬롯 정시 편성 체제 전환 (`content_planner.py`)**:
+     - `ott-streaming-guide` 스킬을 일일 정규 예약 편성에서 제외(Retired)하고 일일 3회 정시 편성(09:00 오늘의 추천 컬렉션, 14:00 화제작 심층 비평, 20:00 테마 큐레이션)으로 고정한다.
+     - `core/reliability/daily_limit_engine.py`의 엔터픽24(Site ID 4) 일일 발행 한도를 엄격 3개로 설정한다.
+  2. **예약 시각과 발행 시각의 절대 일치 (Timestamp Synchronization)**:
+     - WordPress REST API 호출 시 `date`(KST ISO: `YYYY-MM-DDTHH:MM:SS`)와 `date_gmt`(UTC ISO)를 동시에 정밀 산출하여 주입함으로써 타임존 불일치 및 9시간 시차 왜곡을 원천 차단한다.
+     - Cloudways 서버 Crontab(`/home/master/run_wp_cron_all.sh`)의 2분 주기 `wp-cron.php` 실행을 확인 및 보장하여, 예약 시각 도달 즉시 정확하게 공개 전환되도록 관리한다.
+     - 당일 경과 시각은 익일 동일 정시 슬롯으로 자동 롤오버하여 `rest_invalid_param`(과거 일시 예약 불가) 에러를 방지한다.
+  3. **프리미엄 다크 네이비 에디토리얼 소개(About) 페이지 (Page ID 15)**:
+     - 상단 헤더 내비게이션 '소개' 링크(Page ID 15)를 `about_page_template.html` 기반의 다크 럭셔리 에디토리얼 디자인으로 완전 개편하여 브랜드 신뢰도와 E-E-A-T 권위성을 극대화한다.
+

@@ -18,18 +18,18 @@ from movie_content_skills.audit_service import ExistingPostAuditor
 def test_01_content_planner():
     planner = DailyContentPlanner()
     plans = planner.create_daily_plan("2026-09-25")
-    assert len(plans) == 4
+    assert len(plans) == 3
 
     intents = [p["search_intent"] for p in plans]
-    assert len(set(intents)) == 4, "4 slots must have unique search intents"
+    assert len(set(intents)) == 3, "3 slots must have unique search intents"
 
     entities = [p["primary_entity"] for p in plans]
-    assert len(set(entities)) == 4, "No duplicate primary entities on the same day"
+    assert len(set(entities)) == 3, "No duplicate primary entities on the same day"
 
     report = planner.format_plan_report(plans)
     assert "EnterPick24 오늘의 편성 계획" in report
-    assert "08:00" in report
-    assert "21:30" in report
+    assert "09:00" in report
+    assert "20:00" in report
 
 
 def test_02_fingerprint_and_normalization():
@@ -202,3 +202,48 @@ def test_07_existing_post_audit_logic():
     report = auditor.format_audit_report(audit_res)
     assert "EnterPick24 기존 게시물 중복 감사 리포트" in report
     assert "CANONICAL_CANDIDATE" in report or "KEEP" in report
+
+
+def test_08_timestamp_synchronization():
+    from zoneinfo import ZoneInfo
+    from datetime import datetime, timezone
+    from unittest.mock import patch, MagicMock
+    from movie_content_skills.enterpick_adapter import EnterPickContentPipeline
+
+    pipeline = EnterPickContentPipeline()
+    with patch("requests.post") as mock_post:
+        mock_resp = MagicMock()
+        mock_resp.status_code = 201
+        mock_resp.json.return_value = {
+            "id": 999,
+            "link": "https://enter.trendspot24.com/?p=999",
+            "status": "future",
+            "date": "2026-09-26T14:00:00",
+            "date_gmt": "2026-09-26T05:00:00"
+        }
+        mock_post.return_value = mock_resp
+
+        res = pipeline.publish_to_wordpress(
+            title="테스트 예약 포스트",
+            content="<p>내용</p>",
+            status="future",
+            scheduled_time_kst="2026-09-26 14:00:00"
+        )
+
+        assert res["success"] is True
+        assert res["status"] == "future"
+        assert res["scheduled_date_kst"] == "2026-09-26T14:00:00"
+        assert res["scheduled_date_gmt"] == "2026-09-26T05:00:00"
+
+        # Verify exact payload sent to WordPress REST API
+        called_args, called_kwargs = mock_post.call_args
+        payload = called_kwargs.get("json", {})
+        assert payload["date"] == "2026-09-26T14:00:00"
+        assert payload["date_gmt"] == "2026-09-26T05:00:00"
+        assert payload["status"] == "future"
+
+
+def test_09_daily_limit_cap():
+    from core.reliability.daily_limit_engine import DEFAULT_DAILY_LIMITS
+    assert DEFAULT_DAILY_LIMITS[4] == 3, "EnterPick24 (Site ID 4) daily limit must be strictly 3"
+

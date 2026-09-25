@@ -3,7 +3,7 @@
 EnterPick24 Dedicated Scheduler & WordPress Pipeline Adapter (V4 Master).
 Strictly isolated to EnterPick24 (Site ID 4 / enter.trendspot24.com).
 Enforces:
-1. Daily Content Planner (4 distinct slots)
+1. Daily Content Planner (3 distinct slots: 09:00, 14:00, 20:00 KST)
 2. Content Fingerprint & 4-Level Duplicate Detection (Risk Score 0-100)
 3. 100-Point Quality Gate Evaluation
 4. Category Mapping (No Uncategorized)
@@ -152,9 +152,10 @@ class EnterPickContentPipeline:
         featured_image_url: Optional[str] = None,
         categories: Optional[List[int]] = None,
         excerpt: str = "",
-        status: str = "draft"
+        status: str = "draft",
+        scheduled_time_kst: Optional[str] = None
     ) -> Dict[str, Any]:
-        """Publishes post to WordPress with media attachment and categories."""
+        """Publishes post to WordPress with media attachment, categories, and exact timestamp sync."""
         attachment_id = None
         if featured_image_url:
             attachment_id = self.upload_media_if_needed(featured_image_url, alt_text=f"{title} 대표 이미지")
@@ -169,6 +170,30 @@ class EnterPickContentPipeline:
         if attachment_id:
             payload["featured_media"] = attachment_id
 
+        # Precise Timestamp Synchronization for Future Scheduled Posts
+        if status == "future" and scheduled_time_kst:
+            try:
+                clean_time = scheduled_time_kst.replace("T", " ").strip()
+                if len(clean_time) == 16:
+                    clean_time += ":00"
+                
+                kst_zone = ZoneInfo("Asia/Seoul")
+                dt_naive = datetime.strptime(clean_time, "%Y-%m-%d %H:%M:%S")
+                dt_kst = dt_naive.replace(tzinfo=kst_zone)
+
+                # Ensure scheduled time is strictly in the future if status is future
+                now_kst = datetime.now(kst_zone)
+                if dt_kst <= now_kst:
+                    dt_kst = dt_kst + timedelta(days=1)
+                    logger.info(f"Target slot was in past today; scheduled for tomorrow at exact time: {dt_kst}")
+
+                dt_utc = dt_kst.astimezone(timezone.utc)
+                payload["date"] = dt_kst.strftime("%Y-%m-%dT%H:%M:%S")
+                payload["date_gmt"] = dt_utc.strftime("%Y-%m-%dT%H:%M:%S")
+                logger.info(f"Synchronized schedule timestamps: KST={payload['date']}, UTC={payload['date_gmt']}")
+            except Exception as ex:
+                logger.error(f"Error calculating schedule timestamps for '{scheduled_time_kst}': {ex}")
+
         url = f"{self.wp_url}/wp-json/wp/v2/posts"
         try:
             r = requests.post(url, json=payload, auth=self.auth, timeout=25)
@@ -179,6 +204,8 @@ class EnterPickContentPipeline:
                     "post_id": d.get("id"),
                     "link": d.get("link"),
                     "status": d.get("status"),
+                    "scheduled_date_kst": d.get("date"),
+                    "scheduled_date_gmt": d.get("date_gmt"),
                     "confirmed": True if status == "publish" else False
                 }
             else:
@@ -273,25 +300,29 @@ class EnterPickContentPipeline:
                 if "넷플릭스" in title or "넷플릭스" in p["topic"]:
                     assigned_cats.append(EP_CATEGORIES["넷플릭스"])
 
+                slot_time_kst = f"{p['date']} {p['time_kst']}:00"
+
                 pub_res = self.publish_to_wordpress(
                     title=title,
                     content=body,
                     featured_image_url=img_url,
                     categories=assigned_cats,
                     excerpt=dedicated_excerpt,
-                    status=publish_status
+                    status=publish_status,
+                    scheduled_time_kst=slot_time_kst
                 )
 
                 if pub_res.get("success"):
                     self.duplicate_engine.add_to_corpus(fp)
+                    actual_scheduled_kst = pub_res.get("scheduled_date_kst") or slot_time_kst
                     results.append({
                         "slot": slot_num,
                         "skill": p["skill_name"],
                         "title": title,
                         "movie_list": movie_list,
-                        "scheduled_time": f"{p['date']} {p['time_kst']} KST",
+                        "scheduled_time": f"{actual_scheduled_kst} KST",
                         "post_id": pub_res.get("post_id"),
-                        "status": publish_status,
+                        "status": pub_res.get("status", publish_status),
                         "link": pub_res.get("link"),
                         "quality_score": quality_res.total_score,
                         "duplicate_risk": dup_verdict.risk_level,

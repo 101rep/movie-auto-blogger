@@ -1,0 +1,496 @@
+<!-- wp:html -->
+<style>
+  .ep-about-wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 20px 16px 80px 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #e2e8f0;
+    line-height: 1.75;
+    background-color: #0b0f19;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+  .ep-hero {
+    background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0b0f19 80%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 60px 32px 50px 32px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+  .ep-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 300px;
+    background: radial-gradient(ellipse, rgba(56, 189, 248, 0.15) 0%, rgba(99, 102, 241, 0.05) 50%, transparent 80%);
+    pointer-events: none;
+  }
+  .ep-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #38bdf8;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    margin-bottom: 24px;
+  }
+  .ep-hero-title {
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.35;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  .ep-hero-title span {
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .ep-hero-desc {
+    font-size: clamp(16px, 1.8vw, 19px);
+    color: #94a3b8;
+    max-width: 760px;
+    margin: 0 auto 32px auto;
+    line-height: 1.8;
+  }
+  .ep-stat-row {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    flex-wrap: wrap;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 28px;
+  }
+  .ep-stat-item {
+    text-align: center;
+  }
+  .ep-stat-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: #38bdf8;
+    margin-bottom: 2px;
+  }
+  .ep-stat-label {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .ep-section-header {
+    text-align: center;
+    margin: 60px 0 36px 0;
+  }
+  .ep-section-tag {
+    color: #38bdf8;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .ep-section-title {
+    font-size: clamp(22px, 2.5vw, 30px);
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .ep-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .ep-card {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 32px 24px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  }
+  .ep-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(56, 189, 248, 0.4);
+  }
+  .ep-card-icon {
+    font-size: 32px;
+    margin-bottom: 18px;
+    display: inline-block;
+  }
+  .ep-card-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+  }
+  .ep-card-body {
+    font-size: 15px;
+    color: #94a3b8;
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .ep-eeat-box {
+    background: linear-gradient(145deg, #131d31 0%, #0d1424 100%);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 20px;
+    padding: 40px 32px;
+    margin-bottom: 48px;
+  }
+  .ep-eeat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    margin-top: 28px;
+  }
+  .ep-eeat-item {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .ep-eeat-letter {
+    font-size: 20px;
+    font-weight: 900;
+    color: #38bdf8;
+    margin-bottom: 6px;
+  }
+  .ep-eeat-item-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+  .ep-eeat-item-desc {
+    font-size: 14px;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .ep-schedule-box {
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 20px;
+    padding: 36px 28px;
+    margin-bottom: 48px;
+  }
+  .ep-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 24px;
+  }
+  .ep-timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-left: 4px solid #38bdf8;
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+  .ep-timeline-time {
+    background: #1e293b;
+    color: #38bdf8;
+    font-size: 14px;
+    font-weight: 800;
+    padding: 6px 14px;
+    border-radius: 8px;
+    white-space: nowrap;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+  }
+  .ep-timeline-content {
+    flex: 1;
+  }
+  .ep-timeline-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 6px;
+  }
+  .ep-timeline-desc {
+    font-size: 14px;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .ep-tech-box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 28px;
+    background: #0f172a;
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    margin-bottom: 48px;
+    text-align: center;
+  }
+  .ep-tech-pill {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 9999px;
+  }
+  .ep-tech-pill strong {
+    color: #38bdf8;
+  }
+
+  .ep-contact-box {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px 32px;
+    text-align: center;
+  }
+  .ep-contact-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 12px;
+  }
+  .ep-contact-desc {
+    font-size: 15px;
+    color: #94a3b8;
+    max-width: 600px;
+    margin: 0 auto 24px auto;
+  }
+  .ep-contact-email {
+    display: inline-block;
+    background: linear-gradient(135deg, #38bdf8 0%, #6366f1 100%);
+    color: #ffffff !important;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none !important;
+    padding: 12px 28px;
+    border-radius: 9999px;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+    transition: opacity 0.2s ease;
+  }
+  .ep-contact-email:hover {
+    opacity: 0.9;
+  }
+  .ep-footer-note {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 24px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .ep-about-wrap {
+      padding: 12px 12px 60px 12px;
+      border-radius: 16px;
+    }
+    .ep-hero {
+      padding: 40px 16px 36px 16px;
+    }
+    .ep-timeline-item {
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+</style>
+
+<div class="ep-about-wrap">
+  <!-- Hero Section -->
+  <div class="ep-hero">
+    <div class="ep-badge">
+      <span>🎬</span> PREMIUM MOVIE & OTT EDITORIAL
+    </div>
+    <h1 class="ep-hero-title">
+      스크린의 전율과 OTT의 모든 이야기,<br>
+      <span>엔터픽24(EnterPick24)</span>에서 완성됩니다
+    </h1>
+    <p class="ep-hero-desc">
+      끝없이 쏟아지는 스트리밍 콘텐츠 속에서 ‘무엇을 볼까?’ 고민하셨나요?<br>
+      엔터픽24는 알고리즘의 무의미한 나열을 넘어, 당신의 소중한 2시간을 보장하는<br>
+      대한민국 No.1 프리미엄 영화 & OTT 에디토리얼 매거진입니다.
+    </p>
+    <div class="ep-stat-row">
+      <div class="ep-stat-item">
+        <div class="ep-stat-num">80,000+</div>
+        <div class="ep-stat-label">글로벌 시리즈 메타데이터 연동</div>
+      </div>
+      <div class="ep-stat-item">
+        <div class="ep-stat-num">100%</div>
+        <div class="ep-stat-label">무스포일러 안심 큐레이션</div>
+      </div>
+      <div class="ep-stat-item">
+        <div class="ep-stat-num">3 Slots</div>
+        <div class="ep-stat-label">정밀 데일리 에디토리얼 편성</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mission & Pillars -->
+  <div class="ep-section-header">
+    <span class="ep-section-tag">OUR CORE VALUE</span>
+    <h2 class="ep-section-title">엔터픽24가 지키는 3가지 원칙</h2>
+  </div>
+
+  <div class="ep-grid-3">
+    <div class="ep-card">
+      <div class="ep-card-icon">🛡️</div>
+      <div class="ep-card-title">1. 무스포일러 보장 큐레이션</div>
+      <p class="ep-card-body">
+        영화와 드라마의 가장 짜릿한 순간을 빼앗지 않습니다. 핵심 줄거리와 인물 갈등 구도는 생생히 전달하되, 결정적 반전과 결말은 철저히 보호하는 엄격한 에디토리얼 가이드라인을 준수합니다.
+      </p>
+    </div>
+
+    <div class="ep-card">
+      <div class="ep-card-icon">⚡</div>
+      <div class="ep-card-title">2. 실시간 합법 스트리밍 매핑</div>
+      <p class="ep-card-body">
+        “이거 어디서 보지?”라는 의문에 가장 명쾌한 해답을 드립니다. 넷플릭스, 디즈니+, 티빙, 웨이브, 쿠팡플레이, 왓챠 등 국내 주요 플랫폼의 공식 스트리밍 제공 여부를 빠르고 정확하게 안내합니다.
+      </p>
+    </div>
+
+    <div class="ep-card">
+      <div class="ep-card-icon">✨</div>
+      <div class="ep-card-title">3. 고해상도 시각 예술 & 다크 UI</div>
+      <p class="ep-card-body">
+        화면을 켜는 순간부터 영화관에 들어선 듯한 몰입감을 전합니다. Fanart.tv 스튜디오급 공식 비주얼 아트워크와 눈의 피로를 최소화하는 프리미엄 다크 에디토리얼 UI로 읽는 즐거움을 더합니다.
+      </p>
+    </div>
+  </div>
+
+  <!-- E-E-A-T Editorial Standards -->
+  <div class="ep-eeat-box">
+    <div style="text-align: center;">
+      <span class="ep-section-tag">EDITORIAL INTEGRITY</span>
+      <h2 class="ep-section-title">Google E-E-A-T 에디토리얼 기준</h2>
+      <p style="color: #94a3b8; font-size: 15px; margin-top: 8px;">
+        엔터픽24의 모든 아티클은 구글의 최고 품질 평가 기준(E-E-A-T)을 충실히 반영하여 제작됩니다.
+      </p>
+    </div>
+
+    <div class="ep-eeat-grid">
+      <div class="ep-eeat-item">
+        <div class="ep-eeat-letter">E</div>
+        <div class="ep-eeat-item-title">Experience (경험)</div>
+        <p class="ep-eeat-item-desc">
+          단순 요약문이 아닌 실제 러닝타임 동안 느껴지는 텐션, 미장센, 사운드트랙의 감정선까지 생생한 시청 경험을 전달합니다.
+        </p>
+      </div>
+
+      <div class="ep-eeat-item">
+        <div class="ep-eeat-letter">E</div>
+        <div class="ep-eeat-item-title">Expertise (전문성)</div>
+        <p class="ep-eeat-item-desc">
+          서사 구조, 캐릭터 아크, 감독의 연출 의도를 다각도로 해부하여 작품을 한층 깊이 있게 즐기는 관전 포인트를 제공합니다.
+        </p>
+      </div>
+
+      <div class="ep-eeat-item">
+        <div class="ep-eeat-letter">A</div>
+        <div class="ep-eeat-item-title">Authoritativeness (권위)</div>
+        <p class="ep-eeat-item-desc">
+          글로벌 영화제 수상 이력, 공식 박스오피스 기록, 평단 지표를 교차 검증하여 객관적 신뢰성을 확보합니다.
+        </p>
+      </div>
+
+      <div class="ep-eeat-item">
+        <div class="ep-eeat-letter">T</div>
+        <div class="ep-eeat-item-title">Trustworthiness (신뢰)</div>
+        <p class="ep-eeat-item-desc">
+          AI 상투어구를 철저히 배제하고, 공식 API 검증을 통과한 팩트만을 다루어 과장이나 왜곡 없는 콘텐츠를 약속합니다.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily 3-Slot Lineup -->
+  <div class="ep-schedule-box">
+    <div style="text-align: center;">
+      <span class="ep-section-tag">DAILY PROGRAMMING</span>
+      <h2 class="ep-section-title">엔터픽24 하루 3회 정시 편성표</h2>
+      <p style="color: #94a3b8; font-size: 15px; margin-top: 8px;">
+        엔터픽24는 매일 엄선된 3가지 테마로 독자 여러분의 콘텐츠 탐색을 함께합니다.
+      </p>
+    </div>
+
+    <div class="ep-timeline">
+      <div class="ep-timeline-item">
+        <div class="ep-timeline-time">09:00 KST</div>
+        <div class="ep-timeline-content">
+          <div class="ep-timeline-title">🎬 오늘의 추천 컬렉션 (Movie TOP 5)</div>
+          <p class="ep-timeline-desc">
+            아침을 깨우는 장르별·키워드별 엄선작 5선. 한눈에 비교하는 평점·러닝타임 표와 맞춤 취향 가이드.
+          </p>
+        </div>
+      </div>
+
+      <div class="ep-timeline-item">
+        <div class="ep-timeline-time">14:00 KST</div>
+        <div class="ep-timeline-content">
+          <div class="ep-timeline-title">🔍 화제작 심층 비평 (Single Title Deep Dive)</div>
+          <p class="ep-timeline-desc">
+            오후의 커피 브레이크와 함께하는 1편 완벽 해부. 연출 디테일, 배우 열연, 숨겨진 복선과 관전 포인트.
+          </p>
+        </div>
+      </div>
+
+      <div class="ep-timeline-item">
+        <div class="ep-timeline-time">20:00 KST</div>
+        <div class="ep-timeline-content">
+          <div class="ep-timeline-title">🍿 테마 큐레이션 (OTT Theme Curator)</div>
+          <p class="ep-timeline-desc">
+            퇴근길과 주말 밤을 책임지는 플랫폼별 몰아보기(Binge-watch) 테마 기획. 몰입감 최고의 정주행 가이드.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verified Data Stack -->
+  <div class="ep-tech-box">
+    <div style="width: 100%; font-size: 14px; font-weight: 700; color: #94a3b8; margin-bottom: 8px;">
+      공식 데이터 파트너십 & 검증 테크놀로지
+    </div>
+    <div class="ep-tech-pill">🌐 <strong>TVmaze API</strong> 실시간 글로벌 스케줄</div>
+    <div class="ep-tech-pill">🎨 <strong>Fanart.tv</strong> 스튜디오급 HD 아트워크</div>
+    <div class="ep-tech-pill">⭐ <strong>IMDb / Rotten Tomatoes</strong> 공인 평점</div>
+    <div class="ep-tech-pill">📡 <strong>공식 OTT 메타데이터</strong> 실시간 연동</div>
+  </div>
+
+  <!-- Contact & Legal -->
+  <div class="ep-contact-box">
+    <h3 class="ep-contact-title">에디토리얼 제휴 & 독자 문의</h3>
+    <p class="ep-contact-desc">
+      엔터픽24는 영화 제작사, 배급사, 스트리밍 플랫폼과의 공식 제휴 및 독자 여러분의 소중한 피드백을 항상 환영합니다.
+    </p>
+    <a href="mailto:editor@trendspot24.com" class="ep-contact-email">
+      ✉️ 에디터 데스크 문의하기 (editor@trendspot24.com)
+    </a>
+    <div class="ep-footer-note">
+      엔터픽24(EnterPick24) 미디어 랩 | 서울특별시 중구 세종대로 매거진 센터<br>
+      저작권 © 2026 엔터픽24 (EnterPick24). All rights reserved. 본 사이트에 수록된 모든 이미지 및 상표의 권리는 원저작권자에게 있습니다.
+    </div>
+  </div>
+</div>
+<!-- /wp:html -->
